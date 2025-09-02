@@ -1,0 +1,30 @@
+{
+  "carpet.category.extras": "扩展",
+
+
+  "carpet.rule.enderPearlRaycastLength.name":"珍珠碰撞检测长度",
+  "carpet.rule.enderPearlRaycastLength.desc":"珍珠碰撞检测(Raycast)长度",
+
+
+  "carpet.rule.enderPearlForcedTickMinSpeed.name":"珍珠加载最小速度",
+  "carpet.rule.enderPearlForcedTickMinSpeed.desc":"当低于这个速度时，珍珠不会强制加载",
+  "carpet.rule.enderPearlForcedTickMinSpeed.extra.0": "设置为负值时，表示禁用珍珠加载，而且相关YCT珍珠功能都会被禁用",
+
+  "carpet.rule.enderPearlSkipUngeneratedRegion.name":"珍珠移动跳过未加载区域",
+  "carpet.rule.enderPearlSkipUngeneratedRegion.desc":"珍珠移动跳过未加载区域(32*32个区块),只会在维度为地狱，且y>128时跳过",
+
+  "carpet.rule.forceEnderPearlLogger.name":"强制加载态珍珠广播",
+  "carpet.rule.forceEnderPearlLogger.desc":"向丢出者发送强加载态珍珠的坐标(容易刷屏)",
+
+  "carpet.rule.highChunkListener.name":"高区块监听器",
+  "carpet.rule.highChunkListener.desc":" 使用额外文件记录最高方块高于128格的区块，用于raycast优化",
+  "carpet.rule.highChunkListener.extra.0" : "为了减少额外开销，默认只有地狱启用（实际上只能一个维度启用",
+  "carpet.rule.highChunkListener.extra.1" : "/",
+
+  "carpet.rule.optimizeRaycastWithHCL.name" : "使用HCL的raycast优化",
+  "carpet.rule.optimizeRaycastWithHCL.desc" : "使用高区块监听器优化投掷物 raycast，在原版行为基本一致的情况下优化raycast",
+  "carpet.rule.optimizeRaycastWithHCL.extra.0" : "启用后，高区块监听器所在维度的raycast才会优化",
+
+  "carpet.rule.tntMergeNext.name":"tnt合并next",
+  "carpet.rule.tntMergeNext.desc":"更为激进的tnt合并方案, 可能会导致预期之外的结果。不能与其他tnt合并一起开。"
+}

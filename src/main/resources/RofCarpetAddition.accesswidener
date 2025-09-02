@@ -1,0 +1,6 @@
+accessWidener   v1  named
+
+accessible class net/minecraft/item/Item
+
+accessible field net/minecraft/item/Item recipeRemainder Lnet/minecraft/item/Item;
+mutable field net/minecraft/item/Item recipeRemainder Lnet/minecraft/item/Item;

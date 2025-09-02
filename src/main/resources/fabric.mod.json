@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "rof-carpet-addition",
+  "version": "1.5.0",
+
+  "name": "ROF-Carpet-addition",
+  "description": "主要添加了一些较为激进的优化特性",
+  "authors": [
+    "Zhddsj"
+  ],
+  "contact": {
+    "sources": "https://github.com/gnembon/fabric-carpet-extension-example-mod"
+  },
+
+  "license": "CC0-1.0",
+  "icon": "assets/RofCarpetAddition/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.carpet.rof.ROFCarpetServer"
+    ]
+  },
+  "mixins": [
+    "RofCarpetAddition.mixins.json"
+  ],
+
+  "depends": {
+    "minecraft": "1.21.5",
+    "fabricloader": ">=0.4.0",
+    "carpet": "*"
+  },
+  "suggests": {
+    "flamingo": "*"
+  },
+  "accessWidener": "RofCarpetAddition.accesswidener"
+}

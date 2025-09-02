@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "package": "com.carpet.rof.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "BlockViewMixin2",
+    "EnderPearlEntityMixin",
+    "HeightmapMixin",
+    "ServerWorldMixin",
+    "TntEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+	}
+}
