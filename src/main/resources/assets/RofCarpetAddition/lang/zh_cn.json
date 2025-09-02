@@ -1,17 +1,14 @@
 {
-  "carpet.category.extras": "扩展",
+  "carpet.category.RofHCL": "HCL",
 
+  "carpet.category.RofROF": "ROF",
 
   "carpet.rule.enderPearlRaycastLength.name":"珍珠碰撞检测长度",
   "carpet.rule.enderPearlRaycastLength.desc":"珍珠碰撞检测(Raycast)长度",
 
-
-  "carpet.rule.enderPearlForcedTickMinSpeed.name":"珍珠加载最小速度",
-  "carpet.rule.enderPearlForcedTickMinSpeed.desc":"当低于这个速度时，珍珠不会强制加载",
-  "carpet.rule.enderPearlForcedTickMinSpeed.extra.0": "设置为负值时，表示禁用珍珠加载，而且相关YCT珍珠功能都会被禁用",
-
-  "carpet.rule.enderPearlSkipUngeneratedRegion.name":"珍珠移动跳过未加载区域",
-  "carpet.rule.enderPearlSkipUngeneratedRegion.desc":"珍珠移动跳过未加载区域(32*32个区块),只会在维度为地狱，且y>128时跳过",
+  "carpet.rule.enderPearlForcedTickMinSpeed.name":"更稳定的高速珍珠自加载限速",
+  "carpet.rule.enderPearlForcedTickMinSpeed.desc":"对速度高于一定值的珍珠使用新的加载逻辑，更加稳定，需要加载的区块更少",
+  "carpet.rule.enderPearlForcedTickMinSpeed.extra.0": "设置为负值时，表示禁用",
 
   "carpet.rule.forceEnderPearlLogger.name":"强制加载态珍珠广播",
   "carpet.rule.forceEnderPearlLogger.desc":"向丢出者发送强加载态珍珠的坐标(容易刷屏)",
@@ -25,6 +22,6 @@
   "carpet.rule.optimizeRaycastWithHCL.desc" : "使用高区块监听器优化投掷物 raycast，在原版行为基本一致的情况下优化raycast",
   "carpet.rule.optimizeRaycastWithHCL.extra.0" : "启用后，高区块监听器所在维度的raycast才会优化",
 
-  "carpet.rule.tntMergeNext.name":"tnt合并next",
-  "carpet.rule.tntMergeNext.desc":"更为激进的tnt合并方案, 可能会导致预期之外的结果。不能与其他tnt合并一起开。"
+  "carpet.rule.mergeTNTNext.name":"合并TNTnext",
+  "carpet.rule.mergeTNTNext.desc":"更为激进的tnt合并方案, 可能会导致预期之外的结果。不能与其他tnt合并一起开。"
 }

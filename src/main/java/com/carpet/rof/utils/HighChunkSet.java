@@ -1,6 +1,7 @@
 package com.carpet.rof.utils;
 
 import com.mojang.brigadier.context.CommandContext;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.server.command.ServerCommandSource;
@@ -13,6 +14,7 @@ import net.minecraft.world.chunk.*;
 import net.minecraft.world.storage.RegionFile;
 import net.minecraft.world.storage.StorageKey;
 
+import javax.swing.text.html.parser.Entity;
 import java.io.*;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -63,7 +65,7 @@ public class HighChunkSet {
 
     public void add(ChunkPos chunkPos) {
        if( highChunkSet.add(chunkPos.toLong())) {
-           System.out.println("Add chunk pos :" + chunkPos.toString());
+           System.out.println("Add chunk pos :" + chunkPos);
            if(chunkCache == chunkPos.toLong()){
               chunkCacheValue = true;
            }
@@ -72,7 +74,7 @@ public class HighChunkSet {
 
     public void remove(ChunkPos chunkPos) {
         if(highChunkSet.remove(chunkPos.toLong())) {
-            System.out.println("Removed chunk pos " + chunkPos.toString());
+            System.out.println("Removed chunk pos " + chunkPos);
             chunkHighestBlockPosMap.remove(chunkPos.toLong());
             if(chunkCache == chunkPos.toLong()){
                 chunkCacheValue = false;
@@ -112,7 +114,7 @@ public class HighChunkSet {
 
 
     public void Save() {
-        Path savaPath = RofTool.getSavePath(world).resolve("data").resolve("highChunkSet.dat");;
+        Path savaPath = RofTool.getSavePath(world).resolve("data").resolve("highChunkSet.dat");
         try {
             if(!savaPath.toFile().exists()) {
                 savaPath.toFile().createNewFile();
@@ -156,12 +158,11 @@ public class HighChunkSet {
                     if(dataInputStream != null) {
                         NbtCompound chunkDate = NbtIo.readCompound(dataInputStream);
                         int finalJ = chunkDate.getInt("xPos").get();
-                        int finalI = chunkDate.getInt("zPos").get();;
+                        int finalI = chunkDate.getInt("zPos").get();
                         chunkDate.getCompound("Heightmaps").flatMap(heightmaps -> heightmaps.getLongArray(Heightmap.Type.MOTION_BLOCKING.getId())).ifPresent(heightmap -> {
                             for (long l : heightmap) {
                                 if (getHighest(l, 9) + world.getBottomY() > topY) {
                                     add(new ChunkPos(finalJ,finalI));
-                                    System.out.println("l : "+l);
                                     break;
                                 }
                             }
@@ -179,8 +180,8 @@ public class HighChunkSet {
     }
 
     public static class ReloadThread extends Thread{
-        HighChunkSet highChunkSet;
-        CommandContext<ServerCommandSource> context;
+        final HighChunkSet highChunkSet;
+        final CommandContext<ServerCommandSource> context;
         public ReloadThread(HighChunkSet highChunkSet, CommandContext<ServerCommandSource> context) {
             this.highChunkSet = highChunkSet;
             this.context = context;
@@ -189,29 +190,43 @@ public class HighChunkSet {
         public void run() {
             ServerPlayerEntity player = context.getSource().getPlayer();
             if(  player  != null) player.sendMessage(Text.of("Loading highChunkSet from region file..."));
-            highChunkSet.reload();
+            highChunkSet.reload(player);
             if(  player  != null)  player.sendMessage(Text.of("Finished loading"));
         }
 
     }
 
-    public boolean reload(){
+    public boolean reload(PlayerEntity player) {
         if(world==null) return false;
         try {
             Path regionsFolder = RofTool.getSavePath(world).resolve("region");
             File folder =  regionsFolder.toFile();
-            if (folder.isDirectory() ) {
-                for(String fileName : folder.list()) {
+            if (folder.isDirectory()) {
+                int finishedCount = 0;
+                String[] folder2 = folder.list(new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String name) {
+                        return name.startsWith("r") && name.endsWith(".mca");
+                    }
+                });
+                if (folder2 == null) {return false;}
+                for(String fileName : folder2) {
                     String[] split = fileName.split("\\.");
                     if(split.length ==4 && split[0].equals("r") && split[3].equals("mca")) {
+                        if(player != null && player.isAlive()){
+                            player.sendMessage(Text.of("Loading " + fileName + ", Finished ["+finishedCount +"/" +folder2.length+"] region"),true);
+
+                        }
+
                         LoadFromRegion(regionsFolder,Integer.parseInt(split[1]),Integer.parseInt(split[2]));
 
+                        finishedCount++;
                     }
                 }
             }
             return true;
         }catch (Exception e){
-            System.out.println(e);
+            System.err.println(e.getMessage());
             return false;
         }
     }

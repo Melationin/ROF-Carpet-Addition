@@ -37,7 +37,6 @@ public class HeightmapMixin {
                     && !NETHER_HighChunkSet.get(chunk.getPos())
             ) {
                 NETHER_HighChunkSet.add(chunk.getPos());
-                System.out.println("netherHighChunkSet.Size: "+ NETHER_HighChunkSet.size());
             }
         }
     }

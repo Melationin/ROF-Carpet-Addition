@@ -3,6 +3,7 @@ package com.carpet.rof;
 import carpet.api.settings.Rule;
 import carpet.api.settings.CarpetRule;
 import carpet.api.settings.Validator;
+import static  carpet.api.settings.RuleCategory.*;
 import net.minecraft.server.command.ServerCommandSource;
 
 /**
@@ -10,33 +11,9 @@ import net.minecraft.server.command.ServerCommandSource;
  */
 public class ROFCarpetSettings
 {
-    public enum ComparatorOptions {
-        VANILLA,
-        BEHIND,
-        LENIENT,
-        EXTENDED;
-    }
 
-    public static final String YCT = "YCT";
-    public static final String HCL = "HCL";
-    public static class enderPearlRaycastLengthChance extends Validator<Double> {
-        @Override
-        public Double validate(ServerCommandSource source, CarpetRule<Double> currentRule, Double newValue, String string) {
-            return newValue > 0  ? newValue : null;
-        }
-
-        @Override
-        public String description() { return "must >= 0";}
-    }
-
-    @Rule(
-            options = { "8.0", "16.0", "32.0", "999999.0" },
-            categories = {YCT},
-            strict = false,
-            validators = enderPearlRaycastLengthChance.class
-    )
-
-    public static double enderPearlRaycastLength = 8;
+    public static final String ROF = "RofROF";
+    public static final String HCL = "RofHCL";
 
     public static class enderPearlForcedTickMinSpeedChance extends Validator<Double> {
         @Override
@@ -51,7 +28,7 @@ public class ROFCarpetSettings
 
     @Rule(
             options = { "16.0", "-1.0" },
-            categories = {YCT},
+            categories = {ROF,OPTIMIZATION,FEATURE},
             strict = false,
             validators = enderPearlForcedTickMinSpeedChance.class
     )
@@ -59,13 +36,7 @@ public class ROFCarpetSettings
 
     @Rule(
 
-            categories = {YCT}
-    )
-    public static boolean enderPearlSkipUngeneratedRegion = false;
-
-    @Rule(
-
-            categories = {YCT}
+            categories = {ROF,FEATURE}
     )
     public static boolean forceEnderPearlLogger = false;
 
@@ -80,25 +51,23 @@ public class ROFCarpetSettings
         /// ITEMS.
     }
 
-
-
     public static int ChunkUpdateHighInterval = 200;
 
     @Rule(
-            categories = {YCT,HCL}
+            categories = {ROF,HCL,EXPERIMENTAL}
 
     )
     public static boolean highChunkListener = true;
 
     @Rule(
-            categories = {YCT,HCL}
+            categories = {ROF,HCL,OPTIMIZATION,EXPERIMENTAL}
     )
     public static boolean optimizeRaycastWithHCL = false;
 
     @Rule(
-            categories = {YCT,HCL}
+            categories = {ROF,OPTIMIZATION,TNT}
     )
-    public static boolean tntMergeNext = false;
+    public static boolean mergeTNTNext = false;
 
 
 }

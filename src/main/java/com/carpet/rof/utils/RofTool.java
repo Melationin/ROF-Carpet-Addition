@@ -20,9 +20,9 @@ public class RofTool {
     }
 
     public static class EntityPosAndVec{
-        Vec3d pos;
-        Vec3d vec;
-        int Fuse;
+        final Vec3d pos;
+        final Vec3d vec;
+        final int Fuse;
         public EntityPosAndVec(Vec3d pos, Vec3d vec,int Fuse) {
             this.pos = pos;
             this.vec = vec;

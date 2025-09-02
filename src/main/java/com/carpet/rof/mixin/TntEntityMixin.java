@@ -37,14 +37,15 @@ public abstract class TntEntityMixin extends Entity implements TntEntityAccessor
 
     @Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/TntEntity;getFuse()I"),cancellable = true)
     private void merge(CallbackInfo ci) {
-        if(ROFCarpetSettings.tntMergeNext  && this.getWorld() instanceof ServerWorld world && getFuse()>1) {
+        if(ROFCarpetSettings.mergeTNTNext  && this.getWorld() instanceof ServerWorld world && !this.isRemoved() && getFuse()>1 ) {
             RofTool.EntityPosAndVec TntPosAndVec = new RofTool.EntityPosAndVec(this.getPos(),this.getVelocity(),this.getFuse());
             HashMap<RofTool.EntityPosAndVec, TntEntity> TntMergeMap =  ((ServerWorldAccessor)world).getTNTMergeMap();
 
             if(TntMergeMap.containsKey(TntPosAndVec)){
                 TntEntity mainTNT = TntMergeMap.get(TntPosAndVec);
                  ((TntEntityAccessor)mainTNT).addMergeCount(mergedTNT);
-                this.remove(Entity.RemovalReason.DISCARDED);
+                 this.discard();
+                 mergedTNT = 0;
                  ci.cancel();
             }else {
                 TntMergeMap.put(TntPosAndVec,(TntEntity) (Object)this);

@@ -96,7 +96,7 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
 
     @Inject(method = "save",at = @At(value = "HEAD"))
     void saveWorld(CallbackInfo ci){
-        if(ROFCarpetSettings.highChunkListener && (ServerWorld) (Object)this == NETHER_HighChunkSet.world){
+        if(ROFCarpetSettings.highChunkListener && (Object)this == NETHER_HighChunkSet.world){
             NETHER_HighChunkSet.Save();
             System.out.println("Saving High Chunks");
         }
@@ -112,7 +112,7 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
     }
     @Inject(method = "tick",at =@At(value = "HEAD"))
     void tick(BooleanSupplier shouldKeepTicking, CallbackInfo ci){
-        if(ROFCarpetSettings.highChunkListener && (ServerWorld) (Object)this == NETHER_HighChunkSet.world){
+        if(ROFCarpetSettings.highChunkListener && (Object)this == NETHER_HighChunkSet.world){
             NETHER_HighChunkSet.update();
         }
     }

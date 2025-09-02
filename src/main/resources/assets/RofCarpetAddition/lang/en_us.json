@@ -1,6 +1,12 @@
 {
 
+  "carpet.category.RofHCL": "HCL",
+
+  "carpet.category.RofROF": "ROF",
+
   "carpet.rule.enderPearlRaycastLength.desc":"珍珠碰撞检测长度",
+
+
 
   "carpet.rule.enderPearlForcedTickMinSpeed.desc":"珍珠加载最小速度",
   "carpet.rule.enderPearlForcedTickMinSpeed.extra.0": " ",
@@ -13,5 +19,5 @@
 
   "carpet.rule.optimizeRaycastWithHCL.desc" : "",
 
-  "carpet.rule.tntMergeNext.desc":" "
+  "carpet.rule.mergeTNTNext.desc":" "
 }
