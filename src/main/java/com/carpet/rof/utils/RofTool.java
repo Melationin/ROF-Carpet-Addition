@@ -10,7 +10,7 @@ import java.util.Objects;
 
 import static net.minecraft.world.dimension.DimensionTypes.THE_NETHER;
 
-public class YCT_tool {
+public class RofTool {
     public static Boolean isNetherWorld(World world){
         return world.getDimensionEntry().matchesKey(THE_NETHER);
     }

@@ -1,6 +1,6 @@
 package com.carpet.rof.accessor;
 
-import com.carpet.rof.utils.YCT_tool;
+import com.carpet.rof.utils.RofTool;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.TntEntity;
 
@@ -14,5 +14,5 @@ public interface ServerWorldAccessor {
 
     boolean  inMustTickEntity(Entity entity);
 
-    HashMap<YCT_tool.EntityPosAndVec, TntEntity> getTNTMergeMap();
+    HashMap<RofTool.EntityPosAndVec, TntEntity> getTNTMergeMap();
 }

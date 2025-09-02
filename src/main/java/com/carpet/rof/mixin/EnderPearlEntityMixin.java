@@ -4,7 +4,7 @@ package com.carpet.rof.mixin;
 
 import com.carpet.rof.accessor.EnderPearlEntityAccessor;
 import com.carpet.rof.accessor.ServerWorldAccessor;
-import com.carpet.rof.utils.YCT_tool;
+import com.carpet.rof.utils.RofTool;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.thrown.EnderPearlEntity;
@@ -131,9 +131,9 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity implements 
             if(!(isEntityTickingChunk(serverChunkManager.getWorldChunk(nextChunkPos.x, nextChunkPos.z)))){
                 if(enderPearlSkipUngeneratedRegion) {
                     String _mca = "r." + (nextChunkPos.x >> 5) + "." + (nextChunkPos.z >> 5) + ".mca";
-                    Path s1 = YCT_tool.getSavePath(serverWorld).resolve("region");
+                    Path s1 = RofTool.getSavePath(serverWorld).resolve("region");
                     if (!(exists(s1.resolve(_mca)) && (s1.resolve(_mca).toFile().length() > 1))) {
-                        if (realPos.y > 128.3 && YCT_tool.isNetherWorld(serverWorld)) {
+                        if (realPos.y > 128.3 && RofTool.isNetherWorld(serverWorld)) {
                             ci.cancel();
                         }
                     }

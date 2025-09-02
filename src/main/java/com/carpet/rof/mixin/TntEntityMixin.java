@@ -3,7 +3,7 @@ package com.carpet.rof.mixin;
 import com.carpet.rof.ROFCarpetSettings;
 import com.carpet.rof.accessor.ServerWorldAccessor;
 import com.carpet.rof.accessor.TntEntityAccessor;
-import com.carpet.rof.utils.YCT_tool;
+import com.carpet.rof.utils.RofTool;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.TntEntity;
@@ -38,8 +38,8 @@ public abstract class TntEntityMixin extends Entity implements TntEntityAccessor
     @Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/TntEntity;getFuse()I"),cancellable = true)
     private void merge(CallbackInfo ci) {
         if(ROFCarpetSettings.tntMergeNext  && this.getWorld() instanceof ServerWorld world && getFuse()>1) {
-            YCT_tool.EntityPosAndVec TntPosAndVec = new YCT_tool.EntityPosAndVec(this.getPos(),this.getVelocity(),this.getFuse());
-            HashMap<YCT_tool.EntityPosAndVec, TntEntity> TntMergeMap =  ((ServerWorldAccessor)world).getTNTMergeMap();
+            RofTool.EntityPosAndVec TntPosAndVec = new RofTool.EntityPosAndVec(this.getPos(),this.getVelocity(),this.getFuse());
+            HashMap<RofTool.EntityPosAndVec, TntEntity> TntMergeMap =  ((ServerWorldAccessor)world).getTNTMergeMap();
 
             if(TntMergeMap.containsKey(TntPosAndVec)){
                 TntEntity mainTNT = TntMergeMap.get(TntPosAndVec);

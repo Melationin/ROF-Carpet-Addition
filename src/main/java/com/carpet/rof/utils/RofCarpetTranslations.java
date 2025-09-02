@@ -11,11 +11,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
 
-public class CarpetYCTTranslations
+public class RofCarpetTranslations
 {
     public static Map<String, String> getTranslationFromResourcePath(String lang)
     {
-    	InputStream langFile = CarpetYCTTranslations.class.getClassLoader().getResourceAsStream("assets/RofCarpetAddition/lang/%s.json".formatted(lang));
+    	InputStream langFile = RofCarpetTranslations.class.getClassLoader().getResourceAsStream("assets/RofCarpetAddition/lang/%s.json".formatted(lang));
         if (langFile == null) {
             // we don't have that language
             return Collections.emptyMap();

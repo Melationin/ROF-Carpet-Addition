@@ -3,7 +3,7 @@ package com.carpet.rof.mixin;
 import com.carpet.rof.ROFCarpetSettings;
 import com.carpet.rof.accessor.ServerWorldAccessor;
 import com.carpet.rof.utils.HighChunkSet;
-import com.carpet.rof.utils.YCT_tool;
+import com.carpet.rof.utils.RofTool;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.TntEntity;
 import net.minecraft.registry.DynamicRegistryManager;
@@ -50,10 +50,10 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
     final EntityList OtherEntitylist = new EntityList();
 
     @Unique
-    final HashMap<YCT_tool.EntityPosAndVec, TntEntity> TNTMergeMap = new HashMap<>();
+    final HashMap<RofTool.EntityPosAndVec, TntEntity> TNTMergeMap = new HashMap<>();
 
     @Override
-    public HashMap<YCT_tool.EntityPosAndVec, TntEntity> getTNTMergeMap(){
+    public HashMap<RofTool.EntityPosAndVec, TntEntity> getTNTMergeMap(){
         return TNTMergeMap;
     }
 
@@ -104,7 +104,7 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
 
     @Inject(method = "<init>",at = @At(value = "RETURN"))
     void loadWorld(CallbackInfo ci){
-        if( ROFCarpetSettings.highChunkListener &&YCT_tool.isNetherWorld(this)){
+        if( ROFCarpetSettings.highChunkListener && RofTool.isNetherWorld(this)){
             NETHER_HighChunkSet = new HighChunkSet(129,(ServerWorld)(Object)this);
             NETHER_HighChunkSet.load();
             System.out.println(NETHER_HighChunkSet.size()+" Chunks Loaded");

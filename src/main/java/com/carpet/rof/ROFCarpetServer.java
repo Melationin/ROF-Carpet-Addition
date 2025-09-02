@@ -4,7 +4,7 @@ import carpet.CarpetExtension;
 import carpet.CarpetServer;
 
 
-import com.carpet.rof.utils.CarpetYCTTranslations;
+import com.carpet.rof.utils.RofCarpetTranslations;
 import com.carpet.rof.utils.HighChunkSet;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.api.ModInitializer;
@@ -107,6 +107,6 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
     @Override
     public Map<String, String> canHasTranslations(String lang)
     {
-        return CarpetYCTTranslations.getTranslationFromResourcePath(lang);
+        return RofCarpetTranslations.getTranslationFromResourcePath(lang);
     }
 }
