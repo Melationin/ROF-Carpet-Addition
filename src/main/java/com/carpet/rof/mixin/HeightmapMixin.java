@@ -34,7 +34,7 @@ public class HeightmapMixin {
             if(     height>= NETHER_HighChunkSet.topY
                     && this.blockPredicate == Heightmap.Type.MOTION_BLOCKING.getBlockPredicate()
                     && worldChunk.getWorld()==NETHER_HighChunkSet.world
-                    && !NETHER_HighChunkSet.get(chunk.getPos())
+                    && NETHER_HighChunkSet.isHighChunk(chunk.getPos())
             ) {
                 NETHER_HighChunkSet.add(chunk.getPos());
             }

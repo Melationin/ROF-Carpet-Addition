@@ -19,7 +19,7 @@ public interface BlockViewMixin2 {
        if(ROFCarpetSettings.optimizeRaycastWithHCL
            &&pos.getY()>= NETHER_HighChunkSet.topY-1
                && (Object)this ==  NETHER_HighChunkSet.world
-               &&!NETHER_HighChunkSet.get(new ChunkPos(pos))){
+               && NETHER_HighChunkSet.isHighChunk(new ChunkPos(pos))){
                cir.setReturnValue(null);
        }
    }

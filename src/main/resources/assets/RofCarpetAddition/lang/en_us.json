@@ -19,5 +19,11 @@
 
   "carpet.rule.optimizeRaycastWithHCL.desc" : "",
 
-  "carpet.rule.mergeTNTNext.desc":" "
+  "carpet.rule.mergeTNTNext.desc":" ",
+
+  "carpet.rule.mobAIDelay.desc":" ",
+
+  "carpet.rule.getBiomeLayerCache.desc": " ",
+
+  "carpet.rule.optimizeSpawnAttempts.desc":""
 }

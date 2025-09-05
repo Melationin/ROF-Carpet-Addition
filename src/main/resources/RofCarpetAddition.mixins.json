@@ -4,10 +4,14 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "BlockViewMixin2",
+    "ChunkMixin",
     "EnderPearlEntityMixin",
     "HeightmapMixin",
     "ServerWorldMixin",
-    "TntEntityMixin"
+    "SpawnHelperMixin",
+    "TntEntityMixin",
+    "WorldViewMixin",
+    "ZombieEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

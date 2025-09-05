@@ -4,6 +4,7 @@ import com.carpet.rof.ROFCarpetSettings;
 import com.carpet.rof.accessor.ServerWorldAccessor;
 import com.carpet.rof.utils.HighChunkSet;
 import com.carpet.rof.utils.RofTool;
+import com.jcraft.jorbis.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.TntEntity;
 import net.minecraft.registry.DynamicRegistryManager;
@@ -12,9 +13,11 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EntityList;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,10 +32,12 @@ import java.util.function.BooleanSupplier;
 
 import static com.carpet.rof.ROFCarpetServer.NETHER_HighChunkSet;
 
+@SuppressWarnings("ConstantValue")
 @Mixin(ServerWorld.class)
 public abstract class ServerWorldMixin extends World implements ServerWorldAccessor {
 
     @Shadow  @Final  MinecraftServer server;
+
 
 
     @Shadow  @Final
@@ -56,6 +61,13 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
     public HashMap<RofTool.EntityPosAndVec, TntEntity> getTNTMergeMap(){
         return TNTMergeMap;
     }
+
+    @Unique
+    final HashMap<BlockPos,RegistryEntry<Biome>> LowYBiomeMap = new HashMap<>();
+
+    @Override
+    public HashMap<BlockPos,RegistryEntry<Biome>> getLowYBiomeMap(){return LowYBiomeMap;}
+
 
     @Unique
     private boolean shouldBeOtherTick(Entity entity){

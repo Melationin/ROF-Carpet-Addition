@@ -70,4 +70,21 @@ public class ROFCarpetSettings
     public static boolean mergeTNTNext = false;
 
 
+    @Rule(
+            categories = {ROF,OPTIMIZATION,FEATURE}
+    )
+    public static int mobAIDelay = 0;
+
+    @Rule(
+            categories = {ROF,OPTIMIZATION,FEATURE},
+            options = { "0", "3" },
+            strict = false
+    )
+    public static int getBiomeLayerCache = 0;
+
+    @Rule(
+            categories = {ROF,OPTIMIZATION,FEATURE}
+
+    )
+    public static boolean optimizeSpawnAttempts = false;
 }

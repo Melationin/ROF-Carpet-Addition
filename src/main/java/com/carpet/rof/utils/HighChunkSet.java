@@ -14,7 +14,6 @@ import net.minecraft.world.chunk.*;
 import net.minecraft.world.storage.RegionFile;
 import net.minecraft.world.storage.StorageKey;
 
-import javax.swing.text.html.parser.Entity;
 import java.io.*;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -30,9 +29,9 @@ public class HighChunkSet {
     private final Set<Long> highChunkSet = ConcurrentHashMap.newKeySet();
     private final HashMap<Long,Integer> chunkHighestBlockPosMap = new HashMap<>();
 
-    public int topY;
+    public final int topY;
 
-    public ServerWorld world;
+    public final ServerWorld world;
 
     private long chunkCache;
     private boolean chunkCacheValue;
@@ -42,20 +41,20 @@ public class HighChunkSet {
         this.world = world;
     }
 
-    public boolean get(ChunkPos chunkPos) {
+    public boolean isHighChunk(ChunkPos chunkPos) {
 
         if(chunkPos.toLong()==chunkCache){
-            return chunkCacheValue;
+            return !chunkCacheValue;
         }
         if(highChunkSet.contains(chunkPos.toLong())){
             chunkCacheValue = true;
             chunkCache = chunkPos.toLong();
-            return true;
+            return false;
 
         }else {
             chunkCacheValue = false;
             chunkCache = chunkPos.toLong();
-            return false;
+            return true;
 
         }
 
@@ -113,6 +112,7 @@ public class HighChunkSet {
 
 
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public void Save() {
         Path savaPath = RofTool.getSavePath(world).resolve("data").resolve("highChunkSet.dat");
         try {
@@ -136,18 +136,19 @@ public class HighChunkSet {
     }
 
 
-    private  long getHighest(long data,int length){
+    private  long getHighest(long data){
         long Res = -1000;
-        for(int i=0;i<64 - length ;i+=length) {
-            long s1  = data&((1L <<length)- 1);
+        for(int i = 0; i<64 - 9; i+= 9) {
+            long s1  = data&((1L << 9)- 1);
             if(s1>Res) Res = s1;
-            data >>= length;
+            data >>= 9;
         }
         return Res;
     }
 
 
-    public void LoadFromRegion(Path RegionFileFolder, int x,int y) {
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    public void LoadFromRegion(Path RegionFileFolder, int x, int y) {
         String currentRegionName = "r." + x + "." + y + ".mca";
         Path RegionFilePath = RegionFileFolder.resolve(currentRegionName);
         try {
@@ -157,11 +158,12 @@ public class HighChunkSet {
                     DataInputStream dataInputStream = test.getChunkInputStream(new ChunkPos((x<<5 )+ i,(y<<5) + j));
                     if(dataInputStream != null) {
                         NbtCompound chunkDate = NbtIo.readCompound(dataInputStream);
+
                         int finalJ = chunkDate.getInt("xPos").get();
                         int finalI = chunkDate.getInt("zPos").get();
                         chunkDate.getCompound("Heightmaps").flatMap(heightmaps -> heightmaps.getLongArray(Heightmap.Type.MOTION_BLOCKING.getId())).ifPresent(heightmap -> {
                             for (long l : heightmap) {
-                                if (getHighest(l, 9) + world.getBottomY() > topY) {
+                                if (getHighest(l) + world.getBottomY() > topY) {
                                     add(new ChunkPos(finalJ,finalI));
                                     break;
                                 }
@@ -203,12 +205,7 @@ public class HighChunkSet {
             File folder =  regionsFolder.toFile();
             if (folder.isDirectory()) {
                 int finishedCount = 0;
-                String[] folder2 = folder.list(new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String name) {
-                        return name.startsWith("r") && name.endsWith(".mca");
-                    }
-                });
+                String[] folder2 = folder.list((dir, name) -> name.startsWith("r") && name.endsWith(".mca"));
                 if (folder2 == null) {return false;}
                 for(String fileName : folder2) {
                     String[] split = fileName.split("\\.");

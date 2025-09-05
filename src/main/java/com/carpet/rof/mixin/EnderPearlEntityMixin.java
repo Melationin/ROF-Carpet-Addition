@@ -11,13 +11,14 @@ import net.minecraft.entity.projectile.thrown.EnderPearlEntity;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
 import net.minecraft.server.world.*;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+
 
 import static com.carpet.rof.ROFCarpetSettings.*;
 
@@ -47,6 +48,7 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity implements 
     @Unique
     private boolean ChangeSpeed = false;
 
+
     // 必须定义的构造函数，调用父类
     protected EnderPearlEntityMixin(EntityType<?extends ThrownItemEntity> entityType, World world) {
         super(entityType, world);
@@ -57,10 +59,10 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity implements 
     // 判断某区块是否是实体可运行的状态（ENTITY_TICKING）
 
     // 注入 tick() 方法的开头，覆盖默认逻辑
-    @Inject(method = "tick", at = @At(value = "HEAD"),cancellable = true)
+    @Inject(method = "tick", at = @At(value = "HEAD"))
     private void EndPearlHead(CallbackInfo ci) {
         World world = this.getWorld();
-
+/*
          if(true){  //for debug
              if (world instanceof ServerWorld){
                  Text name = this.getStack().getCustomName();
@@ -71,8 +73,10 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity implements 
              }
          }
 
+
+ */
         // 仅对服务器世界处理
-        if (world instanceof ServerWorld serverWorld) {
+        if (world instanceof ServerWorld) {
 
             EPTicks++;
 
@@ -108,7 +112,7 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity implements 
         if (this.isRemoved()) {
             World world = this.getWorld();
             if (world instanceof ServerWorld) {
-                ServerWorldAccessor accessor = (ServerWorldAccessor)((ServerWorld)world);
+                ServerWorldAccessor accessor = (ServerWorldAccessor)(world);
                 if (accessor.inMustTickEntity(this)) {
                     accessor.removeMustTickEntity(this);
                 }

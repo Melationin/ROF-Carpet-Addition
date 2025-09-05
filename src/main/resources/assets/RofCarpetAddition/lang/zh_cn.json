@@ -23,5 +23,14 @@
   "carpet.rule.optimizeRaycastWithHCL.extra.0" : "启用后，高区块监听器所在维度的raycast才会优化",
 
   "carpet.rule.mergeTNTNext.name":"合并TNTnext",
-  "carpet.rule.mergeTNTNext.desc":"更为激进的tnt合并方案, 可能会导致预期之外的结果。不能与其他tnt合并一起开。"
+  "carpet.rule.mergeTNTNext.desc":"更为激进的tnt合并方案, 可能会导致预期之外的结果。不能与其他tnt合并一起开。",
+
+  "carpet.rule.mobAIDelay.name":"怪物AI延迟",
+  "carpet.rule.mobAIDelay.desc":"可能造成预期之外的结果。可以降低大型刷怪塔的卡顿",
+
+  "carpet.rule.getBiomeLayerCache.name": "低层群系获取缓存",
+  "carpet.rule.getBiomeLayerCache.desc": "会增大一些内存占用，适用于y0刷怪塔",
+
+  "carpet.rule.optimizeSpawnAttempts.name":"优化生物生成尝试",
+  "carpet.rule.optimizeSpawnAttempts.desc":"提前过滤掉一些不可能的生成点，减少卡顿"
 }
