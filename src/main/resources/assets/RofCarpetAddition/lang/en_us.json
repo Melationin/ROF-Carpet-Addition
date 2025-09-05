@@ -25,5 +25,7 @@
 
   "carpet.rule.getBiomeLayerCache.desc": " ",
 
-  "carpet.rule.optimizeSpawnAttempts.desc":""
+  "carpet.rule.optimizeSpawnAttempts.desc":"",
+
+  "carpet.rule.optimizeItemMerge.desc": ""
 }

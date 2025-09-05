@@ -33,5 +33,5 @@
   "suggests": {
     "flamingo": "*"
   },
-  "accessWidener": "RofCarpetAddition.accesswidener"
+  "accessWidener": "RofCarpetAdditionAW.accesswidener"
 }

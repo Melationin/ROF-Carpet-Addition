@@ -1,0 +1,5 @@
+accessWidener v2 named
+
+accessible field net/minecraft/entity/ItemEntity pickupDelay I
+accessible field net/minecraft/entity/ItemEntity itemAge I
+accessible field net/minecraft/entity/ItemEntity owner Ljava/util/UUID;

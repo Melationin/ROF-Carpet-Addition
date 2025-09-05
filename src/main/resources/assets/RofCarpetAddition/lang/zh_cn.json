@@ -32,5 +32,8 @@
   "carpet.rule.getBiomeLayerCache.desc": "会增大一些内存占用，适用于y0刷怪塔",
 
   "carpet.rule.optimizeSpawnAttempts.name":"优化生物生成尝试",
-  "carpet.rule.optimizeSpawnAttempts.desc":"提前过滤掉一些不可能的生成点，减少卡顿"
+  "carpet.rule.optimizeSpawnAttempts.desc":"提前过滤掉一些不可能的生成点，减少卡顿",
+
+  "carpet.rule.optimizeItemMerge.name": "物品合并优化",
+  "carpet.rule.optimizeItemMerge.desc": "尽量让物品达到一组，以减轻卡顿"
 }

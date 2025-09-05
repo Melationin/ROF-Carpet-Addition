@@ -22,7 +22,7 @@ public class SpawnHelperMixin {
     @Inject(method = "isAcceptableSpawnPosition",at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/ChunkPos;<init>(Lnet/minecraft/util/math/BlockPos;)V"),cancellable = true)
     private static void isAcceptableSpawnPosition(ServerWorld world, Chunk chunk, BlockPos.Mutable pos, double squaredDistance, CallbackInfoReturnable<Boolean> cir) {
         if(!optimizeSpawnAttempts) return;
-        BlockState state = world.getBlockState(pos.add(0,-1,0));
+        BlockState state = chunk.getBlockState(pos.add(0,-1,0));
         if( (!state.isSolidBlock(world, pos.add(0,-1,0)))&& state.getFluidState().getFluid() == Fluids.EMPTY) {
             cir.setReturnValue(false);
         }

@@ -87,4 +87,10 @@ public class ROFCarpetSettings
 
     )
     public static boolean optimizeSpawnAttempts = false;
+
+    @Rule(
+            categories = {ROF,OPTIMIZATION,FEATURE}
+
+    )
+    public static boolean optimizeItemMerge = false;
 }
