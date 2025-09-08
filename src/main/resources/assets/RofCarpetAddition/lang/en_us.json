@@ -27,5 +27,7 @@
 
   "carpet.rule.optimizeSpawnAttempts.desc":"",
 
-  "carpet.rule.optimizeItemMerge.desc": ""
+  "carpet.rule.optimizeItemMerge.desc": "",
+
+  "carpet.rule.optimizePortalPos.desc": ""
 }

@@ -25,17 +25,20 @@ public abstract class ItemEntityMixin {
 
     @Inject(method = "tryMerge(Lnet/minecraft/entity/ItemEntity;)V", at = @At(value = "HEAD"),cancellable = true)
     private void tryMerge(ItemEntity itemEntity, CallbackInfo ci) {
+
+        if(!optimizeItemMerge )             return;
+
         ItemEntity targetEntity = (ItemEntity) (Object) this;
         ItemStack targetEntityStack = this.getStack();
         ItemEntity otherEntity = itemEntity;
         ItemStack otherStack = itemEntity.getStack();
-        if (!optimizeItemMerge ||
+        if (
                 targetEntityStack.getCount() >= targetEntityStack.getMaxCount() ||
                 !ItemStack.areItemsAndComponentsEqual(targetEntityStack, otherStack)||
                 !Objects.equals(this.owner, otherEntity.owner)
         ) {
             ci.cancel();
-            return;
+return;
         }
         if (otherStack.getCount() > targetEntityStack.getCount()) {
             targetEntity = itemEntity;

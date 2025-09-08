@@ -28,8 +28,6 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
         CarpetServer.manageExtension(new ROFCarpetServer());
     }
 
-
-
     public static HighChunkSet NETHER_HighChunkSet;
 
 

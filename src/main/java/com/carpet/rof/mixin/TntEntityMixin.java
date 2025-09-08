@@ -40,7 +40,6 @@ public abstract class TntEntityMixin extends Entity implements TntEntityAccessor
         if(ROFCarpetSettings.mergeTNTNext  && this.getWorld() instanceof ServerWorld world && !this.isRemoved() && getFuse()>1 ) {
             RofTool.EntityPosAndVec TntPosAndVec = new RofTool.EntityPosAndVec(this.getPos(),this.getVelocity(),this.getFuse());
             HashMap<RofTool.EntityPosAndVec, TntEntity> TntMergeMap =  ((ServerWorldAccessor)world).getTNTMergeMap();
-
             if(TntMergeMap.containsKey(TntPosAndVec)){
                 TntEntity mainTNT = TntMergeMap.get(TntPosAndVec);
                  ((TntEntityAccessor)mainTNT).addMergeCount(mergedTNT);

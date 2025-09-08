@@ -71,7 +71,9 @@ public class ROFCarpetSettings
 
 
     @Rule(
-            categories = {ROF,OPTIMIZATION,FEATURE}
+            categories = {ROF,OPTIMIZATION,FEATURE},
+            options = { "0", "10" },
+            strict = false
     )
     public static int mobAIDelay = 0;
 
@@ -93,4 +95,5 @@ public class ROFCarpetSettings
 
     )
     public static boolean optimizeItemMerge = false;
+
 }

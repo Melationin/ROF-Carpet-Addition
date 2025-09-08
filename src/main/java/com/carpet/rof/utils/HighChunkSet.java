@@ -1,6 +1,10 @@
 package com.carpet.rof.utils;
 
+
+
 import com.mojang.brigadier.context.CommandContext;
+import it.unimi.dsi.fastutil.longs.Long2IntMap;
+import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
@@ -16,7 +20,6 @@ import net.minecraft.world.storage.StorageKey;
 
 import java.io.*;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,8 +29,8 @@ public class HighChunkSet {
 
 
 
-    private final Set<Long> highChunkSet = ConcurrentHashMap.newKeySet();
-    private final HashMap<Long,Integer> chunkHighestBlockPosMap = new HashMap<>();
+    private final  Set<Long> highChunkSet = ConcurrentHashMap.newKeySet();
+    private final  Long2IntMap chunkHighestBlockPosMap = new Long2IntOpenHashMap();
 
     public final int topY;
 
@@ -158,7 +161,6 @@ public class HighChunkSet {
                     DataInputStream dataInputStream = test.getChunkInputStream(new ChunkPos((x<<5 )+ i,(y<<5) + j));
                     if(dataInputStream != null) {
                         NbtCompound chunkDate = NbtIo.readCompound(dataInputStream);
-
                         int finalJ = chunkDate.getInt("xPos").get();
                         int finalI = chunkDate.getInt("zPos").get();
                         chunkDate.getCompound("Heightmaps").flatMap(heightmaps -> heightmaps.getLongArray(Heightmap.Type.MOTION_BLOCKING.getId())).ifPresent(heightmap -> {
@@ -198,15 +200,15 @@ public class HighChunkSet {
 
     }
 
-    public boolean reload(PlayerEntity player) {
-        if(world==null) return false;
+    public void reload(PlayerEntity player) {
+        if(world==null) return;
         try {
             Path regionsFolder = RofTool.getSavePath(world).resolve("region");
             File folder =  regionsFolder.toFile();
             if (folder.isDirectory()) {
                 int finishedCount = 0;
                 String[] folder2 = folder.list((dir, name) -> name.startsWith("r") && name.endsWith(".mca"));
-                if (folder2 == null) {return false;}
+                if (folder2 == null) {return;}
                 for(String fileName : folder2) {
                     String[] split = fileName.split("\\.");
                     if(split.length ==4 && split[0].equals("r") && split[3].equals("mca")) {
@@ -221,16 +223,14 @@ public class HighChunkSet {
                     }
                 }
             }
-            return true;
         }catch (Exception e){
             System.err.println(e.getMessage());
-            return false;
         }
     }
 
     public void update() {
         outerLoop:
-        for(Long l : highChunkSet){
+        for(long l : highChunkSet){
             if((world.getTime()+l)%ChunkUpdateHighInterval == 0) {
                 ChunkPos chunkPos = new ChunkPos(l);
                 Chunk chunk = world.getChunkManager().getChunk(chunkPos.x, chunkPos.z, ChunkStatus.FULL, false);
