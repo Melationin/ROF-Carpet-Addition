@@ -44,6 +44,25 @@ public class HighChunkSet {
         this.world = world;
     }
 
+    public boolean isHighChunk(long chunkPos) {
+
+        if(chunkPos==chunkCache){
+            return !chunkCacheValue;
+        }
+        if(highChunkSet.contains(chunkPos)){
+            chunkCacheValue = true;
+            chunkCache = chunkPos;
+            return false;
+
+        }else {
+            chunkCacheValue = false;
+            chunkCache = chunkPos;
+            return true;
+
+        }
+    }
+
+
     public boolean isHighChunk(ChunkPos chunkPos) {
 
         if(chunkPos.toLong()==chunkCache){
@@ -95,20 +114,22 @@ public class HighChunkSet {
             for(Long l : highChunkSet) {
                 oos.writeLong(l);
             }
-        } catch (IOException e) {
+        } catch (IOException ignored) {
 
         }
 
     }
 
     public void LoadFromFile(Path path){
-        try (ObjectInputStream ios = new ObjectInputStream(
-                new FileInputStream(path.toString()))) {
+        try {
+            FileInputStream fos = new FileInputStream(path.toString());
+            ObjectInputStream ios = new ObjectInputStream(fos);
             highChunkSet.clear();
             for(int i = ios.readInt();i>0;i--){
                 highChunkSet.add(ios.readLong());
             }
-
+            ios.close();
+            fos.close();
         } catch (IOException e) {
         }
     }

@@ -1,7 +1,8 @@
-package com.carpet.rof.mixin;
+package com.carpet.rof.mixin.world;
 
 
 import com.carpet.rof.accessor.ChunkAccessor;
+import com.carpet.rof.accessor.ServerWorldAccessor;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -19,11 +20,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import static com.carpet.rof.ROFCarpetSettings.getBiomeLayerCache;
 
-@Mixin(WorldView.class)
+@Mixin(value = WorldView.class,priority = 2000)
 public interface WorldViewMixin {
-
-
-
 
     @Shadow BiomeAccess getBiomeAccess();
 
@@ -33,23 +31,26 @@ public interface WorldViewMixin {
 
     @Shadow @Nullable Chunk getChunk(int chunkX, int chunkZ, ChunkStatus leastStatus, boolean create);
 
+
+
     @Inject(method = "getBiome",at = @At(value = "HEAD"),cancellable = true)
     default void getBiome2(BlockPos pos, CallbackInfoReturnable<RegistryEntry<Biome>> cir) {
 
-        if(!( this instanceof ServerWorld) || pos.getY() >= getBottomY() + getBiomeLayerCache+1 || pos.getY() == getBottomY() ) { return; }
-
-        Chunk chunk = this.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.FULL, false);
+        if(pos.getY() >= getBottomY() + getBiomeLayerCache+1 || pos.getY() == getBottomY() || !(this instanceof ServerWorld)) { return; }
+        Chunk chunk = ((ServerWorldAccessor)this).getNowChunk();
+        if(chunk==null||chunk.getPos().x != pos.getX()>>4 || chunk.getPos().z != pos.getZ()>>4 ) {
+            chunk = this.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.FULL, false);
+        }
         if(chunk != null) {
-            RegistryEntry<Biome>[] arrayList = ((ChunkAccessor)chunk).rof$getBiomeList((pos.getY()-getBottomY()));
+            RegistryEntry<Biome>[] arrayList = ((ChunkAccessor)chunk).rof$getBiomeList((pos.getY()-getBottomY() -1));
             int l = (((pos.getX())&15)<<4)+(pos.getZ())&15;
-            if(arrayList[l] == null) {
-                cir.setReturnValue( arrayList[l]= this.getBiomeAccess().getBiome(pos));
-                System.out.println( pos.getX() + " " + pos.getY() + " " + pos.getZ());
-                cir.cancel();
-            }else {
-                cir.setReturnValue(arrayList[l]);
-                cir.cancel();
+            RegistryEntry<Biome> entry = arrayList[l];
+            if (entry == null) {
+                entry = this.getBiomeAccess().getBiome(pos);
+                arrayList[l] = entry; // 缓存结果
             }
+            cir.setReturnValue(entry);
+            cir.cancel();
         }
 
     }

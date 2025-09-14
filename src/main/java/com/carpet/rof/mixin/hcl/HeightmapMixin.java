@@ -1,4 +1,4 @@
-package com.carpet.rof.mixin;
+package com.carpet.rof.mixin.hcl;
 
 import com.carpet.rof.ROFCarpetSettings;
 import net.minecraft.block.BlockState;
@@ -24,8 +24,6 @@ public class HeightmapMixin {
     @Shadow @Final private Chunk chunk;
 
     @Shadow @Final private PaletteStorage storage;
-
-
 
     @Inject(method = "set",at = @At(value = "HEAD"))
     public void SetMixin(int x, int z, int height, CallbackInfo ci){

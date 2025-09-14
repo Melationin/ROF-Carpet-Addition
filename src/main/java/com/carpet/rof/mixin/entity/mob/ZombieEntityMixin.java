@@ -1,4 +1,4 @@
-package com.carpet.rof.mixin;
+package com.carpet.rof.mixin.entity.mob;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.mob.HostileEntity;

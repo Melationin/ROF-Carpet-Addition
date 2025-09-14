@@ -1,14 +1,16 @@
 package com.carpet.rof;
 
-import carpet.api.settings.Rule;
 import carpet.api.settings.CarpetRule;
+import carpet.api.settings.Rule;
 import carpet.api.settings.Validator;
-import static  carpet.api.settings.RuleCategory.*;
 import net.minecraft.server.command.ServerCommandSource;
+
+import static carpet.api.settings.RuleCategory.*;
 
 /**
  * Here is your example Settings class you can plug to use carpetmod /carpet settings command
  */
+@SuppressWarnings("CanBeFinal")
 public class ROFCarpetSettings
 {
 

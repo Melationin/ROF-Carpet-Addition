@@ -1,4 +1,4 @@
-package com.carpet.rof.mixin;
+package com.carpet.rof.mixin.entity;
 
 // Minecraft 相关导入
 
@@ -45,8 +45,6 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity implements 
     @Unique
     private int EPTicks = 1;
 
-    @Unique
-    private boolean ChangeSpeed = false;
 
 
     // 必须定义的构造函数，调用父类
@@ -62,19 +60,7 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity implements 
     @Inject(method = "tick", at = @At(value = "HEAD"))
     private void EndPearlHead(CallbackInfo ci) {
         World world = this.getWorld();
-/*
-         if(true){  //for debug
-             if (world instanceof ServerWorld){
-                 Text name = this.getStack().getCustomName();
-                 if(name != null && ChangeSpeed == false){
-                     this.setVelocity(new Vec3d(-1,0,-1).multiply(Double.parseDouble( name.getString())));
-                     ChangeSpeed = true;
-                 }
-             }
-         }
 
-
- */
         // 仅对服务器世界处理
         if (world instanceof ServerWorld) {
 

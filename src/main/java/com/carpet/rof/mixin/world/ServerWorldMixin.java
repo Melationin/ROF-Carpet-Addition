@@ -1,10 +1,9 @@
-package com.carpet.rof.mixin;
+package com.carpet.rof.mixin.world;
 
 import com.carpet.rof.ROFCarpetSettings;
 import com.carpet.rof.accessor.ServerWorldAccessor;
 import com.carpet.rof.utils.HighChunkSet;
 import com.carpet.rof.utils.RofTool;
-import com.jcraft.jorbis.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.TntEntity;
 import net.minecraft.registry.DynamicRegistryManager;
@@ -18,6 +17,7 @@ import net.minecraft.world.EntityList;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -36,9 +36,8 @@ import static com.carpet.rof.ROFCarpetServer.NETHER_HighChunkSet;
 @Mixin(ServerWorld.class)
 public abstract class ServerWorldMixin extends World implements ServerWorldAccessor {
 
-    @Shadow  @Final  MinecraftServer server;
-
-
+    @Shadow  @Final
+    private MinecraftServer server;
 
     @Shadow  @Final
     private ServerChunkManager chunkManager;
@@ -57,25 +56,19 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
     @Unique
     final HashMap<RofTool.EntityPosAndVec, TntEntity> TNTMergeMap = new HashMap<>();
 
-    @Override
-    public HashMap<RofTool.EntityPosAndVec, TntEntity> getTNTMergeMap(){
-        return TNTMergeMap;
-    }
-
     @Unique
     final HashMap<BlockPos,RegistryEntry<Biome>> LowYBiomeMap = new HashMap<>();
 
-    @Override
-    public HashMap<BlockPos,RegistryEntry<Biome>> getLowYBiomeMap(){return LowYBiomeMap;}
-
-
     @Unique
     private boolean shouldBeOtherTick(Entity entity){
-
         if(!entityList.has(entity)) return true;
         return !this.chunkManager.chunkLoadingManager.getLevelManager().shouldTickEntities(entity.getChunkPos().toLong());
     }
 
+    @Unique
+    private Chunk NowChunk;
+
+    //region Accessor
     @Override
     public void addMustTickEntity(Entity entity){
         OtherEntitylist.add(entity);
@@ -91,6 +84,25 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
         return  OtherEntitylist.has(entity);
     }
 
+    @Override
+    public HashMap<RofTool.EntityPosAndVec, TntEntity> getTNTMergeMap(){
+        return TNTMergeMap;
+    }
+
+    @Override
+    public Chunk getNowChunk() {
+        return NowChunk;
+    }
+
+    @Override
+    public void setNowChunk(Chunk nowChunk) {
+        NowChunk = nowChunk;
+    }
+
+    //endregion
+
+    //region entity
+
     @Inject(method = "tick",at = @At(value = "HEAD"))
     void clearTNTMergeMap(CallbackInfo ci){
         TNTMergeMap.clear();
@@ -105,6 +117,10 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
             }
         });
     }
+
+    //endregion
+
+    //region hcl
 
     @Inject(method = "save",at = @At(value = "HEAD"))
     void saveWorld(CallbackInfo ci){
@@ -128,6 +144,8 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
             NETHER_HighChunkSet.update();
         }
     }
+
+    //endregion
 
 }
 

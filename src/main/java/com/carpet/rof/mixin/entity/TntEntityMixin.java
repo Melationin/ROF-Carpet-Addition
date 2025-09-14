@@ -1,4 +1,4 @@
-package com.carpet.rof.mixin;
+package com.carpet.rof.mixin.entity;
 
 import com.carpet.rof.ROFCarpetSettings;
 import com.carpet.rof.accessor.ServerWorldAccessor;
