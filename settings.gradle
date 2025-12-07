@@ -1,9 +1,6 @@
 pluginManagement {
 	repositories {
 		maven {
-			url 'https://lss233.littleservice.cn/repositories/minecraft/'
-		}
-		maven {
 			url 'https://maven.aliyun.com/repository/public'
 		}
 		maven {
@@ -16,5 +13,25 @@ pluginManagement {
 		}
 		mavenCentral()
 		gradlePluginPortal()
+
+		maven { url = "https://api.modrinth.com/maven" }
+		maven{
+			name = "KikuGie Snapshots"
+			url = "https://maven.kikugie.dev/snapshots"}
 	}
 }
+
+plugins {
+	id("dev.kikugie.stonecutter") version "0.7.11"
+}
+
+stonecutter {
+	kotlinController = false
+	centralScript = "build.gradle"
+	create(getRootProject()) {
+		versions "1.21.4","1.21.7","1.21.1"
+		vcsVersion = "1.21.7"
+	}
+	// Subproject configuration
+}
+

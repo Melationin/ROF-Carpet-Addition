@@ -29,5 +29,9 @@
 
   "carpet.rule.optimizeItemMerge.desc": "",
 
-  "carpet.rule.optimizePortalPos.desc": ""
+  "carpet.rule.optimizePortalPos.desc": "",
+
+  "carpet.rule.piglinLootItemDelay.desc": "",
+
+  "carpet.rule.piglinMax.desc": ""
 }

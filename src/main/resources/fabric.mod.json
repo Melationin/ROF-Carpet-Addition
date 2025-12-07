@@ -23,16 +23,17 @@
   },
   "mixins": [
     "RofCarpetAddition.mixins.json"
+
   ],
 
   "depends": {
-    "minecraft": "1.21.5",
+
+    "minecraft": "${minecraftVer}",
     "fabricloader": ">=0.4.0",
-    "carpet": "*",
-    "lithium": ">=0.16.1"
+    "carpet": "*"
   },
   "suggests": {
     "flamingo": "*"
   },
-  "accessWidener": "RofCarpetAdditionAW.accesswidener"
+  "accessWidener": "accesswideners/${aw_file}"
 }

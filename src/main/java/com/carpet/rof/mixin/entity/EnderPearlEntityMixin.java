@@ -9,7 +9,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.thrown.EnderPearlEntity;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
-import net.minecraft.server.world.*;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,9 +18,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-
-
-import static com.carpet.rof.ROFCarpetSettings.*;
+import static com.carpet.rof.ROFCarpetSettings.enderPearlForcedTickMinSpeed;
+import static com.carpet.rof.ROFCarpetSettings.forceEnderPearlLogger;
 
 // Java 标准库
 
@@ -33,9 +32,6 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity implements 
     @Unique
     final double MinSpeed = enderPearlForcedTickMinSpeed;
 
-
-
-
     // 是否启用同步状态（冻结 or 物理更新）
     @Unique
     public boolean syncMode = true;
@@ -44,8 +40,6 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity implements 
 
     @Unique
     private int EPTicks = 1;
-
-
 
     // 必须定义的构造函数，调用父类
     protected EnderPearlEntityMixin(EntityType<?extends ThrownItemEntity> entityType, World world) {
@@ -63,9 +57,7 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity implements 
 
         // 仅对服务器世界处理
         if (world instanceof ServerWorld) {
-
             EPTicks++;
-
             if(syncMode){  //此时为同步状态
                 if((MinSpeed >0)  && (  Math.abs(this.getVelocity().x)> MinSpeed ||Math.abs(this.getVelocity().z)> MinSpeed)){//大于最高速度，切换加载逻辑
                     syncMode = false; //模拟状态，不计算
@@ -75,7 +67,6 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity implements 
                     return;
                 }
             }
-
             if(forceEnderPearlLogger){
                 if(this.getOwner() instanceof PlayerEntity player) {
                     player.sendMessage(Text.of("[#" + EPTicks + "] " + "Pearl's Pos:" + this.getPos()), true);
@@ -84,14 +75,21 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity implements 
 
         }
     }
-
+    //? >= 1.21.4 {
     @Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/thrown/ThrownItemEntity;tick()V", shift = At.Shift.AFTER),cancellable = true)
-    private void EndPearlBetterForce(CallbackInfo ci, @Local(ordinal = 0) int i, @Local(ordinal = 1) int j,@Local Entity entity) {
+    private void EndPearlBetterForce(CallbackInfo ci,@Local Entity entity) {
         if(!syncMode) {
             ci.cancel();
         }
     }
-
+    //?} else {
+    /*@Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/thrown/ThrownItemEntity;tick()V", shift = At.Shift.AFTER),cancellable = true)
+    private void EndPearlBetterForce(CallbackInfo ci) {
+        if(!syncMode) {
+            ci.cancel();
+        }
+    }
+    *///?}
 
     @Inject(method =  "tick",at = @At(value = "RETURN"))
     private void ChunkUnloadingEnd(CallbackInfo ci){

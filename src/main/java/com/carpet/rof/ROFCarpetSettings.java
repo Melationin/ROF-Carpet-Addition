@@ -98,4 +98,18 @@ public class ROFCarpetSettings
     )
     public static boolean optimizeItemMerge = false;
 
+    @Rule(
+            categories = {ROF,OPTIMIZATION,FEATURE},
+            options = { "0", "20" },
+            strict = false
+    )
+    public static int piglinLootItemDelay = 0;
+
+    @Rule(
+            categories = {ROF,OPTIMIZATION,FEATURE},
+            options = { "100", "10000" },
+            strict = false
+    )
+    public static int piglinMax= 10000;
+
 }

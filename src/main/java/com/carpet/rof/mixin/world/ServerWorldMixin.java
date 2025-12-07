@@ -13,6 +13,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.EntityList;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
@@ -29,6 +30,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.HashMap;
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 import static com.carpet.rof.ROFCarpetServer.NETHER_HighChunkSet;
 
@@ -44,9 +46,19 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
 
     @Shadow @Final  EntityList entityList;
 
+
+
+
+    //? >=1.21.4 {
     protected ServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryRef, DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry, boolean isClient, boolean debugWorld, long seed, int maxChainedNeighborUpdates) {
         super(properties, registryRef, registryManager, dimensionEntry, isClient, debugWorld, seed, maxChainedNeighborUpdates);
     }
+    //?} else {
+    /*protected ServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryRef, DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates) {
+        super(properties, registryRef, registryManager, dimensionEntry, profiler, isClient, debugWorld, biomeAccess, maxChainedNeighborUpdates);
+    }
+
+    *///?}
 
     @Shadow public abstract void tickEntity(Entity entity);
 
@@ -62,11 +74,17 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
     @Unique
     private boolean shouldBeOtherTick(Entity entity){
         if(!entityList.has(entity)) return true;
-        return !this.chunkManager.chunkLoadingManager.getLevelManager().shouldTickEntities(entity.getChunkPos().toLong());
+        //? <=1.21.4 {
+        return !this.chunkManager.chunkLoadingManager.getTicketManager().shouldTickEntities(entity.getChunkPos().toLong());
+        //?} else {
+        /*return !this.chunkManager.chunkLoadingManager.getLevelManager().shouldTickEntities(entity.getChunkPos().toLong());
+        *///?}
+
+
     }
 
     @Unique
-    private Chunk NowChunk;
+    private Chunk NowChunk = null;
 
     //region Accessor
     @Override

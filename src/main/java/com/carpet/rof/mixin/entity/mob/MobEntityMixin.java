@@ -1,5 +1,6 @@
 package com.carpet.rof.mixin.entity.mob;
 
+import com.carpet.rof.ROFCarpetSettings;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.PiglinEntity;
@@ -15,8 +16,14 @@ public class MobEntityMixin {
 
     @SuppressWarnings("ConstantValue")
     @Inject(method = "loot",at = @At(value = "HEAD"),cancellable = true)
+    //? >=1.21.4 {
     private void loot(ServerWorld world, ItemEntity itemEntity, CallbackInfo ci) {
-        if((Object)this instanceof PiglinEntity && itemEntity.getItemAge()<=20) ci.cancel();
-
+        if( (Object)this instanceof PiglinEntity && itemEntity.getItemAge()<= ROFCarpetSettings.piglinLootItemDelay) ci.cancel();
     }
+    //?} else {
+    /*private void loot(ItemEntity itemEntity, CallbackInfo ci) {
+        if( (Object)this instanceof PiglinEntity && itemEntity.getItemAge()<= ROFCarpetSettings.piglinLootItemDelay) ci.cancel();
+    }
+
+    *///?}
 }
