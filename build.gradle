@@ -54,7 +54,7 @@ dependencies {
 	mappings "net.fabricmc:yarn:${property("yarn_mappings")}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${property("loader_version")}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${property("fabric_version")}"
-	modImplementation "carpet:fabric-carpet:${property("carpet_core_version")}"
+	modImplementation "maven.modrinth:carpet:${property("carpet_core_version")}"
 	implementation 'it.unimi.dsi:fastutil:8.5.12'
 	//implementation "maven.modrinth:lithium:${property("lithium_version")}"
 	//modImplementation "maven.modrinth:lithium:${property("lithium_version")}"
@@ -94,6 +94,7 @@ jar {
 	from("LICENSE") {
 		rename { "${it}_${inputs.properties.archivesName}"}
 	}
+	//destinationDirectory.set(file("$buildDir/releases"))
 
 	//archiveBaseName.set("${project.archivesBaseName}-${project.version}-")
 	//archiveFileName = "${project.archives_base_name}-${project.mod_version}+mc${minecraftVer}.jar"
@@ -115,4 +116,10 @@ publishing {
 		// The repositories here will be used for publishing your artifact, not for
 		// retrieving dependencies.
 	}
+}
+
+stonecutter {
+
+
+	// Subproject configuration
 }

@@ -10,9 +10,9 @@ import net.minecraft.entity.TntEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 //? >=1.21.6 {
-/*import net.minecraft.storage.ReadView;
+import net.minecraft.storage.ReadView;
 import net.minecraft.storage.WriteView;
-*///?}
+//?}
 
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -44,8 +44,11 @@ public abstract class TntEntityMixin extends Entity implements TntEntityAccessor
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/TntEntity;getFuse()I"), cancellable = true)
     private void merge(CallbackInfo ci) {
-        if (ROFCarpetSettings.mergeTNTNext && this.getWorld() instanceof ServerWorld world && !this.isRemoved() && getFuse() > 1) {
-            RofTool.EntityPosAndVec TntPosAndVec = new RofTool.EntityPosAndVec(this.getPos(), this.getVelocity(), this.getFuse());
+        if (ROFCarpetSettings.mergeTNTNext &&
+                this./*? >=1.21.10 {*/  /*getEntityWorld() *//*?} else {*/  getWorld() /*?}*/  instanceof ServerWorld world
+
+                && !this.isRemoved() && getFuse() > 1) {
+            RofTool.EntityPosAndVec TntPosAndVec = new RofTool.EntityPosAndVec(this./*? >=1.21.10 {*/  /*getEntityPos() *//*?} else {*/  getPos() /*?}*/, this.getVelocity(), this.getFuse());
             HashMap<RofTool.EntityPosAndVec, TntEntity> TntMergeMap = ((ServerWorldAccessor) world).getTNTMergeMap();
             if (TntMergeMap.containsKey(TntPosAndVec)) {
                 TntEntity mainTNT = TntMergeMap.get(TntPosAndVec);
@@ -63,14 +66,15 @@ public abstract class TntEntityMixin extends Entity implements TntEntityAccessor
     private void onExplode(CallbackInfo ci) {
         if (mergedTNT > 1)
             for (int i = 0; i < mergedTNT - 1; i++) {
-                this.getWorld().createExplosion(this, this.getX(), this.getBodyY(0.0625),
+                    /*? >=1.21.10 {*/  /*this.getEntityWorld() *//*?} else {*/ this.getWorld() /*?}*/
+                        .createExplosion(this, this.getX(), this.getBodyY(0.0625),
                         this.getZ(), 4.0F, World.ExplosionSourceType.TNT);
             }
 
     }
 
     //? >=1.21.6 {
-    /*@Inject(method = "writeCustomData", at = @At(value = "HEAD"))
+    @Inject(method = "writeCustomData", at = @At(value = "HEAD"))
     private void writeCustomData(WriteView view, CallbackInfo ci) {
         if (mergedTNT > 1) {
             view.putInt("mergedTNT", mergedTNT);
@@ -82,9 +86,9 @@ public abstract class TntEntityMixin extends Entity implements TntEntityAccessor
         view.getOptionalInt("mergedTNT").ifPresent(integer -> mergedTNT = integer);
     }
 
-    *///?} else {
+    //?} else {
 
-    @Inject(method = "readCustomDataFromNbt",at = @At(value = "HEAD"))
+    /*@Inject(method = "readCustomDataFromNbt",at = @At(value = "HEAD"))
     private void readCustomDataFromNbt(NbtCompound tag, CallbackInfo ci) {
         if (mergedTNT > 1) {
             tag.putInt("mergedTNT", mergedTNT);
@@ -97,5 +101,5 @@ public abstract class TntEntityMixin extends Entity implements TntEntityAccessor
             mergedTNT = tag.getInt("mergedTNT");
         }
     }
-    //?}
+    *///?}
 }

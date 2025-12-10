@@ -26,7 +26,7 @@ public abstract class ServerChunkManagerMixin {
 
     //region tickSpawn
     //? >=1.21.6 {
-    /*@Inject(method = "tickSpawningChunk",at = @At(value = "HEAD"))
+    @Inject(method = "tickSpawningChunk",at = @At(value = "HEAD"))
     public void addNowChunk1(WorldChunk chunk, long timeDelta, List<SpawnGroup> spawnableGroups, SpawnHelper.Info info, CallbackInfo ci){
         ((ServerWorldAccessor) this.getWorld()).setNowChunk(chunk);
     }
@@ -35,7 +35,7 @@ public abstract class ServerChunkManagerMixin {
     public void tickChunks(Profiler profiler, long timeDelta, CallbackInfo ci){
         ((ServerWorldAccessor) this.getWorld()).setNowChunk(null);
     }
-    *///?} else if >=1.21.4 {
+    //?} else if >=1.21.4 {
     /*@Inject(method = "tickChunks(Lnet/minecraft/util/profiler/Profiler;JLjava/util/List;)V",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/chunk/WorldChunk;increaseInhabitedTime(J)V"

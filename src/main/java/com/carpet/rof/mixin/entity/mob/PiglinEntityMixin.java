@@ -32,16 +32,22 @@ public abstract class PiglinEntityMixin extends AbstractPiglinEntity implements 
 
     @Inject(method = "mobTick",at = @At(value = "HEAD"))
     //? >=1.21.4 {
-    /*private void piglinTick(ServerWorld world, CallbackInfo ci) {
+    private void piglinTick(ServerWorld world, CallbackInfo ci) {
         if((this.age + this.getId()%801)%400==0 ){
             NearPiglinCount = world.getEntitiesByType(EntityType.PIGLIN,
-                    new Box(this.getPos().add(0.5, 0.5, 0.5), this.getPos().add(-0.5, -0.5, -0.5)),
+                    new Box(this.
+                            /*? >=1.21.10 {*/  /*getEntityPos() *//*?} else {*/  getPos() /*?}*/
+
+                            .add(0.5, 0.5, 0.5), this.
+                            /*? >=1.21.10 {*/  /*getEntityPos() *//*?} else {*/  getPos() /*?}*/
+
+                            .add(-0.5, -0.5, -0.5)),
                     piglin -> true
             ).size();
         }
     }
-    *///?} else {
-    private void piglinTick( CallbackInfo ci) {
+    //?} else {
+    /*private void piglinTick( CallbackInfo ci) {
         var world = this.getWorld();
         if ((this.age + this.getId() % 801) % 400 == 0) {
             NearPiglinCount = world.getEntitiesByType(EntityType.PIGLIN,
@@ -50,7 +56,7 @@ public abstract class PiglinEntityMixin extends AbstractPiglinEntity implements 
             ).size();
         }
     }
-    //?}
+    *///?}
 
 
 }

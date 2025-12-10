@@ -28,7 +28,7 @@ public abstract class EntityTrackerEntryMixin {
     @Inject(method = "tick",at = @At(value = "HEAD"),cancellable = true)
     public void tick(CallbackInfo ci){
         if(TntPacketOptimization && entity instanceof TntEntity){
-            if(entity.getWorld().getTime() % 20 != 0){
+            if(entity./*? >=1.21.10 {*/  /*getEntityWorld()*//*?} else {*/  getWorld() /*?}*/.getTime() % 20 != 0){
                 ci.cancel();
             }
         }

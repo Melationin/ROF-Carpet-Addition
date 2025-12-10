@@ -183,7 +183,7 @@ public class HighChunkSet {
                     if(dataInputStream != null) {
                         NbtCompound chunkDate = NbtIo.readCompound(dataInputStream);
                         //? if >1.21.4 {
-                        /*int finalJ = chunkDate.getInt("xPos").get();
+                        int finalJ = chunkDate.getInt("xPos").get();
                         int finalI = chunkDate.getInt("zPos").get();
                         chunkDate.getCompound("Heightmaps").flatMap(heightmaps -> heightmaps.getLongArray(Heightmap.Type.MOTION_BLOCKING.getId())).ifPresent(heightmap -> {
                             for (long l : heightmap) {
@@ -193,8 +193,8 @@ public class HighChunkSet {
                                 }
                             }
                         });
-                        *///?} else {
-                        int finalJ = chunkDate.getInt("xPos");
+                        //?} else {
+                        /*int finalJ = chunkDate.getInt("xPos");
                         int finalI = chunkDate.getInt("zPos");
                         for (long l :  chunkDate.getCompound("Heightmaps").getLongArray(Heightmap.Type.MOTION_BLOCKING.getName())) {
                                 if (getHighest(l) + world.getBottomY() > topY) {
@@ -202,7 +202,7 @@ public class HighChunkSet {
                                     break;
                                 }
                         }
-                        //?}
+                        *///?}
                     }
                 }
             test.close();

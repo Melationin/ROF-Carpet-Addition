@@ -53,48 +53,51 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity implements 
     // 注入 tick() 方法的开头，覆盖默认逻辑
     @Inject(method = "tick", at = @At(value = "HEAD"))
     private void EndPearlHead(CallbackInfo ci) {
-        World world = this.getWorld();
+
+        World world = /*? >=1.21.10 {*/  /*this.getEntityWorld(); *//*?} else {*/ this.getWorld(); /*?}*/
 
         // 仅对服务器世界处理
         if (world instanceof ServerWorld) {
             EPTicks++;
-            if(syncMode){  //此时为同步状态
-                if((MinSpeed >0)  && (  Math.abs(this.getVelocity().x)> MinSpeed ||Math.abs(this.getVelocity().z)> MinSpeed)){//大于最高速度，切换加载逻辑
+            if (syncMode) {  //此时为同步状态
+                if ((MinSpeed > 0) && (Math.abs(this.getVelocity().x) > MinSpeed || Math.abs(this.getVelocity().z) > MinSpeed)) {//大于最高速度，切换加载逻辑
                     syncMode = false; //模拟状态，不计算
-                    ((ServerWorldAccessor)world).addMustTickEntity(this);
-                }
-                else {
+                    ((ServerWorldAccessor) world).addMustTickEntity(this);
+                } else {
                     return;
                 }
             }
-            if(forceEnderPearlLogger){
-                if(this.getOwner() instanceof PlayerEntity player) {
-                    player.sendMessage(Text.of("[#" + EPTicks + "] " + "Pearl's Pos:" + this.getPos()), true);
+            if (forceEnderPearlLogger) {
+                if (this.getOwner() instanceof PlayerEntity player) {
+                    player.sendMessage(Text.of("[#" + EPTicks + "] " + "Pearl's Pos:" +
+                            /*? >=1.21.10 {*/  /*this.getEntityPos() *//*?} else {*/ this.getPos() /*?}*/
+
+                            ), true);
                 }
             }
+        }
+    }
 
-        }
-    }
     //? >= 1.21.4 {
-    /*@Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/thrown/ThrownItemEntity;tick()V", shift = At.Shift.AFTER),cancellable = true)
-    private void EndPearlBetterForce(CallbackInfo ci,@Local Entity entity) {
-        if(!syncMode) {
-            ci.cancel();
-        }
-    }
-    *///?} else {
     @Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/thrown/ThrownItemEntity;tick()V", shift = At.Shift.AFTER),cancellable = true)
     private void EndPearlBetterForce(CallbackInfo ci) {
         if(!syncMode) {
             ci.cancel();
         }
     }
-    //?}
+    //?} else {
+    /*@Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/thrown/ThrownItemEntity;tick()V", shift = At.Shift.AFTER),cancellable = true)
+    private void EndPearlBetterForce(CallbackInfo ci) {
+        if(!syncMode) {
+            ci.cancel();
+        }
+    }
+    *///?}
 
     @Inject(method =  "tick",at = @At(value = "RETURN"))
     private void ChunkUnloadingEnd(CallbackInfo ci){
         if (this.isRemoved()) {
-            World world = this.getWorld();
+            World world = /*? >=1.21.10 {*/  /*this.getEntityWorld(); *//*?} else {*/ this.getWorld(); /*?}*/
             if (world instanceof ServerWorld) {
                 ServerWorldAccessor accessor = (ServerWorldAccessor)(world);
                 if (accessor.inMustTickEntity(this)) {
