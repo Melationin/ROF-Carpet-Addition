@@ -76,20 +76,20 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity implements 
         }
     }
     //? >= 1.21.4 {
-    @Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/thrown/ThrownItemEntity;tick()V", shift = At.Shift.AFTER),cancellable = true)
+    /*@Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/thrown/ThrownItemEntity;tick()V", shift = At.Shift.AFTER),cancellable = true)
     private void EndPearlBetterForce(CallbackInfo ci,@Local Entity entity) {
         if(!syncMode) {
             ci.cancel();
         }
     }
-    //?} else {
-    /*@Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/thrown/ThrownItemEntity;tick()V", shift = At.Shift.AFTER),cancellable = true)
+    *///?} else {
+    @Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/thrown/ThrownItemEntity;tick()V", shift = At.Shift.AFTER),cancellable = true)
     private void EndPearlBetterForce(CallbackInfo ci) {
         if(!syncMode) {
             ci.cancel();
         }
     }
-    *///?}
+    //?}
 
     @Inject(method =  "tick",at = @At(value = "RETURN"))
     private void ChunkUnloadingEnd(CallbackInfo ci){

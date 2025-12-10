@@ -42,5 +42,8 @@
   "carpet.rule.piglinLootItemDelay.desc": "只有出现一定时间的掉落物才会被猪灵捡起",
 
   "carpet.rule.piglinMax.name": "堆叠猪灵降智阈值",
-  "carpet.rule.piglinMax.desc": "堆叠到一定量的猪灵自动降智，减少卡顿（不会影响猪灵交易）"
+  "carpet.rule.piglinMax.desc": "堆叠到一定量的猪灵自动降智，减少卡顿（不会影响猪灵交易）",
+
+  "carpet.rule.TntPacketOptimization.name": "tnt实体发包优化",
+  "carpet.rule.TntPacketOptimization.desc": "减少tnt实体的发包。可能会使客户端显示异常。"
 }

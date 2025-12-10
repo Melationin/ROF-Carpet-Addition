@@ -4,6 +4,8 @@
 
   "carpet.category.RofROF": "ROF",
 
+  "carpet.category.PACKET": "PACKET",
+
   "carpet.rule.enderPearlRaycastLength.desc":"珍珠碰撞检测长度",
 
 
@@ -33,5 +35,7 @@
 
   "carpet.rule.piglinLootItemDelay.desc": "",
 
-  "carpet.rule.piglinMax.desc": ""
+  "carpet.rule.piglinMax.desc": "",
+
+  "carpet.rule.TntPacketOptimization.desc": ""
 }

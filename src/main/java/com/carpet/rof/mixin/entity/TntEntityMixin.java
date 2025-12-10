@@ -9,10 +9,11 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.TntEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
-//? >=1.21.7 {
+//? >=1.21.6 {
 /*import net.minecraft.storage.ReadView;
 import net.minecraft.storage.WriteView;
 *///?}
+
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -68,7 +69,7 @@ public abstract class TntEntityMixin extends Entity implements TntEntityAccessor
 
     }
 
-    //? >=1.21.7 {
+    //? >=1.21.6 {
     /*@Inject(method = "writeCustomData", at = @At(value = "HEAD"))
     private void writeCustomData(WriteView view, CallbackInfo ci) {
         if (mergedTNT > 1) {

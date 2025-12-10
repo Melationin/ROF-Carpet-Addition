@@ -4,13 +4,16 @@ import carpet.CarpetExtension;
 import carpet.CarpetServer;
 
 
+import com.carpet.rof.utils.PacketRecord;
 import com.carpet.rof.utils.RofCarpetTranslations;
 import com.carpet.rof.utils.HighChunkSet;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.profiling.jfr.sample.NetworkIoStatistics;
 
+//import static com.carpet.rof.utils.PacketRecord.packetRecord;
 import static net.minecraft.server.command.CommandManager.*;
 
 import java.util.Map;
@@ -45,7 +48,7 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
         CarpetServer.settingsManager.parseSettingsClass(ROFCarpetSettings.class);
 
        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
-
+               {
                 dispatcher.register(literal("highChunkListener")
                                 .requires(source -> source.hasPermissionLevel(4))
                                 .requires((source) -> carpet.utils.CommandHelper.canUseCommand(source, ROFCarpetSettings.highChunkListener))
@@ -62,7 +65,6 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
                                     context.getSource().sendFeedback(()->Text.of("Save " + NETHER_HighChunkSet.size()+" Chunks"),true);
                                     return 1;
                                 }))
-
                                 .then(literal("loadFromFile").executes(context ->{
                                     if(context.getSource().getPlayer() instanceof PlayerEntity player)
                                   if( NETHER_HighChunkSet.load()){
@@ -72,37 +74,16 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
                                       player.sendMessage(Text.of("Failed Loading highChunkSet.dat "),false);
                                   }return  1;
                                 }))
-                        /*
-                                .then(literal("setDimension").executes(commandContext -> {
-                                            NETHER_HighChunkSet.world = commandContext.getSource().getWorld();
-                                    commandContext.getSource().sendFeedback(()->Text.of("已设置维度为"+NETHER_HighChunkSet.world .getDimensionEntry().getIdAsString()),true);
-                                            return 1;
-                                        }))
-                                .then(literal("setTopY")
-                                        .then(argument("TopY", IntegerArgumentType.integer())
-                                        .executes(commandContext -> {
-                                            int TopY = IntegerArgumentType.getInteger(commandContext, "TopY");
-                                            if(TopY < NETHER_HighChunkSet.world.getBottomY() || TopY > NETHER_HighChunkSet.world.getBottomY()+NETHER_HighChunkSet.world.getHeight()) {
-                                                commandContext.getSource().sendFeedback(()->Text.of("请输入正确的范围"),false);
-
-                                                return 0;
-                                            }
-                                            NETHER_HighChunkSet.topY=TopY;
-                                            commandContext.getSource().sendFeedback(()-> Text.of("已设置高度为："+TopY),true);
-
-                                            return 1;
-                                        })
-                                ))
-
-                         */
                                 .then(literal("clear").executes(commandContext -> {
                                     NETHER_HighChunkSet.clear();
                                     commandContext.getSource().sendFeedback(()->Text.of("Clear HighChunkSet Finished "),true);
                                     return 1;
                                         }
-
                                 ))
-                        ));
+                        );
+               }
+
+       );
 
 
     }

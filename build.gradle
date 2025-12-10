@@ -13,8 +13,10 @@ def accesswidener = stonecutter.eval(minecraftVer, ">=1.21") ? "1_21_4.accesswid
 
 
 base {
-	archivesName = project.archives_base_name
+	archivesName = "${project.archives_base_name}-${minecraftVer}"
+
 }
+
 
 repositories {
 	maven {
@@ -77,18 +79,24 @@ java {
 	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
 	// if it is present.
 	// If you remove this line, sources will not be generated.
-	withSourcesJar()
+
+	//withSourcesJar()
 
 	sourceCompatibility = JavaVersion.VERSION_21
 	targetCompatibility = JavaVersion.VERSION_21
+
+
 }
 
 jar {
-	inputs.property "archivesName", project.base.archivesName
+	inputs.property "archivesName", "${project.base.archivesName}-${minecraftVer}"
 
 	from("LICENSE") {
 		rename { "${it}_${inputs.properties.archivesName}"}
 	}
+
+	//archiveBaseName.set("${project.archivesBaseName}-${project.version}-")
+	//archiveFileName = "${project.archives_base_name}-${project.mod_version}+mc${minecraftVer}.jar"
 }
 
 // configure the maven publication

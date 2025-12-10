@@ -16,6 +16,8 @@ public class ROFCarpetSettings
 
     public static final String ROF = "RofROF";
     public static final String HCL = "RofHCL";
+    public static final String PACKET = "Packet";
+
 
     public static class enderPearlForcedTickMinSpeedChance extends Validator<Double> {
         @Override
@@ -112,4 +114,10 @@ public class ROFCarpetSettings
     )
     public static int piglinMax= 10000;
 
+
+    @Rule(
+            categories = {ROF,OPTIMIZATION,PACKET},
+            strict = false
+    )
+    public static boolean TntPacketOptimization;
 }
