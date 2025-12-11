@@ -47,7 +47,7 @@ public abstract class TntEntityMixin extends Entity implements TntEntityAccessor
         if (ROFCarpetSettings.mergeTNTNext &&
                 this./*? >=1.21.10 {*/  /*getEntityWorld() *//*?} else {*/  getWorld() /*?}*/  instanceof ServerWorld world
 
-                && !this.isRemoved() && getFuse() > 2) {
+                && !this.isRemoved() && getFuse() > 1) {
             RofTool.EntityPosAndVec TntPosAndVec = new RofTool.EntityPosAndVec(this./*? >=1.21.10 {*/  /*getEntityPos() *//*?} else {*/  getPos() /*?}*/, this.getVelocity(), this.getFuse());
             HashMap<RofTool.EntityPosAndVec, TntEntity> TntMergeMap = ((ServerWorldAccessor) world).getTNTMergeMap();
             if (TntMergeMap.containsKey(TntPosAndVec)) {
@@ -70,7 +70,9 @@ public abstract class TntEntityMixin extends Entity implements TntEntityAccessor
                         .createExplosion(this, this.getX(), this.getBodyY(0.0625),
                         this.getZ(), 4.0F, World.ExplosionSourceType.TNT);
             }
-
+        else if (mergedTNT == 0) {
+            ci.cancel();
+        }
 
     }
 

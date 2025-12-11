@@ -31,10 +31,12 @@ public class ROFCarpetSettings
     }
 
     @Rule(
+
             options = { "16.0", "-1.0" },
             categories = {ROF,OPTIMIZATION,FEATURE},
             strict = false,
             validators = enderPearlForcedTickMinSpeedChance.class
+
     )
     public static double enderPearlForcedTickMinSpeed = -1;
 

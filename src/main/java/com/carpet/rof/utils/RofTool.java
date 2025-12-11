@@ -1,6 +1,7 @@
 package com.carpet.rof.utils;
 
 import carpet.script.external.Vanilla;
+import com.carpet.rof.ROFCarpetSettings;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -44,6 +45,17 @@ public class RofTool {
         public int hashCode() {
             return Objects.hash(pos, vec, Fuse);
         }
+    }
+
+    public static int fastHash(int x){
+        x = ((x >> 8) ^ x) * 0x119de1f3;
+        x = ((x >> 8) ^ x) * 0x119de1f3;
+        x = (x >> 8) ^ x;
+        return x & 0xFFFF;
+    }
+
+    public static boolean canLoadAi(int id,int count,int max){
+        return (fastHash(id) %(count+1)) <= max;
     }
 }
 

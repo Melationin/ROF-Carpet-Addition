@@ -19,6 +19,7 @@ public abstract class PiglinBrainMixin2 {
     private static void piglinBrain(PiglinEntity piglin, Brain<PiglinEntity> brain, CallbackInfoReturnable<Brain<?>> cir) {
         //brain.getPossibleActivities().clear();
         //brain.getPossibleActivities().add(RemoveOffHandItemTask.create());
+        //brain.re;
     }
 
     @Inject(method = "canGather",at = @At(value = "HEAD"),cancellable = true)
@@ -27,7 +28,7 @@ public abstract class PiglinBrainMixin2 {
             return;
         }
         int count =  ((PiglinEntityAccessor)piglin).getNearPiglinCount();
-        if(count> piglinMax && Math.random()*count>=1){
+        if(Math.random()*count>piglinMax){
             cir.setReturnValue(false);
             cir.cancel();
         }

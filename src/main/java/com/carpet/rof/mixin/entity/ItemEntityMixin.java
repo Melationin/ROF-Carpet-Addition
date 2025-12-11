@@ -24,35 +24,32 @@ public abstract class ItemEntityMixin {
     @SuppressWarnings("DataFlowIssue")
     @Inject(method = "tryMerge(Lnet/minecraft/entity/ItemEntity;)V", at = @At(value = "HEAD"),cancellable = true)
     private void tryMerge(ItemEntity itemEntity, CallbackInfo ci) {
-
         if(!optimizeItemMerge )     return;
-
         ItemEntity targetEntity = (ItemEntity) (Object) this;
         ItemStack targetEntityStack = this.getStack();
         ItemEntity otherEntity = itemEntity;
         ItemStack otherStack = itemEntity.getStack();
-        if (
-                targetEntityStack.getCount() >= targetEntityStack.getMaxCount() ||
+        int targetCount = targetEntityStack.getCount();
+        int otherCount = otherStack.getCount();
+        if (    !targetEntityStack.isStackable() || !otherStack.isStackable()||
+                targetCount >= targetEntityStack.getMaxCount() ||
                 !ItemStack.areItemsAndComponentsEqual(targetEntityStack, otherStack)||
                 !Objects.equals(this.owner, otherEntity.owner)
         ) {
             ci.cancel();
             return;
         }
-        if (otherStack.getCount() > targetEntityStack.getCount()) {
+        if (otherCount > targetCount) {
             targetEntity = itemEntity;
             targetEntityStack = otherStack;
+            targetCount = otherCount;
             otherEntity = (ItemEntity) (Object) this;
             otherStack = this.getStack();
+            otherCount = otherStack.getCount();
         }
-        int T1 = targetEntityStack.getCount();
-        int T2 = otherEntity.getStack().getCount();
-        int Max = targetEntityStack.getMaxCount();
-        int MoveCount = T1 + T2 > Max ? targetEntityStack.getMaxCount() - T1 : T2;
-
-        targetEntityStack.setCount(MoveCount + T1);
-        otherStack.setCount(T2 - MoveCount);
-
+        int MoveCount = targetCount +  otherCount > targetEntityStack.getMaxCount() ? targetEntityStack.getMaxCount() - targetCount :  otherCount;
+        targetEntityStack.setCount(targetCount+MoveCount );
+        otherStack.setCount( otherCount - MoveCount);
         targetEntity.pickupDelay = Math.max(targetEntity.pickupDelay, otherEntity.pickupDelay);
         targetEntity.itemAge = Math.min(targetEntity.itemAge, otherEntity.itemAge);
         if (otherEntity.getStack().isEmpty()) {

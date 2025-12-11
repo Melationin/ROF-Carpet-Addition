@@ -8,6 +8,8 @@
     "entity.LivingEntityMixin",
     "entity.TntEntityMixin",
     "entity.mob.BrainMixin2",
+    "entity.mob.FindInteractionTargetTaskMixin",
+    "entity.mob.LookAtMobTaskMixin",
     "entity.mob.MobEntityMixin",
     "entity.mob.PiglinBrainMixin2",
     "entity.mob.PiglinEntityMixin",
@@ -15,7 +17,6 @@
     "hcl.HeightmapMixin",
     "hcl.raycast.BlockViewMixin2",
     "network.EntityTrackerEntryMixin",
-
     "world.ChunkMixin",
     "world.ServerChunkManagerMixin",
     "world.ServerWorldMixin",

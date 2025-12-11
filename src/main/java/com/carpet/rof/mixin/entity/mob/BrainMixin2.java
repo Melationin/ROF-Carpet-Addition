@@ -2,6 +2,7 @@ package com.carpet.rof.mixin.entity.mob;
 
 
 import com.carpet.rof.accessor.PiglinEntityAccessor;
+import com.carpet.rof.utils.RofTool;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.Activity;
 import net.minecraft.entity.ai.brain.Brain;
@@ -22,6 +23,9 @@ import static com.carpet.rof.ROFCarpetSettings.piglinMax;
 
 @Mixin(value = Brain.class,priority = 2000)
 public class BrainMixin2<E extends LivingEntity> {
+
+
+
     @Shadow @Final private Map<Integer, Map<Activity, Set<Task<? super E>>>> tasks;
 
     @Shadow @Final private Set<Activity> possibleActivities;
@@ -30,9 +34,7 @@ public class BrainMixin2<E extends LivingEntity> {
     public void tickSensors(ServerWorld world, E entity, CallbackInfo ci){
         if(entity instanceof PiglinEntity piglin){
             int count = ((PiglinEntityAccessor)piglin).getNearPiglinCount();
-            if(count>=piglinMax && Math.random()*count>=1){
-                ci.cancel();
-            }
+            if(!(RofTool.canLoadAi(piglin.getId(),count,piglinMax))) ci.cancel();
         }
     }
 
