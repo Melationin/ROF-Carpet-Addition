@@ -3,6 +3,8 @@
   "package": "com.carpet.rof.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "MinecraftServerMixin",
+    "block.PistonBlockEntityMixin",
     "entity.EnderPearlEntityMixin",
     "entity.ItemEntityMixin",
     "entity.LivingEntityMixin",

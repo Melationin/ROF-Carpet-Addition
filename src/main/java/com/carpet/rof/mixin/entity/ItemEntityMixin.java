@@ -1,5 +1,6 @@
 package com.carpet.rof.mixin.entity;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -53,7 +54,7 @@ public abstract class ItemEntityMixin {
         targetEntity.pickupDelay = Math.max(targetEntity.pickupDelay, otherEntity.pickupDelay);
         targetEntity.itemAge = Math.min(targetEntity.itemAge, otherEntity.itemAge);
         if (otherEntity.getStack().isEmpty()) {
-            otherEntity.discard();
+            otherEntity.remove(Entity.RemovalReason.DISCARDED);
         }
         ci.cancel();
     }

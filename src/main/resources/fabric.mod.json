@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "rof-carpet-addition",
-  "version": "1.1.2",
+  "version": "${modVer}",
 
   "name": "ROF-Carpet-addition",
   "description": "主要添加了一些较为激进的优化特性",

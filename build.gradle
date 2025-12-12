@@ -67,7 +67,8 @@ processResources {
 	filesMatching("fabric.mod.json") {
 		expand( [
 				"minecraftVer": stonecutter.current.version,
-				aw_file: accesswidener
+				aw_file: accesswidener,
+				"modVer": mod_version
 				])
 
 	}
