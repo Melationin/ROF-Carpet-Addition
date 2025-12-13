@@ -2,14 +2,18 @@ package com.carpet.rof.mixin.world;
 
 import com.carpet.rof.ROFCarpetSettings;
 import com.carpet.rof.accessor.ServerWorldAccessor;
+import com.carpet.rof.utils.BlockEventPreQueue;
 import com.carpet.rof.utils.HighChunkSet;
 import com.carpet.rof.utils.RofTool;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.TntEntity;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.BlockEvent;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -20,6 +24,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.tick.TickManager;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -46,7 +51,7 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
 
     @Shadow @Final  EntityList entityList;
 
-
+    private BlockEventPreQueue blockEventPreQueue;
 
 
     //? >=1.21.4 {
@@ -61,6 +66,14 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
     *///?}
 
     @Shadow public abstract void tickEntity(Entity entity);
+
+    @Shadow @Final private boolean shouldTickTime;
+
+    @Shadow public abstract TickManager getTickManager();
+
+    @Shadow @Final public ObjectLinkedOpenHashSet<BlockEvent> syncedBlockEventQueue;
+
+    @Shadow public abstract void addSyncedBlockEvent(BlockPos pos, Block block, int type, int data);
 
     @Unique
     final EntityList OtherEntitylist = new EntityList();
@@ -79,6 +92,8 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
         *///?} else {
         return !this.chunkManager.chunkLoadingManager.getLevelManager().shouldTickEntities(entity.getChunkPos().toLong());
         //?}
+
+
 
 
     }
@@ -144,8 +159,12 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
     void saveWorld(CallbackInfo ci){
         if(ROFCarpetSettings.highChunkListener && (Object)this == NETHER_HighChunkSet.world){
             NETHER_HighChunkSet.Save();
+
             System.out.println("Saving High Chunks");
         }
+
+        //blockEventPreQueue.loadFromBEqueue((ServerWorld)(Object)this);
+        //blockEventPreQueue.Save((ServerWorld)(Object)this);
     }
 
     @Inject(method = "<init>",at = @At(value = "RETURN"))
@@ -153,16 +172,56 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
         if( ROFCarpetSettings.highChunkListener && RofTool.isNetherWorld(this)){
             NETHER_HighChunkSet = new HighChunkSet(129,(ServerWorld)(Object)this);
             NETHER_HighChunkSet.load();
+
+
             System.out.println(NETHER_HighChunkSet.size()+" Chunks Loaded");
         }
+
+       // blockEventPreQueue = new BlockEventPreQueue();
+        //blockEventPreQueue.load((ServerWorld)(Object)this);
     }
-    @Inject(method = "tick",at =@At(value = "HEAD"))
-    void tick(BooleanSupplier shouldKeepTicking, CallbackInfo ci){
-        if(ROFCarpetSettings.highChunkListener && (Object)this == NETHER_HighChunkSet.world){
-            NETHER_HighChunkSet.update();
+    /*
+    @Inject(method = "processSyncedBlockEvents",at = @At(value = "HEAD"))
+    void processSyncedBlockEvents(CallbackInfo ci){
+        var queue = blockEventPreQueue.getPreBlockEventQueue();
+        System.out.println("Processing Synced BlockEvents: queue size: " + queue.size());
+        if(!queue.isEmpty()){
+            for (var blockEvent : queue) {
+                if(this.isChunkLoaded(blockEvent.x>>4,blockEvent.z>>4)){
+                    BlockEvent blockEvent1 = new BlockEvent(
+                            new BlockPos(blockEvent.x,blockEvent.y,blockEvent.z),
+                            this.getBlockState(new BlockPos(blockEvent.x,blockEvent.y,blockEvent.z)).getBlock(),
+                            blockEvent.type,
+                            blockEvent.data);
+                    System.out.println("addPreBlockEvent:");
+                    System.out.println("\t Pos:"+blockEvent1.pos().toString() +" block:"+ blockEvent1.block().toString() +" type:"+blockEvent.type+" data:"+blockEvent.data);
+
+                    this.syncedBlockEventQueue.add(
+                            blockEvent1
+                    );
+                }
+            }
+
+            queue.clear();
         }
     }
-
+*/
+    @Inject(method = "tick",at =@At(value = "HEAD"))
+    void tick(BooleanSupplier shouldKeepTicking, CallbackInfo ci){
+        if(this.getTickManager().shouldTick()) {
+            //System.out.println(this.getTime());
+            if (ROFCarpetSettings.highChunkListener && (Object) this == NETHER_HighChunkSet.world) {
+                NETHER_HighChunkSet.update();
+            }
+        }
+    }
+/*
+    @Inject(method = "addSyncedBlockEvent",at = @At(value = "HEAD"))
+    void addSyncedBlockEvent(BlockPos pos, Block block, int type, int data, CallbackInfo ci) {
+        System.out.println("addSyncedBlockEvent:");
+        System.out.println("\t Pos:"+pos.toString() +" block:"+ block.toString() +" type:"+type +" data:"+data);
+    }
+*/
     //endregion
 
 }

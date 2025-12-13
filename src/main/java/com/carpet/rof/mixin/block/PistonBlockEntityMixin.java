@@ -1,9 +1,12 @@
 //package com.carpet.rof.mixin.block;
 //
+//import net.minecraft.block.BlockState;
 //import net.minecraft.block.entity.PistonBlockEntity;
 //import net.minecraft.storage.ReadView;
 //import net.minecraft.storage.WriteView;
+//import net.minecraft.util.math.BlockPos;
 //import net.minecraft.util.math.Direction;
+//import net.minecraft.world.World;
 //import org.spongepowered.asm.mixin.Mixin;
 //import org.spongepowered.asm.mixin.Shadow;
 //import org.spongepowered.asm.mixin.injection.At;
@@ -17,21 +20,26 @@
 //
 //    @Shadow private float lastProgress;
 //
-//    @Redirect(method = "writeData",at = @At(value = "INVOKE", target = "Lnet/minecraft/storage/WriteView;putFloat(Ljava/lang/String;F)V"))
-//    public void writeData(WriteView instance, String s, float v){
+//    @Shadow private long savedWorldTime;
+//
+//    @Shadow public abstract long getSavedWorldTime();
+//
+//    @Inject(method = "writeData",at = @At(value = "TAIL" ))
+//    public void writeData1(WriteView view, CallbackInfo ci){
+//       // view.putLong("savedWorldTime",savedWorldTime);
+//       // view.putLong("AAAA",hashCode());
+//        //view.putFloat("progress",progress);
 //        //instance.putFloat("progress", this.progress);
 //    }
 //
-//    @Inject(method = "readData", at = @At("TAIL"))
-//    private void fixPistonProgress(ReadView nbt, CallbackInfo ci) {
-//        // 读取后检查进度
-////        float savedProgress = nbt.getFloat("progress",0);
-////
-////        // 如果活塞处于中途推动状态（progress 在 0-1 之间）
-////        if (savedProgress > 0.0F && savedProgress < 1.0F) {
-////            // 强制设置为完成状态，这样 tick() 会自动清理并还原方块
-////            this.progress = 1.0F;
-////            this.lastProgress = 1.0F;
-////        }
+//    @Inject(method = "readData",at = @At(value = "TAIL"))
+//    public void readData2(ReadView view, CallbackInfo ci){
+//      //savedWorldTime = view.getLong("savedWorldTime",0);
+//    }
+//
+//
+//    @Inject(method = "tick",at = @At(value = "HEAD"))
+//    private static void tick(World world, BlockPos pos, BlockState state, PistonBlockEntity blockEntity, CallbackInfo ci){
+//       // System.out.println("BEtick!!!!!time:" + world.getTime()+blockEntity.getPos().toString());
 //    }
 //}

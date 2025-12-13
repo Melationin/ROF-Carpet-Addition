@@ -15,6 +15,6 @@ public abstract class MinecraftServerMixin {
 
     @Inject(method = "runServer",at= @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;createMetadata()Lnet/minecraft/server/ServerMetadata;", shift = At.Shift.AFTER) )
     public void runServer(CallbackInfo ci){
-       // this.tickManager.setFrozen(true);
+        this.tickManager.setFrozen(true);
     }
 }

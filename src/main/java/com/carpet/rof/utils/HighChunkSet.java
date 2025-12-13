@@ -117,7 +117,6 @@ public class HighChunkSet {
         } catch (IOException ignored) {
 
         }
-
     }
 
     public void LoadFromFile(Path path){
