@@ -2,10 +2,12 @@ package com.carpet.rof.mixin.hcl;
 
 import com.carpet.rof.ROFCarpetSettings;
 import net.minecraft.block.BlockState;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.collection.PaletteStorage;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
+import org.apache.logging.log4j.core.jmx.Server;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,7 +30,8 @@ public class HeightmapMixin {
     @Inject(method = "set",at = @At(value = "HEAD"))
     public void SetMixin(int x, int z, int height, CallbackInfo ci){
 
-        if(ROFCarpetSettings.highChunkListener && chunk instanceof WorldChunk worldChunk){
+        if(
+                ROFCarpetSettings.highChunkListener && chunk instanceof WorldChunk worldChunk && worldChunk.getWorld() instanceof ServerWorld serverWorld){
             if(     height>= NETHER_HighChunkSet.topY
                     && this.blockPredicate == Heightmap.Type.MOTION_BLOCKING.getBlockPredicate()
                     && worldChunk.getWorld()==NETHER_HighChunkSet.world

@@ -12,10 +12,8 @@ import java.util.ArrayList;
 @Mixin(Chunk.class)
 public class ChunkMixin implements ChunkAccessor{
 
-    //region getBiome
     @Unique
     final ArrayList<RegistryEntry<Biome>[]> biomeArray = new ArrayList<>();
-    // final [] biomeArray = new RegistryEntry[getBiomeLayerCache][256];
 
     @SuppressWarnings("unchecked")
     @Override

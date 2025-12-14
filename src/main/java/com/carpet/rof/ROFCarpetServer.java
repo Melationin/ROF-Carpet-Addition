@@ -4,14 +4,22 @@ import carpet.CarpetExtension;
 import carpet.CarpetServer;
 
 
-import com.carpet.rof.utils.PacketRecord;
 import com.carpet.rof.utils.RofCarpetTranslations;
 import com.carpet.rof.utils.HighChunkSet;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+//? >= 1.21.11 {
+/*import net.minecraft.command.permission.Permission;
+import net.minecraft.command.permission.PermissionLevel;
+import net.minecraft.command.permission.PermissionPredicate;
+import net.minecraft.command.permission.Permissions;
+
+*///?}
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
-import net.minecraft.util.profiling.jfr.sample.NetworkIoStatistics;
 
 //import static com.carpet.rof.utils.PacketRecord.packetRecord;
 import static net.minecraft.server.command.CommandManager.*;
@@ -42,6 +50,16 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
 
     }
 
+    public boolean hasPermission(ServerCommandSource source)  {
+        //? >= 1.21.11 {
+        /*return source.getPermissions().hasPermission(new Permission.Level(PermissionLevel.fromLevel(4)));
+        *///?} else {
+            return source.hasPermissionLevel(4);
+
+        //?}
+
+    }
+
     @Override
     public void onGameStarted()
     {
@@ -50,7 +68,7 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
                {
                 dispatcher.register(literal("highChunkListener")
-                                .requires(source -> source.hasPermissionLevel(4))
+                                .requires(this::hasPermission /*hasPermissionLevel(4)*/ )
                                 .requires((source) -> carpet.utils.CommandHelper.canUseCommand(source, ROFCarpetSettings.highChunkListener))
                                 .then(literal("loadFromWorld").executes(context -> {
                             Thread tempThread = new HighChunkSet.ReloadThread(NETHER_HighChunkSet,

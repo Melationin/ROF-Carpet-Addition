@@ -2,7 +2,6 @@ package com.carpet.rof.mixin.world;
 
 import com.carpet.rof.ROFCarpetSettings;
 import com.carpet.rof.accessor.ServerWorldAccessor;
-import com.carpet.rof.utils.BlockEventPreQueue;
 import com.carpet.rof.utils.HighChunkSet;
 import com.carpet.rof.utils.RofTool;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
@@ -51,7 +50,6 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
 
     @Shadow @Final  EntityList entityList;
 
-    private BlockEventPreQueue blockEventPreQueue;
 
 
     //? >=1.21.4 {
@@ -132,9 +130,6 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
         NowChunk = nowChunk;
     }
 
-    //endregion
-
-    //region entity
 
     @Inject(method = "tick",at = @At(value = "HEAD"))
     void clearTNTMergeMap(CallbackInfo ci){
@@ -151,9 +146,6 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
         });
     }
 
-    //endregion
-
-    //region hcl
 
     @Inject(method = "save",at = @At(value = "HEAD"))
     void saveWorld(CallbackInfo ci){
@@ -162,11 +154,7 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
 
             System.out.println("Saving High Chunks");
         }
-
-        //blockEventPreQueue.loadFromBEqueue((ServerWorld)(Object)this);
-        //blockEventPreQueue.Save((ServerWorld)(Object)this);
     }
-
     @Inject(method = "<init>",at = @At(value = "RETURN"))
     void loadWorld(CallbackInfo ci){
         if( ROFCarpetSettings.highChunkListener && RofTool.isNetherWorld(this)){
@@ -176,36 +164,7 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
 
             System.out.println(NETHER_HighChunkSet.size()+" Chunks Loaded");
         }
-
-       // blockEventPreQueue = new BlockEventPreQueue();
-        //blockEventPreQueue.load((ServerWorld)(Object)this);
     }
-    /*
-    @Inject(method = "processSyncedBlockEvents",at = @At(value = "HEAD"))
-    void processSyncedBlockEvents(CallbackInfo ci){
-        var queue = blockEventPreQueue.getPreBlockEventQueue();
-        System.out.println("Processing Synced BlockEvents: queue size: " + queue.size());
-        if(!queue.isEmpty()){
-            for (var blockEvent : queue) {
-                if(this.isChunkLoaded(blockEvent.x>>4,blockEvent.z>>4)){
-                    BlockEvent blockEvent1 = new BlockEvent(
-                            new BlockPos(blockEvent.x,blockEvent.y,blockEvent.z),
-                            this.getBlockState(new BlockPos(blockEvent.x,blockEvent.y,blockEvent.z)).getBlock(),
-                            blockEvent.type,
-                            blockEvent.data);
-                    System.out.println("addPreBlockEvent:");
-                    System.out.println("\t Pos:"+blockEvent1.pos().toString() +" block:"+ blockEvent1.block().toString() +" type:"+blockEvent.type+" data:"+blockEvent.data);
-
-                    this.syncedBlockEventQueue.add(
-                            blockEvent1
-                    );
-                }
-            }
-
-            queue.clear();
-        }
-    }
-*/
     @Inject(method = "tick",at =@At(value = "HEAD"))
     void tick(BooleanSupplier shouldKeepTicking, CallbackInfo ci){
         if(this.getTickManager().shouldTick()) {
@@ -215,14 +174,6 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
             }
         }
     }
-/*
-    @Inject(method = "addSyncedBlockEvent",at = @At(value = "HEAD"))
-    void addSyncedBlockEvent(BlockPos pos, Block block, int type, int data, CallbackInfo ci) {
-        System.out.println("addSyncedBlockEvent:");
-        System.out.println("\t Pos:"+pos.toString() +" block:"+ block.toString() +" type:"+type +" data:"+data);
-    }
-*/
-    //endregion
 
 }
 
