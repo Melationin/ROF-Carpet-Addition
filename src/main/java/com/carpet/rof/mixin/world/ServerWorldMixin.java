@@ -92,10 +92,7 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
         *///?} else {
         return !this.chunkManager.chunkLoadingManager.getLevelManager().shouldTickEntities(entity.getChunkPos().toLong());
         //?}
-
-
-
-
+        
     }
 
     @Unique
@@ -163,8 +160,8 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
             System.out.println("Saving High Chunks");
         }
 
-        //blockEventPreQueue.loadFromBEqueue((ServerWorld)(Object)this);
-        //blockEventPreQueue.Save((ServerWorld)(Object)this);
+        blockEventPreQueue.loadFromBEqueue((ServerWorld)(Object)this);
+        blockEventPreQueue.Save((ServerWorld)(Object)this);
     }
 
     @Inject(method = "<init>",at = @At(value = "RETURN"))
@@ -177,10 +174,10 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
             System.out.println(NETHER_HighChunkSet.size()+" Chunks Loaded");
         }
 
-       // blockEventPreQueue = new BlockEventPreQueue();
-        //blockEventPreQueue.load((ServerWorld)(Object)this);
+       blockEventPreQueue = new BlockEventPreQueue();
+        blockEventPreQueue.load((ServerWorld)(Object)this);
     }
-    /*
+
     @Inject(method = "processSyncedBlockEvents",at = @At(value = "HEAD"))
     void processSyncedBlockEvents(CallbackInfo ci){
         var queue = blockEventPreQueue.getPreBlockEventQueue();
@@ -205,7 +202,7 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
             queue.clear();
         }
     }
-*/
+
     @Inject(method = "tick",at =@At(value = "HEAD"))
     void tick(BooleanSupplier shouldKeepTicking, CallbackInfo ci){
         if(this.getTickManager().shouldTick()) {
@@ -215,13 +212,13 @@ public abstract class ServerWorldMixin extends World implements ServerWorldAcces
             }
         }
     }
-/*
+
     @Inject(method = "addSyncedBlockEvent",at = @At(value = "HEAD"))
     void addSyncedBlockEvent(BlockPos pos, Block block, int type, int data, CallbackInfo ci) {
-        System.out.println("addSyncedBlockEvent:");
+       System.out.println("addSyncedBlockEvent:");
         System.out.println("\t Pos:"+pos.toString() +" block:"+ block.toString() +" type:"+type +" data:"+data);
     }
-*/
+
     //endregion
 
 }

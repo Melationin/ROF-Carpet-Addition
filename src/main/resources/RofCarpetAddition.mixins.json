@@ -3,7 +3,10 @@
   "package": "com.carpet.rof.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-
+    "MinecraftServerMixin",
+    "block.BlockEntityMixin",
+    "block.PistonBlockEntityMixin",
+    "block.PistonBlockMixin",
     "entity.EnderPearlEntityMixin",
     "entity.ItemEntityMixin",
     "entity.LivingEntityMixin",
@@ -21,8 +24,8 @@
     "world.ChunkMixin",
     "world.ServerChunkManagerMixin",
     "world.ServerWorldMixin",
-
-
+    "world.WorldChunkMixin",
+    "world.WorldMixin",
     "world.WorldViewMixin",
     "world.spawn.SpawnHelperMixin"
   ],

@@ -59,6 +59,7 @@ public class HighChunkSet {
             chunkCache = chunkPos;
             return true;
 
+
         }
     }
 
@@ -108,12 +109,17 @@ public class HighChunkSet {
     }
 
     public void SaveToFile(Path path){
-        try (ObjectOutputStream oos = new ObjectOutputStream(
-                new FileOutputStream(path.toString()))) {
+        try {
+                var fos =  new FileOutputStream(path.toString());
+                ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeInt(highChunkSet.size());
             for(Long l : highChunkSet) {
                 oos.writeLong(l);
             }
+            oos.close();
+            fos.close();
+
+
         } catch (IOException ignored) {
 
         }

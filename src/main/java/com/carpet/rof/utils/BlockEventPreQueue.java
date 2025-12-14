@@ -36,10 +36,12 @@ public class BlockEventPreQueue {
     private ObjectLinkedOpenHashSet<preBlockEvent> preBlockEventQueue = new ObjectLinkedOpenHashSet<>();
 
     public void SaveToFile(Path path) {
-        try (ObjectOutputStream oos = new ObjectOutputStream(
-                new FileOutputStream(path.toString()))) {
+        try {
+            var fos = new FileOutputStream(path.toString());
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(preBlockEventQueue);
             oos.close();
+            fos.close();
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -52,11 +54,14 @@ public class BlockEventPreQueue {
     @SuppressWarnings("unchecked")
     public void loadFromFile(Path file)
             {
-        try (ObjectInputStream ois = new ObjectInputStream(
-                new FileInputStream(file.toString()))) {
+        try {
+                var fos =  new FileInputStream(file.toString());
+                ObjectInputStream ois = new ObjectInputStream(
+              fos) ;
             preBlockEventQueue = (ObjectLinkedOpenHashSet<preBlockEvent>)ois.readObject();
 
             ois.close();
+            fos.close();
         }
         catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
