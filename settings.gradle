@@ -11,13 +11,15 @@ pluginManagement {
 			name = 'Fabric'
 			url = 'https://maven.fabricmc.net/'
 		}
-		mavenCentral()
-		gradlePluginPortal()
+
 
 		maven { url = "https://api.modrinth.com/maven" }
 		maven{
 			name = "KikuGie Snapshots"
 			url = "https://maven.kikugie.dev/snapshots"}
+		mavenCentral()
+		mavenLocal()
+		gradlePluginPortal()
 	}
 }
 

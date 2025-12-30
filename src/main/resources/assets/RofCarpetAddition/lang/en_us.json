@@ -4,38 +4,5 @@
 
   "carpet.category.RofROF": "ROF",
 
-  "carpet.category.PACKET": "PACKET",
-
-  "carpet.rule.enderPearlRaycastLength.desc":"珍珠碰撞检测长度",
-
-
-
-  "carpet.rule.enderPearlForcedTickMinSpeed.desc":"珍珠加载最小速度",
-  "carpet.rule.enderPearlForcedTickMinSpeed.extra.0": " ",
-
-  "carpet.rule.enderPearlSkipUngeneratedRegion.desc":" ",
-
-  "carpet.rule.forceEnderPearlLogger.desc":"",
-
-  "carpet.rule.highChunkListener.desc":" ",
-
-  "carpet.rule.optimizeRaycastWithHCL.desc" : "",
-
-  "carpet.rule.mergeTNTNext.desc":" ",
-
-  "carpet.rule.mobAIDelay.desc":" ",
-
-  "carpet.rule.getBiomeLayerCache.desc": " ",
-
-  "carpet.rule.optimizeSpawnAttempts.desc":"",
-
-  "carpet.rule.optimizeItemMerge.desc": "",
-
-  "carpet.rule.optimizePortalPos.desc": "",
-
-  "carpet.rule.piglinLootItemDelay.desc": "",
-
-  "carpet.rule.piglinMax.desc": "",
-
-  "carpet.rule.TntPacketOptimization.desc": ""
+  "carpet.category.PACKET": "PACKET"
 }

@@ -1,14 +1,23 @@
 package com.carpet.rof.utils;
 
 import carpet.script.external.Vanilla;
-import com.carpet.rof.ROFCarpetSettings;
+
+//? >= 1.21.11 {
+import net.minecraft.command.permission.Permission;
+import net.minecraft.command.permission.PermissionLevel;
+//? }
+import net.minecraft.entity.Entity;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.poi.PointOfInterestStorage;
 
+import java.io.File;
+import java.net.URL;
 import java.nio.file.Path;
+import java.util.Enumeration;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -54,8 +63,42 @@ public class RofTool {
         return x & 0xFFFF;
     }
 
+
+    public static World getWorld_(Entity entity) {
+        //? if >=1.21.10 {
+        return entity.getEntityWorld();
+        //?} else {
+        /*return entity.getWorld();
+        *///?}
+    }
+
+    public static Vec3d getPos_(Entity entity) {
+        //? if >=1.21.10 {
+            return entity.getEntityPos();
+
+        //?} else {
+        /*return entity.getPos();
+        *///?}
+    }
+
+    public static String toString_(Vec3d vec) {
+       return  "x: %.4f, y: %.4f, z: %.4f".formatted(vec.x,vec.y,vec.z);
+
+    }
+
+
     public static boolean canLoadAi(int id,int count,int max){
         return (fastHash(id) %(count+1)) <= max;
+    }
+
+    public static boolean hasPermission(ServerCommandSource source)  {
+        //? >= 1.21.11 {
+        return source.getPermissions().hasPermission(new Permission.Level(PermissionLevel.fromLevel(4)));
+         //?} else {
+        /*return source.hasPermissionLevel(4);
+
+        *///?}
+
     }
 }
 

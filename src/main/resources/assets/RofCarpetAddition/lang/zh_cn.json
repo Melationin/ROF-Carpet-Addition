@@ -45,5 +45,17 @@
   "carpet.rule.piglinMax.desc": "堆叠到一定量的猪灵自动降智，减少卡顿（不会影响猪灵交易）",
 
   "carpet.rule.TntPacketOptimization.name": "tnt实体发包优化",
-  "carpet.rule.TntPacketOptimization.desc": "减少tnt实体的发包。可能会使客户端显示异常。"
+  "carpet.rule.TntPacketOptimization.desc": "减少tnt实体的发包。可能会使客户端显示异常。",
+
+  "carpet.rule.highEnderPearlNoChunkLoading.name": "高珍珠不加载区块",
+  "carpet.rule.highEnderPearlNoChunkLoading.desc": "在开启更好的珍珠加载的情况下，超过世界高度的珍珠不会加载区块，但会加载自身",
+
+  "carpet.rule.highLagFreezeLimit.name":"高卡自动暂停阈值",
+  "carpet.rule.highLagFreezeLimit.desc":"设置正数表示启用。当连续几tick用时超过此阈值时，自动暂停。",
+
+  "carpet.rule.highLagFreezeTickLimit.name":"高卡自动暂停tick阈值",
+  "carpet.rule.highLagFreezeTickLimit.desc":"设置正数表示启用。当连续几tick用时超过此阈值时，自动暂停。",
+
+  "carpet.rule.unfreezeCommand.name":"添加unfreeze命令",
+  "carpet.rule.unfreezeCommand.desc":"此命令允许任何人执行，请与高卡自动暂停配套使用"
 }
