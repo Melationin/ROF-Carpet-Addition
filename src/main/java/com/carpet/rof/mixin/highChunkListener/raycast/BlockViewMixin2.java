@@ -18,6 +18,7 @@ public interface BlockViewMixin2 {
     @Inject(method = "method_17743",at = @At(value = "HEAD"),cancellable = true)
     default void method_177432(RaycastContext innerContext, BlockPos pos, CallbackInfoReturnable<BlockHitResult> cir){
         if(optimizeRaycastWithHCL
+                && NETHER_HighChunkSet!=null
                 &&pos.getY()>= NETHER_HighChunkSet.topY-1
                 && (Object)this ==  NETHER_HighChunkSet.world
                 && NETHER_HighChunkSet.isHighChunk(new ChunkPos(pos))){

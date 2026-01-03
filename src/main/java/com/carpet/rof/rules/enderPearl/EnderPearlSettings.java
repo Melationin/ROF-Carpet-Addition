@@ -4,7 +4,7 @@ import carpet.api.settings.CarpetRule;
 import carpet.api.settings.Rule;
 import carpet.api.settings.Validator;
 import com.carpet.rof.BaseSetting;
-import com.carpet.rof.RulesSetting;
+import com.carpet.rof.annotation.RulesSetting;
 import net.minecraft.server.command.ServerCommandSource;
 
 import static carpet.api.settings.RuleCategory.FEATURE;

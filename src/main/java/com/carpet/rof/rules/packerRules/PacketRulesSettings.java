@@ -2,8 +2,8 @@ package com.carpet.rof.rules.packerRules;
 
 import carpet.api.settings.Rule;
 import com.carpet.rof.BaseSetting;
-import com.carpet.rof.QuickTranslations;
-import com.carpet.rof.RulesSetting;
+import com.carpet.rof.annotation.QuickTranslations;
+import com.carpet.rof.annotation.RulesSetting;
 
 import static carpet.api.settings.RuleCategory.OPTIMIZATION;
 

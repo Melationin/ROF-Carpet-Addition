@@ -3,9 +3,9 @@ package com.carpet.rof.utils;
 import carpet.script.external.Vanilla;
 
 //? >= 1.21.11 {
-import net.minecraft.command.permission.Permission;
+/*import net.minecraft.command.permission.Permission;
 import net.minecraft.command.permission.PermissionLevel;
-//? }
+*///?}
 import net.minecraft.entity.Entity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
@@ -15,11 +15,16 @@ import net.minecraft.world.World;
 import net.minecraft.world.poi.PointOfInterestStorage;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Enumeration;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import static net.minecraft.world.dimension.DimensionTypes.THE_NETHER;
 
@@ -93,12 +98,19 @@ public class RofTool {
 
     public static boolean hasPermission(ServerCommandSource source)  {
         //? >= 1.21.11 {
-        return source.getPermissions().hasPermission(new Permission.Level(PermissionLevel.fromLevel(4)));
-         //?} else {
-        /*return source.hasPermissionLevel(4);
+        /*return source.getPermissions().hasPermission(new Permission.Level(PermissionLevel.fromLevel(4)));
+         *///?} else {
+        return source.hasPermissionLevel(4);
 
-        *///?}
+        //?}
 
     }
-}
+
+
+
+
+
+
+
+    }
 

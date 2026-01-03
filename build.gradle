@@ -26,6 +26,7 @@ repositories {
 	maven{
 		url "https://api.modrinth.com/maven"
 	}
+	mavenCentral()
 }
 
 loom {
@@ -58,6 +59,8 @@ dependencies {
 	implementation 'it.unimi.dsi:fastutil:8.5.12'
 	//implementation "maven.modrinth:lithium:${property("lithium_version")}"
 	//modImplementation "maven.modrinth:lithium:${property("lithium_version")}"
+	implementation 'org.mozilla:rhino:1.7.14'
+	include 'org.mozilla:rhino:1.7.14'
 
 }
 

@@ -2,7 +2,7 @@ package com.carpet.rof.rules.mergeTNTNext;
 
 import carpet.api.settings.Rule;
 import com.carpet.rof.BaseSetting;
-import com.carpet.rof.RulesSetting;
+import com.carpet.rof.annotation.RulesSetting;
 
 import static carpet.api.settings.RuleCategory.OPTIMIZATION;
 import static carpet.api.settings.RuleCategory.TNT;
