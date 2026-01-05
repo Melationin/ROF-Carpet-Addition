@@ -1,7 +1,7 @@
 package com.carpet.rof.utils;
 
 import carpet.api.settings.Rule;
-import com.carpet.rof.QuickTranslations;
+import com.carpet.rof.annotation.QuickTranslations;
 import com.carpet.rof.Settings;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -34,31 +34,30 @@ public class RofCarpetTranslations
         Map<String, String> tempMap =  gson.fromJson(jsonData, new TypeToken<Map<String, String>>() {}.getType());
 
         var classes = Settings.ruleClasses;
+        System.out.println("classes.size: "+classes.size());
         for (var clazz : classes) {
             for (Field field : clazz.getDeclaredFields()) {
                 String n1 = "carpet.rule." + field.getName();
-                System.out.println(n1);
-                if(field.isAnnotationPresent(Rule.class)){
-                    if(!tempMap.containsKey(n1+".desc") && lang.equals( "en_us")) {
-                        tempMap.put(n1+".desc","");
+                if(field.isAnnotationPresent(Rule.class)) {
+                    if (!tempMap.containsKey(n1 + ".desc") && lang.equals("en_us")) {
+                        tempMap.put(n1 + ".desc", "");
                     }
-                }
-
-                if (field.isAnnotationPresent(QuickTranslations.class)) {
-                    QuickTranslations translations = field.getAnnotation(QuickTranslations.class);
-                        if(translations.lang().equals(lang)) {
-                            if(!tempMap.containsKey(n1+".desc") ) {
-                                tempMap.put(n1+".desc", translations.description());
+                    if (field.isAnnotationPresent(QuickTranslations.class)) {
+                        QuickTranslations translations = field.getAnnotation(QuickTranslations.class);
+                        if (translations.lang().equals(lang)) {
+                            if (!tempMap.containsKey(n1 + ".desc")) {
+                                tempMap.put(n1 + ".desc", translations.description());
                             }
-                            if(!tempMap.containsKey(n1+".name") ) {
-                                tempMap.put(n1+".name", translations.name());
+                            if (!tempMap.containsKey(n1 + ".name")) {
+                                tempMap.put(n1 + ".name", translations.name());
                             }
-                            if(!tempMap.containsKey(n1+".extra")) {
-                               for(int i = 0; i < translations.extra().length; i++) {
-                                   tempMap.put(n1+".extra." + i , translations.extra()[i]);
-                               }
+                            if (!tempMap.containsKey(n1 + ".extra")) {
+                                for (int i = 0; i < translations.extra().length; i++) {
+                                    tempMap.put(n1 + ".extra." + i, translations.extra()[i]);
+                                }
                             }
                         }
+                    }
                 }
             }
         }

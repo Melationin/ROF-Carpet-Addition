@@ -2,7 +2,7 @@ package com.carpet.rof.rules.highChunkListener;
 
 import carpet.api.settings.Rule;
 import com.carpet.rof.BaseSetting;
-import com.carpet.rof.RulesSetting;
+import com.carpet.rof.annotation.RulesSetting;
 
 import static carpet.api.settings.RuleCategory.EXPERIMENTAL;
 import static carpet.api.settings.RuleCategory.OPTIMIZATION;

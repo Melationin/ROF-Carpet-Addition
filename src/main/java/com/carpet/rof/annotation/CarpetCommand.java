@@ -1,4 +1,4 @@
-package com.carpet.rof;
+package com.carpet.rof.annotation;
 
 
 import java.lang.annotation.ElementType;
@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface RulesSetting {
+public @interface CarpetCommand {
     boolean enabled() default true;
 }
 

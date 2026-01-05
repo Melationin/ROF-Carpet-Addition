@@ -37,7 +37,7 @@ public interface WorldViewMixin {
     @Inject(method = "getBiome",at = @At(value = "HEAD"),cancellable = true)
     default void getBiome2(BlockPos pos, CallbackInfoReturnable<RegistryEntry<Biome>> cir) {
 
-        if(pos.getY() >= getBottomY() + getBiomeLayerCache+1 || pos.getY() == getBottomY() || !(this instanceof ServerWorld)) { return; }
+        if(pos.getY() >= getBottomY() + getBiomeLayerCache+1 || pos.getY() <= getBottomY() || !(this instanceof ServerWorld)) { return; }
         Chunk chunk = ((ServerWorldAccessor)this).getNowChunk();
         if(chunk==null||chunk.getPos().x != pos.getX()>>4 || chunk.getPos().z != pos.getZ()>>4 ) {
             chunk = this.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.FULL, false);

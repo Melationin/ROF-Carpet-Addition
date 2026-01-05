@@ -1,8 +1,9 @@
 package com.carpet.rof.rules.autoFreeze;
 
 import carpet.api.settings.Rule;
+import carpet.api.settings.Validators;
 import com.carpet.rof.BaseSetting;
-import com.carpet.rof.RulesSetting;
+import com.carpet.rof.annotation.RulesSetting;
 
 
 import static carpet.api.settings.RuleCategory.COMMAND;
@@ -27,7 +28,8 @@ public class AutoFreezeSettings extends BaseSetting{
 
     @Rule(
             categories = {ROF,COMMAND},
-            strict = false
+            strict = false,
+            validators ={Validators.CommandLevel.class}
     )
-    public static boolean unfreezeCommand = false;
+    public static String commandUnfreeze = "false";
 }
