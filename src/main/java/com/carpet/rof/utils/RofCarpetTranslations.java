@@ -2,7 +2,7 @@ package com.carpet.rof.utils;
 
 import carpet.api.settings.Rule;
 import com.carpet.rof.annotation.QuickTranslations;
-import com.carpet.rof.Settings;
+import com.carpet.rof.ROFSettings;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -33,8 +33,7 @@ public class RofCarpetTranslations
         Gson gson = new GsonBuilder().create(); // lenient is now default behavior
         Map<String, String> tempMap =  gson.fromJson(jsonData, new TypeToken<Map<String, String>>() {}.getType());
 
-        var classes = Settings.ruleClasses;
-        System.out.println("classes.size: "+classes.size());
+        var classes = ROFSettings.ruleClasses;
         for (var clazz : classes) {
             for (Field field : clazz.getDeclaredFields()) {
                 String n1 = "carpet.rule." + field.getName();

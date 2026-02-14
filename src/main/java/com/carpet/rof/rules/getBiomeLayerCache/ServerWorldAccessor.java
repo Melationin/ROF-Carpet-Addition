@@ -6,6 +6,4 @@ public interface ServerWorldAccessor {
     Chunk getNowChunk();
 
     void setNowChunk(Chunk nowChunk);
-
-
 }

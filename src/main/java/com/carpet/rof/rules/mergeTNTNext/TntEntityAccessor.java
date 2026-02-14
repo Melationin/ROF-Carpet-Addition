@@ -1,5 +1,5 @@
 package com.carpet.rof.rules.mergeTNTNext;
 
 public interface TntEntityAccessor {
-    void addMergeCount(int mergeCount);
+    void ROF$addMergeCount(int mergeCount);
 }

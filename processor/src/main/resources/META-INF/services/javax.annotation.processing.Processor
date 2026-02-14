@@ -1,2 +1,3 @@
-com.carpet.rof.annotation.SettingProcessor
-com.carpet.rof.annotation.CommandProcessor
+com.carpet.rof.annotation.ROFRuleProcessor
+com.carpet.rof.annotation.ROFCommandProcessor
+com.carpet.rof.annotation.ROFLoggerProcessor

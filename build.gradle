@@ -53,9 +53,8 @@ dependencies {
 	minecraft "com.mojang:minecraft:${stonecutter.current.project}"
 	mappings "net.fabricmc:yarn:${property("yarn_mappings")}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${property("loader_version")}"
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${property("fabric_version")}"
 	modImplementation "maven.modrinth:carpet:${property("carpet_core_version")}"
-	implementation 'it.unimi.dsi:fastutil:8.5.12'
+	implementation 'it.unimi.dsi:fastutil:8.5.18'
 
 	annotationProcessor project(":processor")
 	compileOnly project(":processor")
