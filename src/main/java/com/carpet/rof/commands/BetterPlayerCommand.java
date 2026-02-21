@@ -8,30 +8,18 @@ import com.carpet.rof.annotation.ROFCommand;
 import com.carpet.rof.annotation.ROFRule;
 import com.carpet.rof.utils.ROFCommandHelper;
 import com.carpet.rof.utils.ROFWarp;
-import com.carpet.rof.utils.RofTool;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import net.minecraft.command.argument.DimensionArgumentType;
-import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.GameMode;
-import net.minecraft.world.World;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static carpet.api.settings.RuleCategory.*;
 import static com.carpet.rof.rules.BaseSetting.ROF;
-import static com.carpet.rof.utils.RofTool.text;
-import static com.carpet.rof.utils.RofTool.textS;
-
+import static com.carpet.rof.utils.ROFTextTool.textS;
 @ROFRule
 @ROFCommand
 public class BetterPlayerCommand
@@ -77,24 +65,19 @@ public class BetterPlayerCommand
             var whiteList =  context.getSource().getServer().getPlayerManager().getWhitelist();
 
             if(!List.of(whiteList.getNames()).contains(playerName)){
-                context.getSource().sendFeedback(textS("&cNot in WhiteList!"), false);
+                context.getSource().sendFeedback(textS("&c非白名单玩家!"), false);
                 return 0;
             }
 
-            if(context.getSource().getPlayer() instanceof  ServerPlayerEntity player){
-                boolean flying = false;
+            if (context.getSource().getPlayer() instanceof ServerPlayerEntity player) {
                 var mode = ROFWarp.getGameMode(player);
-                if (mode == GameMode.SPECTATOR) {
-                    flying = true;
-                } else if (mode.isSurvivalLike()) {
-                    flying = false;
-                }
+                boolean flying = !mode.isSurvivalLike();
                 EntityPlayerMPFake.createFake(playerName, context.getSource().getServer(),
-                        RofTool.getPos_(player),
+                        ROFWarp.getPos_(player),
                         player.getYaw(),
                         player.getPitch(),
-                        RofTool.getWorld_(player).getRegistryKey(),
-                        mode ,
+                        ROFWarp.getWorld_(player).getRegistryKey(),
+                        mode,
                         flying);
             }
             return 1;
@@ -103,7 +86,7 @@ public class BetterPlayerCommand
 
         ROFCommandHelper<ServerCommandSource> helper = new ROFCommandHelper<>(dispatcher.getRoot());
         helper.registerCommand("playerReal{r} <realPlayer>{s} spawn",command
-        ,       ROFCommandHelper.carpetRequire(commandSpawnWhitedListedPlayer ),
+        ,       ROFCommandHelper.carpetRequire(()->commandSpawnWhitedListedPlayer ),
                 StringArgumentType.word(),
                 REAL_PLAYER_SUGGEST
         );

@@ -1,7 +1,7 @@
 package com.carpet.rof.mixin.rules.piglinRules;
 
 import com.carpet.rof.rules.piglinRules.PiglinEntityAccessor;
-import com.carpet.rof.utils.RofTool;
+import com.carpet.rof.utils.ROFTool;
 import net.minecraft.entity.mob.PiglinBrain;
 import net.minecraft.entity.mob.PiglinEntity;
 import net.minecraft.item.ItemStack;
@@ -27,7 +27,7 @@ public abstract class PiglinBrainMixin2
             return;
         }
         int count = ((PiglinEntityAccessor) piglin).getNearPiglinCount();
-        if (!RofTool.canLoadAi(piglin.getId(), count, piglinMax)) {
+        if (!ROFTool.canLoadAi(piglin.getId(), count, piglinMax)) {
             cir.setReturnValue(false);
             cir.cancel();
         }

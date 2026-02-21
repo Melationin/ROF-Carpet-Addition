@@ -14,7 +14,6 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.minecraft.command.argument.ColumnPosArgumentType;
 import net.minecraft.command.argument.DimensionArgumentType;
-import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -27,9 +26,7 @@ import java.util.function.Function;
 
 import static carpet.api.settings.RuleCategory.COMMAND;
 import static com.carpet.rof.rules.BaseSetting.ROF;
-import static com.carpet.rof.utils.RofTool.text;
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
+import static com.carpet.rof.utils.ROFTextTool.text;
 
 
 @ROFRule
@@ -68,7 +65,7 @@ public class ChunkFilterCommand
             s.sendFeedback(() -> Text.of("[ChunkFilter]未加载"), false);
             return false;
         }
-        if (thread.chunkFilter.process != 1) {
+        if (thread.chunkFilter.progress != 1) {
             s.sendFeedback(() -> Text.of("[ChunkFilter]任务进行中..."), false);
             return false;
         }

@@ -4,10 +4,11 @@ package com.carpet.rof.extraWorldData.extraChunkDatas;
 import com.carpet.rof.extraWorldData.ExtraChunkData;
 import com.carpet.rof.extraWorldData.ExtraWorldDatas;
 import com.carpet.rof.utils.ROFIO;
-import com.carpet.rof.utils.RofTool;
+import com.carpet.rof.utils.ROFTool;
 import com.google.common.util.concurrent.AtomicDouble;
 import it.unimi.dsi.fastutil.longs.Long2IntMap;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
@@ -17,7 +18,7 @@ import net.minecraft.world.Heightmap;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 
-import static com.carpet.rof.utils.RofTool.rDEBUG;
+import static com.carpet.rof.utils.ROFTool.rDEBUG;
 
 
 public class ExceedChunkMarker extends ExtraChunkData
@@ -77,30 +78,30 @@ public class ExceedChunkMarker extends ExtraChunkData
         if(chunk == chunkCache){
             chunkCacheValue = false;
         }
-        rDEBUG("addChunk: " + RofTool.getChunkPos(chunk));
+        rDEBUG("addChunk: " + ROFTool.getChunkPos(chunk));
         chunks.add(chunk);
     }
 
-    public void removeChunk(long chunk)
+    public void removeChunk(long chunk, LongIterator it)
     {
         if(chunk == chunkCache){
             chunkCacheValue = true;
         }
-        rDEBUG("removeChunk: " + RofTool.getChunkPos(chunk));
-        chunks.remove(chunk);
+        rDEBUG("removeChunk: " + ROFTool.getChunkPos(chunk));
+        it.remove();
     }
 
 
-    public boolean isMustAir(int x, int y,int z)
+    public boolean mustBeAir(int x, int y, int z)
     {
         return y >= topY
                 && isNotHighChunk(x>>4,z>>4);
     }
 
-    public static boolean isMustAir(ServerWorld world, BlockPos pos)
+    public static boolean mustBeAir(ServerWorld world, BlockPos pos)
     {
         ExceedChunkMarker exceedChunkMarker = ExtraWorldDatas.fromWorld(world).exceedChunkMarker;
-        return exceedChunkMarker.isMustAir(pos.getX(),pos.getY(),pos.getZ());
+        return exceedChunkMarker.mustBeAir(pos.getX(),pos.getY(),pos.getZ());
     }
 
     private  long getHighest(long data){
@@ -124,8 +125,11 @@ public class ExceedChunkMarker extends ExtraChunkData
             tempChunks.clear();
         }
 
+        var it = chunks.iterator();
+
         outerLoop:
-        for(long l : chunks) {
+        while (it.hasNext()){
+            long l = it.nextLong();
             if((world.getTime()+l)%400 == 0) {
                 ChunkPos chunkPos = new ChunkPos(l);
                 Chunk chunk = world.getChunkManager().getChunk(chunkPos.x, chunkPos.z, ChunkStatus.FULL, false);
@@ -138,10 +142,11 @@ public class ExceedChunkMarker extends ExtraChunkData
                             chunkHighestBlockPosMap.put(l,i);
                             continue outerLoop;
                         }
-                    removeChunk(l);
+                    removeChunk(l,it);
                 }
             }
         }
+
     }
 
     @Override
@@ -179,7 +184,8 @@ public class ExceedChunkMarker extends ExtraChunkData
 
 
     public void loadFromWorld(ServerWorld world, AtomicDouble process){
-        tempChunks = new LongOpenHashSet();
+
+        LongOpenHashSet tempChunks2 = new LongOpenHashSet();
         workerThread = new Thread(()->{
             ROFIO.forEachExistingChunk(world,chunkData->{
                         //? if >1.21.4 {
@@ -188,11 +194,12 @@ public class ExceedChunkMarker extends ExtraChunkData
                         chunkData.getCompound("Heightmaps").flatMap(heightmaps -> heightmaps.getLongArray(Heightmap.Type.MOTION_BLOCKING.getId())).ifPresent(heightmap -> {
                             for (long l : heightmap) {
                                 if (getHighest(l) + world.getBottomY() > topY) {
-                                    tempChunks.add(ChunkPos.toLong(finalJ, finalI));
+                                    tempChunks2.add(ChunkPos.toLong(finalJ, finalI));
                                     break;
                                 }
                             }
                         });
+
                         //?} else {
                         /*int finalJ = chunkData.getInt("xPos");
                         int finalI = chunkData.getInt("zPos");
@@ -205,7 +212,9 @@ public class ExceedChunkMarker extends ExtraChunkData
                         *///?}
                     }
                     ,process);
+            this.tempChunks = tempChunks2;
         });
+
         workerThread.start();
     }
 

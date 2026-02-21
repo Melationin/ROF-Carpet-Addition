@@ -1,11 +1,10 @@
 package com.carpet.rof.mixin.rules.mergeTNTNext;
 
 
-import com.carpet.rof.event.ROFEvents;
 import com.carpet.rof.extraWorldData.ExtraWorldDatas;
 import com.carpet.rof.rules.mergeTNTNext.MergeTNTNextSetting;
 import com.carpet.rof.rules.mergeTNTNext.TntEntityAccessor;
-import com.carpet.rof.utils.RofTool;
+import com.carpet.rof.utils.ROFWarp;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.TntEntity;
@@ -52,9 +51,9 @@ public abstract class TntEntityMixin extends Entity implements TntEntityAccessor
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/TntEntity;getFuse()I"), cancellable = true)
     private void merge(CallbackInfo ci) {
         if (mergeTNTNext &&
-                RofTool.getWorld_(this)  instanceof ServerWorld world
+                ROFWarp.getWorld_(this)  instanceof ServerWorld world
                 && !this.isRemoved() && getFuse() > 2) {
-            MergeTNTNextSetting.EntityPosAndVec TntPosAndVec = new MergeTNTNextSetting.EntityPosAndVec(RofTool.getPos_(this), this.getVelocity(), this.getFuse());
+            MergeTNTNextSetting.EntityPosAndVec TntPosAndVec = new MergeTNTNextSetting.EntityPosAndVec(ROFWarp.getPos_(this), this.getVelocity(), this.getFuse());
             HashMap<MergeTNTNextSetting.EntityPosAndVec, TntEntity> TntMergeMap = ExtraWorldDatas.fromWorld(world).mergeTntMap;
             if (TntMergeMap.containsKey(TntPosAndVec)) {
                 TntEntity mainTNT = TntMergeMap.get(TntPosAndVec);
@@ -72,7 +71,7 @@ public abstract class TntEntityMixin extends Entity implements TntEntityAccessor
     private void onExplode(CallbackInfo ci) {
         if (rof$mergedTNTNCount > 1)
             for (int i = 0; i < rof$mergedTNTNCount - 1; i++) {
-                RofTool.getWorld_(this)
+                ROFWarp.getWorld_(this)
                         .createExplosion(this, this.getX(), this.getBodyY(0.0625),
                         this.getZ(), 4.0F, World.ExplosionSourceType.TNT);
             }

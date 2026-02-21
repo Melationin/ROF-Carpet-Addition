@@ -2,10 +2,12 @@ package com.carpet.rof.rules.extraChunkDatas;
 
 import carpet.api.settings.Rule;
 import com.carpet.rof.annotation.QuickTranslations;
+import com.carpet.rof.annotation.ROFRule;
 
 import static carpet.api.settings.RuleCategory.EXPERIMENTAL;
 import static com.carpet.rof.rules.BaseSetting.ROF;
 
+@ROFRule
 public class ChunkModifySetting
 {
     @Rule(

@@ -1,8 +1,6 @@
 package com.carpet.rof.rules.mergeTNTNext;
 
 import carpet.api.settings.Rule;
-import com.carpet.rof.event.ROFEvents;
-import com.carpet.rof.extraWorldData.ExtraWorldDatas;
 import com.carpet.rof.rules.BaseSetting;
 import com.carpet.rof.annotation.ROFRule;
 import net.minecraft.util.math.Vec3d;
@@ -11,7 +9,6 @@ import java.util.Objects;
 
 import static carpet.api.settings.RuleCategory.OPTIMIZATION;
 import static carpet.api.settings.RuleCategory.TNT;
-import static com.carpet.rof.utils.RofTool.rDEBUG;
 
 @ROFRule
 public class

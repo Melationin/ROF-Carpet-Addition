@@ -16,14 +16,12 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.minecraft.command.argument.DimensionArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
 import net.minecraft.text.MutableText;
 
 import static carpet.api.settings.RuleCategory.COMMAND;
 import static com.carpet.rof.rules.BaseSetting.ROF;
-import static com.carpet.rof.utils.RofTool.text;
-import static com.carpet.rof.utils.RofTool.textS;
+import static com.carpet.rof.utils.ROFTextTool.text;
+import static com.carpet.rof.utils.ROFTextTool.textS;
 
 @ROFCommand
 @ROFRule
@@ -93,7 +91,7 @@ public class LoadedChunkFinderCommand
         };
 
         helper.registerCommand("loadedChunkFinder{r}",command,
-                ROFCommandHelper.carpetRequire(commandLoadedChunkFinder)
+                ROFCommandHelper.carpetRequire(()->commandLoadedChunkFinder)
         );
 
         helper.registerCommand("loadedChunkFinder <dimension> [tick]",command,

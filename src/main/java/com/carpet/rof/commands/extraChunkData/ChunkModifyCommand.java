@@ -10,14 +10,11 @@ import com.mojang.brigadier.tree.CommandNode;
 import net.minecraft.command.argument.DimensionArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 
 import static com.carpet.rof.rules.extraChunkDatas.ChunkModifySetting.chunkModifyLogger;
-import static com.carpet.rof.utils.RofTool.text;
-import static com.carpet.rof.utils.RofTool.textS;
+import static com.carpet.rof.utils.ROFTextTool.*;
 
 public class ChunkModifyCommand
 {
@@ -61,8 +58,8 @@ public class ChunkModifyCommand
                 ServerWorld world = DimensionArgumentType.getDimensionArgument(ctx,"dimension");
                 for(var text: display(world)){
                     ctx.getSource().sendFeedback(()->text,false);
-                    return 0;
                 }
+                return 0;
             }else {
                 for(var world: ctx.getSource().getServer().getWorlds()){
                     for(var text: display(world)){
@@ -71,7 +68,6 @@ public class ChunkModifyCommand
                 }
                 return 0;
             }
-            return 1;
         };
 
         final Command<ServerCommandSource> setMinChunkLifetime = context -> {

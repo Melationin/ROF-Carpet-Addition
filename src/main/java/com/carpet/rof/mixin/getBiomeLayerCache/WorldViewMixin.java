@@ -44,7 +44,7 @@ public interface WorldViewMixin {
         }
         if(chunk != null) {
             RegistryEntry<Biome>[] arrayList = ((ChunkAccessor)chunk).rof$getBiomeList((pos.getY()-getBottomY() -1));
-            int l = (((pos.getX())&15)<<4)+(pos.getZ())&15;
+            int l = (((pos.getX())&15)<<4)+ ((pos.getZ())&15);
             RegistryEntry<Biome> entry = arrayList[l];
             if (entry == null) {
                 entry = this.getBiomeAccess().getBiome(pos);

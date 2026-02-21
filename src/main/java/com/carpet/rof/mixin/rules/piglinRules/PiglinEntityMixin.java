@@ -1,7 +1,7 @@
 package com.carpet.rof.mixin.rules.piglinRules;
 
 import com.carpet.rof.rules.piglinRules.PiglinEntityAccessor;
-import com.carpet.rof.utils.RofTool;
+import com.carpet.rof.utils.ROFWarp;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.mob.AbstractPiglinEntity;
 import net.minecraft.entity.mob.PiglinEntity;
@@ -47,7 +47,7 @@ public abstract class PiglinEntityMixin extends AbstractPiglinEntity implements 
     {
         if ((this.age + this.getId() % 801) % 400 == 0) {
             nearPiglinCount = world.getEntitiesByType(EntityType.PIGLIN,
-                    new Box(RofTool.getPos_(this).add(0.5, 0.5, 0.5), RofTool.getPos_(this).add(-0.5, -0.5, -0.5)),
+                    new Box(ROFWarp.getPos_(this).add(0.5, 0.5, 0.5),ROFWarp.getPos_(this).add(-0.5, -0.5, -0.5)),
                     piglin -> true).size();
         }
     }

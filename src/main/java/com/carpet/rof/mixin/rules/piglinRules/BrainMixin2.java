@@ -2,11 +2,10 @@ package com.carpet.rof.mixin.rules.piglinRules;
 
 
 import com.carpet.rof.rules.piglinRules.PiglinEntityAccessor;
-import com.carpet.rof.utils.RofTool;
+import com.carpet.rof.utils.ROFTool;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.Activity;
 import net.minecraft.entity.ai.brain.Brain;
-import net.minecraft.entity.ai.brain.task.MultiTickTask;
 import net.minecraft.entity.ai.brain.task.Task;
 import net.minecraft.entity.mob.PiglinEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -39,7 +38,7 @@ public class BrainMixin2<E extends LivingEntity>
     {
         if (entity instanceof PiglinEntity piglin) {
             int count = ((PiglinEntityAccessor) piglin).getNearPiglinCount();
-            if (!(RofTool.canLoadAi(piglin.getId(), count, piglinMax)))
+            if (!(ROFTool.canLoadAi(piglin.getId(), count, piglinMax)))
                 ci.cancel();
         }
     }

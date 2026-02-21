@@ -39,10 +39,10 @@ public class PacketRulesSettings extends BaseSetting {
             options = {"2","16","64"}
     )
     @QuickTranslations(
-            name = "限制态实体追踪距离",
+            name = "每游戏刻实体生成发包限制发包距离",
             description = "设置发包限制的实体的发包距离"
     )
-    public static int limitedEntityTrackerDistance = 16;
+    public static int entitySpawnPacketLimitTicksTrackerDistance = 16;
 
     @Rule(
             categories = {ROF,OPTIMIZATION,PACKET},
@@ -51,8 +51,9 @@ public class PacketRulesSettings extends BaseSetting {
     )
     @QuickTranslations(
             name = "每秒实体生成发包限制",
-            description = "在同一秒生成过多的同种实体时，取消当前区块同种实体对玩家的广播。",
+            description = "在同一秒生成过多的同种实体时，按概率阻止该种实体的追踪与发包。",
             extra = {"设置为负数表示禁用"}
     )
     public static int entitySpawnPacketLimitSeconds = -1;
+
 }

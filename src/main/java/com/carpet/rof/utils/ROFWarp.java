@@ -1,6 +1,6 @@
 package com.carpet.rof.utils;
 
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.PacketType;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -9,17 +9,20 @@ import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
+import net.minecraft.world.World;
 
 import java.util.Optional;
 
 public class ROFWarp
 {
-    public  static  <T> T getFromNbt(Object s){
-        if(s instanceof Optional<?>){
-            return ((Optional<T>)s).orElse(null);
+    @SuppressWarnings("unchecked")
+    public static <T> T getFromNbt(Object s) {
+        if (s instanceof Optional<?> opt) {
+            return ((Optional<T>) opt).orElse(null);
         }
-        else return (T)s;
+        return (T) s;
     }
 
     public static GameMode getGameMode(ServerPlayerEntity player)
@@ -80,5 +83,19 @@ public class ROFWarp
                 (int) Math.ceil(box.maxX),
                 (int) Math.ceil(box.maxY),
                 (int) Math.ceil(box.maxZ));
+    }
+    public static World getWorld_(Entity entity) {
+        //? if >=1.21.10 {
+        /*return entity.getEntityWorld();
+         *///?} else {
+        return entity.getWorld();
+        //?}
+    }
+    public static Vec3d getPos_(Entity entity) {
+        //? if >=1.21.10 {
+        /*return entity.getEntityPos();
+         *///?} else {
+        return entity.getPos();
+        //?}
     }
 }

@@ -6,7 +6,10 @@ import com.carpet.rof.annotation.QuickTranslations;
 import com.carpet.rof.annotation.ROFCommand;
 import com.carpet.rof.annotation.ROFRule;
 import com.carpet.rof.event.ROFEvents;
-import com.carpet.rof.utils.RofTool;
+import com.carpet.rof.utils.ROFCommandHelper;
+import com.carpet.rof.utils.ROFTextTool;
+import com.carpet.rof.utils.ROFWarp;
+import com.carpet.rof.utils.ROFTool;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -21,9 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
-
 import static carpet.api.settings.RuleCategory.COMMAND;
 import static com.carpet.rof.rules.BaseSetting.ROF;
 
@@ -34,7 +34,7 @@ public class EntityTrackerCommand
 {
 
     @Rule(
-            categories = {COMMAND,ROF},
+            categories = {COMMAND, ROF},
             strict = false,
             validators = {Validators.CommandLevel.class}
     )
@@ -44,78 +44,75 @@ public class EntityTrackerCommand
     )
     public static String commandEntityTracker = "true";
 
-    public static Map<UUID, UUID> entityTrackerMap = new HashMap<>();
+    private static final Map<UUID, UUID> entityTrackerMap = new HashMap<>();
 
     static {
-        ROFEvents.ServerStart.register(
-                minecraftServer -> {
-                    entityTrackerMap.clear();
+        ROFEvents.ServerStart.register(server -> entityTrackerMap.clear());
+
+        ROFEvents.ServerTickEnd.register(minecraftServer -> {
+            for (Map.Entry<UUID, UUID> entry : entityTrackerMap.entrySet()) {
+                if (entry.getValue() == null) continue;
+                var player = minecraftServer.getPlayerManager().getPlayer(entry.getKey());
+                if (player == null) continue;
+
+                Entity entity = getEntity(minecraftServer, entry.getValue());
+                if (entity == null) continue;
+
+                if (entity.isRemoved()) {
+                    player.sendMessage(Text.literal("因为实体移除，实体追踪结束"), false);
+                    entityTrackerMap.put(entry.getKey(), null);
+                } else {
+                    var text = ROFTextTool.text("Pos: &9" + ROFTool.toString_(ROFWarp.getPos_(entity))
+                            + " &rVec: &9" + ROFTool.toString_(entity.getVelocity()));
+                    player.sendMessage(text, true);
                 }
-        );
-        ROFEvents.ServerTickEnd.register(
-                minecraftServer -> {
-                    for(Map.Entry<UUID, UUID> entry : entityTrackerMap.entrySet()){
-                        if(entry.getValue() == null){continue;}
-                        var player = minecraftServer.getPlayerManager().getPlayer(entry.getKey());
-                        if(player != null){
-                            Entity entity = getEntity(minecraftServer, entry.getValue());
-                            if (entity != null) {
-                                var text = RofTool.text("Pos: &9"+ RofTool.toString_(RofTool.getPos_(entity))+" &rVec: &9"+RofTool.toString_(entity.getVelocity()));
-                                player.sendMessage(text,true);
-                                if(entity.isRemoved()){
-                                    player.sendMessage(Text.literal("因为实体移除，实体追踪结束"),false);
-                                    entityTrackerMap.replace(entry.getKey(),null);
-                                }
-                            }
-                        }
-                    }
-                }
-        );
-    }
-    @Nullable
-    public static Entity getEntity(MinecraftServer server, UUID uuid)
-    {
-        Entity entity = null;
-        for(var world:server.getWorlds()){
-            Entity entity1 = world.getEntity(uuid);
-            if(entity1 != null){
-                entity = entity1;
             }
-        }
-        return entity;
+        });
     }
 
+    @Nullable
+    public static Entity getEntity(MinecraftServer server, UUID uuid) {
+        for (var world : server.getWorlds()) {
+            Entity entity = world.getEntity(uuid);
+            if (entity != null) return entity;
+        }
+        return null;
+    }
 
-    public static int addNormalEntity(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException
-    {
-
-
-        Entity entity =  EntityArgumentType.getEntity(ctx,"entity");
-
-        if(ctx.getSource().getPlayer()!=null){
-            ctx.getSource().getPlayer().sendMessage(Text.literal("实体追踪开始，当前实体: ").append(entity.getName()));
-            entityTrackerMap.put(ctx.getSource().getPlayer().getUuid(),entity.getUuid());
+    public static int addNormalEntity(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        Entity entity = EntityArgumentType.getEntity(ctx, "entity");
+        var player = ctx.getSource().getPlayer();
+        if (player != null) {
+            player.sendMessage(Text.literal("实体追踪开始，当前实体: ").append(entity.getName()));
+            entityTrackerMap.put(player.getUuid(), entity.getUuid());
             return 0;
         }
         return 1;
     }
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher)
-    {
-       dispatcher.register(
-               literal("entityTracker")
-                       .requires(source-> carpet.utils.CommandHelper.canUseCommand(source, commandEntityTracker))
-                       .then(literal("set").then(
-                               argument("entity", EntityArgumentType.entity()).executes(EntityTrackerCommand::addNormalEntity)
-                       ))
-                       .then(literal("clear").executes(ctx->{
-                           if(ctx.getSource().getPlayer()!=null){
-                               entityTrackerMap.put(ctx.getSource().getPlayer().getUuid(),null);
-                               return 0;
-                           }
-                           return 1;
-                       }))
+    public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
 
-       );
+        ROFCommandHelper<ServerCommandSource> helper = new ROFCommandHelper<>(dispatcher.getRoot());
+
+
+
+        helper.registerCommand("entityTracker{r} set <entity>")
+                .rCarpet(()->commandEntityTracker)
+                .arg(EntityArgumentType.entity())
+                .command(EntityTrackerCommand::addNormalEntity);
+
+        helper.registerCommand("entityTracker clear")
+                .command(
+                        ctx -> {
+                            var player = ctx.getSource().getPlayer();
+                            if (player != null) {
+                                entityTrackerMap.put(player.getUuid(), null);
+                                player.sendMessage(Text.literal("实体追踪已清除"), false);
+                                return 0;
+                            }
+                            return 1;
+                        }
+                );
+
     }
 }

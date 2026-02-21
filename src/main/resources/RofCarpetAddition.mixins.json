@@ -3,7 +3,6 @@
   "package": "com.carpet.rof.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "autoFreeze.MinecraftServerMixin",
     "carpetMixin.SettingsManagerMixin",
     "event.ServerMixin",
     "event.ServerWorldMixin",
@@ -20,6 +19,7 @@
     "loadedChunkFinder.ServerWorldMixin",
     "logger.enderPearlLogger.EnderPearlMixin",
     "logger.packetLogger.EncoderHandlerMixin",
+    "packetRules.EntityTrackerEntryMixin",
     "packetRules.EntityTrackerMixin",
     "rules.enderPearl.EnderPearlEntityMixin",
     "rules.enderPearl.ServerWorldMixin",
@@ -33,7 +33,6 @@
     "rules.piglinRules.PiglinBrainMixin2",
     "rules.piglinRules.PiglinEntityMixin",
     "rules.reverseBlockPosTraversal.BlockPosMixin",
-    "safeTick.ServerMixin",
     "safeTick.TickCommandMixin",
     "worker.MinecraftServerMixin"
   ],

@@ -3,7 +3,7 @@ package com.carpet.rof.commands.chunkFilter;
 import com.carpet.rof.extraWorldData.ExtraWorldDatas;
 import com.carpet.rof.extraWorldData.extraChunkDatas.ChunkModifyData;
 import com.carpet.rof.utils.ROFWarp;
-import com.carpet.rof.utils.RofTool;
+import com.carpet.rof.utils.ROFTool;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -12,7 +12,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.Heightmap;
 import net.minecraft.world.storage.RegionFile;
 import net.minecraft.world.storage.StorageKey;
 
@@ -41,7 +40,7 @@ public class ChunkFilter {
     };
     private final ServerWorld world;
 
-    public double process = 1;
+    public double progress = 1;
 
     public int changeCount = 0;
 
@@ -80,26 +79,27 @@ public class ChunkFilter {
         changeCount ++;
     }
 
-    private void LoadFromRegion(Path RegionFileFolder, int x, int y) throws IOException {
+    private void loadFromRegion(Path RegionFileFolder, int x, int y) throws IOException {
         String currentRegionName = "r." + x + "." + y + ".mca";
         Path RegionFilePath = RegionFileFolder.resolve(currentRegionName);
-            RegionFile test = new RegionFile(new StorageKey("string1",world.getRegistryKey(),"string2"), RegionFilePath,RegionFileFolder,false);
+        try(RegionFile test = new RegionFile(new StorageKey("string1",world.getRegistryKey(),"string2"), RegionFilePath,RegionFileFolder,false);) {
             for(int i = 0;i<32;i++)
                 for(int j = 0;j<32;j++){
-                    DataInputStream dataInputStream = test.getChunkInputStream(new ChunkPos((x<<5 )+ i,(y<<5) + j));
-                    if(dataInputStream != null) {
-                        NbtCompound chunkDate = NbtIo.readCompound(dataInputStream);
-                        int xPos = ROFWarp.getFromNbt(chunkDate.getInt("xPos"));
-                        int zPos = ROFWarp.getFromNbt(chunkDate.getInt("yPos"));
-                        allChunks.put(ChunkPos.toLong(xPos,zPos),new ChunkSample(xPos,zPos,ROFWarp.getFromNbt(chunkDate.getInt("InhabitedTime"))));
-                        dataInputStream.close();
+                    try (DataInputStream dataInputStream = test.getChunkInputStream(new ChunkPos((x<<5 )+ i,(y<<5) + j))){
+                        if(dataInputStream != null) {
+                            NbtCompound chunkData = NbtIo.readCompound(dataInputStream);
+                            int xPos = ROFWarp.getFromNbt(chunkData.getInt("xPos"));
+                            int zPos = ROFWarp.getFromNbt(chunkData.getInt("zPos"));
+                            allChunks.put(ChunkPos.toLong(xPos,zPos),new ChunkSample(xPos,zPos,ROFWarp.getFromNbt(
+                                    chunkData.getInt("InhabitedTime"))));
+                        }
                     }
                 }
-            test.close();
+        }
     }
 
     public void load() throws IOException {
-        Path regionsFolder = RofTool.getSavePath(world).resolve("region");
+        Path regionsFolder = ROFTool.getSavePath(world).resolve("region");
         File folder =  regionsFolder.toFile();
         if (folder.isDirectory()) {
             int finishedCount = 0;
@@ -108,9 +108,9 @@ public class ChunkFilter {
             for(String fileName : folder2) {
                 String[] split = fileName.split("\\.");
                 if(split.length ==4 && split[0].equals("r") && split[3].equals("mca")) {
-                    LoadFromRegion(regionsFolder,Integer.parseInt(split[1]),Integer.parseInt(split[2]));
+                    loadFromRegion(regionsFolder,Integer.parseInt(split[1]),Integer.parseInt(split[2]));
                     finishedCount++;
-                    process  = finishedCount*1.0/folder2.length;
+                    progress = finishedCount*1.0/folder2.length;
                 }
             }
         }
@@ -135,13 +135,13 @@ public class ChunkFilter {
     }
 
     public void save(String fileName) throws IOException {
-        try (BufferedWriter writer = Files.newBufferedWriter(RofTool.getSavePath(world).resolve(fileName + ".csv"), StandardCharsets.UTF_8)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(ROFTool.getSavePath(world).resolve(fileName + ".csv"), StandardCharsets.UTF_8)) {
             int count = 0;
             for (long key : filteredChunks.keySet()) {
                 count++;
                 writer.write(csvLine(key));
                 writer.newLine();
-                process = count*1.0/ filteredChunks.size();
+                progress = count*1.0/ filteredChunks.size();
             }
             changeCount = SAVE;
         }
@@ -157,6 +157,10 @@ public class ChunkFilter {
         int w = Math.abs(x2-x1);
         int h = Math.abs(z2-z1);
         int count = 0;
+
+        if(w*h == 0 || allChunks.isEmpty()) {
+            return;
+        }
         if(w*h >= allChunks.size()) {
             for(var chunk : allChunks.values()) {
                 int x = chunk .xPos;
@@ -165,7 +169,7 @@ public class ChunkFilter {
                     add(chunk );
                 }
                 count++;
-                process = count*1.0/allChunks.size();
+                progress = count*1.0/allChunks.size();
             }
         }else {
             for(int i = minX;i<=maxX;i++) {
@@ -175,7 +179,7 @@ public class ChunkFilter {
                         add(chunk);
                     }
                     count++;
-                    process = count*1.0/w*h;
+                    progress = count*1.0/(w*h);
 
                 }
             }
@@ -186,6 +190,10 @@ public class ChunkFilter {
         int w = Math.abs(x2-x1);
         int h = Math.abs(z2-z1);
         int count = 0;
+        if(w*h == 0 || filteredChunks.isEmpty()) {
+            return;
+        }
+        int allCount = filteredChunks.size();
         if(w*h >= filteredChunks.size()) {
             var it = filteredChunks.long2ObjectEntrySet().iterator();
             while (it.hasNext()) {
@@ -196,14 +204,14 @@ public class ChunkFilter {
                    remove(it);
                 }
                 count++;
-                process = count*1.0/filteredChunks.size();
+                progress = count*1.0/allCount;
             }
         }else {
             for(int i = Math.min(x1,x2);i<=Math.max(x1,x2);i++) {
                 for(int j = Math.min(z1,z2);j<=Math.max(z1,z2);j++) {
                     remove(ChunkPos.toLong(i,j));
                     count++;
-                    process = count*1.0/w*h;
+                    progress = count*1.0/(w*h);
                 }
             }
         }
@@ -211,11 +219,14 @@ public class ChunkFilter {
 
     public void addByInhabitedTime(int value){
         int count = 0;
+        if(allChunks.isEmpty()) {
+            return;
+        }
         for(var v : allChunks.values()) {
             if(v.inhabitedTime >= value){
                 add(v);
                 count++;
-                process = count*1.0/allChunks.size();
+                progress = count*1.0/allChunks.size();
             }
         }
 
@@ -224,26 +235,34 @@ public class ChunkFilter {
     public void removeByInhabitedTime(int value) {
         int count = 0;
         var it =  filteredChunks.long2ObjectEntrySet().iterator();
+        if(filteredChunks.isEmpty()) {
+            return;
+        }
+        int allCount = filteredChunks.size();
         while (it.hasNext()) {
+
             ChunkSample v = it.next().getValue();
             if(v.inhabitedTime >= value){
                 remove(it);
                 count++;
-                process = count*1.0/filteredChunks.size();
+                progress = count*1.0/allCount;
             }
         }
     }
     public void addByModifyTime(int value){
         int count = 0;
         var data = ExtraWorldDatas.fromWorld(world).chunkModifyData;
+        if(allChunks.isEmpty()) {
+            return;
+        }
         for (ChunkModifyData.ChunkData it: data.chunkDataMap.values()) {
-            if(it.modifyTime - it.chunkPos <= value){
+            if(it.modifyTime - it.createTime <= value){
                 if(allChunks.containsKey(it.chunkPos)) {
                     this.filteredChunks.put(it.chunkPos,allChunks.get(it.chunkPos));
                 }
             }
             count++;
-            process = count*1.0/allChunks.size();
+            progress = count*1.0/allChunks.size();
         }
 
     }
@@ -251,17 +270,23 @@ public class ChunkFilter {
     public void removeByModifyTime(int value) {
         int count = 0;
         var data = ExtraWorldDatas.fromWorld(world).chunkModifyData;
+        if(filteredChunks.isEmpty()) {
+            return;
+        }
+        int allCount = filteredChunks.size();
         for (ChunkModifyData.ChunkData it: data.chunkDataMap.values()) {
-            if(it.modifyTime - it.chunkPos <= value){
-                if(allChunks.containsKey(it.chunkPos)) {
+
+            if(it.modifyTime - it.createTime <= value){
+                if(filteredChunks.containsKey(it.chunkPos)) {
                     this.filteredChunks.remove(it.chunkPos);
                 }
             }
             count++;
-            process = count*1.0/allChunks.size();
+            progress = count*1.0/allCount;
         }
     }
     public void reverse(){
+
         allChunks.forEach((key, chunk) -> {
             if(filteredChunks.containsKey(key)) {
                remove(key);
@@ -277,6 +302,9 @@ public class ChunkFilter {
 
     public void extend(int distance) {
 
+        if(allChunks.isEmpty()) {
+            return;
+        }
         LongOpenHashSet visited = new LongOpenHashSet();
         Deque<Node> queue = new ArrayDeque<>();
 
@@ -308,7 +336,7 @@ public class ChunkFilter {
                 }
             }
             count++;
-            process = count*1.0/allChunks.size();
+            progress = count*1.0/allChunks.size();
         }
     }
 

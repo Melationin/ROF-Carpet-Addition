@@ -30,7 +30,7 @@ public class PacketLoggerCommand
             categories = {COMMAND,ROF}, strict = false, validators = {Validators.CommandLevel.class})
     @QuickTranslations(name = "数据包监视器Plus",
             description = "可以记录各种数据包的发包数量与压缩前大小。同时，也为发包限制的前置。")
-    public static String commandPacketLoggerPlus = "true";
+    public static String commandPacketLoggerPlus = "ops";
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher)
     {
@@ -58,6 +58,7 @@ public class PacketLoggerCommand
                 {
                     if (PacketLogger.instance == null) {
                         ctx.getSource().sendFeedback(() -> Text.of("数据包记录器未启用！"), false);
+                        return 0;
                     }
                     PacketLogger.instance.setEndtime(ctx.getSource().getWorld().getTime());
                     return printPacketData(ctx);

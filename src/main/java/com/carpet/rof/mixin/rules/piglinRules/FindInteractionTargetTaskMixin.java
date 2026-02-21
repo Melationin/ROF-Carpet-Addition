@@ -1,7 +1,7 @@
 package com.carpet.rof.mixin.rules.piglinRules;
 
 import com.carpet.rof.rules.piglinRules.PiglinEntityAccessor;
-import com.carpet.rof.utils.RofTool;
+import com.carpet.rof.utils.ROFTool;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.MemoryQueryResult;
@@ -27,7 +27,7 @@ public abstract class FindInteractionTargetTaskMixin
     {
         if (entity instanceof PiglinEntity piglin) {
             int count = ((PiglinEntityAccessor) piglin).getNearPiglinCount();
-            if (!RofTool.canLoadAi(entity.getId(), count, piglinMax)) {
+            if (!ROFTool.canLoadAi(entity.getId(), count, piglinMax)) {
                 cir.setReturnValue(false);
                 cir.cancel();
             }

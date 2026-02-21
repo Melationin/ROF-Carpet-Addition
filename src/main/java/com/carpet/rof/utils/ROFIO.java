@@ -5,8 +5,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.storage.RegionFile;
 import net.minecraft.world.storage.StorageKey;
 
@@ -20,10 +18,8 @@ import java.util.function.Consumer;
 
 public class ROFIO
 {
-
     public static boolean isGzip(Path path) throws IOException {
         if (!Files.isRegularFile(path)) return false;
-
         try (InputStream in = Files.newInputStream(path)) {
             byte[] header = new byte[2];
             int read = in.read(header);
@@ -33,58 +29,55 @@ public class ROFIO
         }
     }
 
-    public static void LoadFromRegion(Path RegionFileFolder, int x, int y, ServerWorld world, Consumer<NbtCompound> action)
+    public static void loadFromRegion(Path regionFileFolder, int x, int y, ServerWorld world, Consumer<NbtCompound> action)
     {
         String currentRegionName = "r." + x + "." + y + ".mca";
-        Path RegionFilePath = RegionFileFolder.resolve(currentRegionName);
-        try {
-            RegionFile test = new RegionFile(new StorageKey("string1", world.getRegistryKey(), "string2"),
-                    RegionFilePath, RegionFileFolder, false);
-            for (int i = 0; i < 32; i++)
+        Path regionFilePath = regionFileFolder.resolve(currentRegionName);
+        try (RegionFile regionFile = new RegionFile(
+                new StorageKey("string1", world.getRegistryKey(), "string2"),
+                regionFilePath, regionFileFolder, false))
+        {
+            for (int i = 0; i < 32; i++) {
                 for (int j = 0; j < 32; j++) {
-                    DataInputStream dataInputStream = test.getChunkInputStream(
+                    DataInputStream dataInputStream = regionFile.getChunkInputStream(
                             new ChunkPos((x << 5) + i, (y << 5) + j));
                     if (dataInputStream != null) {
-                        final NbtCompound chunkDate = NbtIo.readCompound(dataInputStream);
-                        action.accept(chunkDate);
+                        final NbtCompound chunkData = NbtIo.readCompound(dataInputStream);
+                        action.accept(chunkData);
                         dataInputStream.close();
                     }
                 }
-            test.close();
+            }
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }
     }
 
-
-    public static void forEachExistingChunk(ServerWorld world, Consumer<NbtCompound> action, AtomicDouble process)
+    public static void forEachExistingChunk(ServerWorld world, Consumer<NbtCompound> action, AtomicDouble progress)
     {
-        Path regionsFolder = RofTool.getSavePath(world).resolve("region");
+        Path regionsFolder = ROFTool.getSavePath(world).resolve("region");
         File folder = regionsFolder.toFile();
-        if (folder.isDirectory()) {
-            String[] folder2 = folder.list((dir, name) -> name.startsWith("r") && name.endsWith(".mca"));
-            if (folder2 == null) {
-                return;
-            }
-            int count = 0;
-            process.set(0);
-            for (String fileName : folder2) {
-
-                if(Thread.currentThread().isInterrupted()){
-
-                    return;
-                }
-
-                String[] split = fileName.split("\\.");
-                if (split.length == 4 && split[0].equals("r") && split[3].equals("mca")) {
-                    LoadFromRegion(regionsFolder, Integer.parseInt(split[1]), Integer.parseInt(split[2]), world,
-                            action);
-                }
-                count++;
-                process.set(count*1.0/ folder2.length);
-            }
-
+        if (!folder.isDirectory()) {
+            progress.set(1);
+            return;
         }
-        process.set(1);
+        String[] files = folder.list((dir, name) -> name.startsWith("r") && name.endsWith(".mca"));
+        if (files == null) {
+            progress.set(1);
+            return;
+        }
+        int count = 0;
+        progress.set(0);
+        for (String fileName : files) {
+            if (Thread.currentThread().isInterrupted()) return;
+
+            String[] split = fileName.split("\\.");
+            if (split.length == 4 && split[0].equals("r") && split[3].equals("mca")) {
+                loadFromRegion(regionsFolder, Integer.parseInt(split[1]), Integer.parseInt(split[2]), world, action);
+            }
+            count++;
+            progress.set((double) count / files.length);
+        }
+        progress.set(1);
     }
 }

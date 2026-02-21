@@ -1,7 +1,7 @@
 package com.carpet.rof.mixin.rules.piglinRules;
 
 import com.carpet.rof.rules.piglinRules.PiglinEntityAccessor;
-import com.carpet.rof.utils.RofTool;
+import com.carpet.rof.utils.ROFTool;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.PiglinEntity;
 import net.minecraft.util.math.Box;
@@ -25,7 +25,7 @@ public class EntityMixin
     private static void adjustMovementCancel(@Nullable Entity entity, Vec3d movement, Box entityBoundingBox, World world, List<VoxelShape> collisions, CallbackInfoReturnable<Vec3d> cir){
         if(entity instanceof PiglinEntity piglin){
             int count = ((PiglinEntityAccessor) piglin).getNearPiglinCount();
-            if (!RofTool.canLoadAi(entity.getId(), count, piglinMax)) {
+            if (!ROFTool.canLoadAi(entity.getId(), count, piglinMax)) {
                 cir.cancel();
             }
         }

@@ -63,7 +63,9 @@ public class SingleTaskWorker {
 
     public void stop(){
         running = false;
-        LockSupport.unpark(consumerThread);
+        if(consumerThread!=null){
+            LockSupport.unpark(consumerThread);
+        }
     }
 
 }

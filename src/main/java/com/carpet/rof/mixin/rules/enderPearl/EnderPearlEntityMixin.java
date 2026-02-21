@@ -5,7 +5,7 @@ package com.carpet.rof.mixin.rules.enderPearl;
 import com.carpet.rof.extraWorldData.ExtraWorldDatas;
 import com.carpet.rof.extraWorldData.extraChunkDatas.ExceedChunkMarker;
 import com.carpet.rof.utils.ROFWarp;
-import com.carpet.rof.utils.RofTool;
+import com.carpet.rof.utils.ROFTool;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
@@ -55,10 +55,10 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity {
 
 
 
-        World world = RofTool.getWorld_(this);
+        World world = ROFWarp.getWorld_(this);
 
         if (world instanceof ServerWorld) {
-            var forcedEntitylist = ExtraWorldDatas.fromWorld((ServerWorld) RofTool.getWorld_(this) ).forcedEntitylist;
+            var forcedEntitylist = ExtraWorldDatas.fromWorld((ServerWorld) ROFWarp.getWorld_(this) ).forcedEntitylist;
             EPTicks++;
             if (syncMode) {  //此时为同步状态
                 if ((MinSpeed > 0) && (Math.abs(this.getVelocity().x) > MinSpeed || Math.abs(this.getVelocity().z) > MinSpeed)) {//大于最高速度，切换加载逻辑
@@ -69,14 +69,14 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity {
                 if (forceEnderPearlLogger) {
                     if (this.getOwner() instanceof PlayerEntity player) {
                         player.sendMessage(Text.of("[#" + EPTicks + "] " + "Pearl's Pos:" +
-                                RofTool.toString_(RofTool.getPos_(this))
+                                ROFTool.toString_(ROFWarp.getPos_(this))
                         ), true);
                     }
                 }
                 if(optimizeForcedEnderPearlTick){
                     boolean  canSkip = true;
                     for (BlockPos blockPos : ROFWarp.getBlockPosIt(this.getBoundingBox())) {
-                        if(!ExceedChunkMarker.isMustAir((ServerWorld)RofTool.getWorld_(this) ,blockPos)
+                        if(!ExceedChunkMarker.mustBeAir((ServerWorld)ROFWarp.getWorld_(this) ,blockPos)
                         ){
                             canSkip = false;
                             break;
@@ -90,7 +90,7 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity {
                         if (hitResult.getType() != HitResult.Type.MISS) {
                             vec3d = hitResult.getPos();
                         } else {
-                            vec3d =RofTool.getPos_(this) .add(this.getVelocity());
+                            vec3d =ROFWarp.getPos_(this) .add(this.getVelocity());
                         }
 
                         this.setPosition(vec3d);
@@ -109,11 +109,11 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity {
             }
             if(
                    highEnderPearlNoChunkLoading
-                    && RofTool.getPos_(this).y>RofTool.getWorld_(this)./*? <=1.21.1 {*//*getTopY() *//*?} else {*/ getTopYInclusive()  /*?}*/
-                    && RofTool.getWorld_(this).getWorldBorder().contains(RofTool.getPos_(this).add(this.getVelocity()))) {
+                    && ROFWarp.getPos_(this).y>ROFWarp.getWorld_(this)./*? <=1.21.1 {*//*getTopY() *//*?} else {*/ getTopYInclusive()  /*?}*/
+                    && ROFWarp.getWorld_(this).getWorldBorder().contains(ROFWarp.getPos_(this).add(this.getVelocity()))) {
                 this.applyGravity();
                 this.setVelocity(this.getVelocity().multiply(0.99));
-                this.setPosition(RofTool.getPos_(this).add(this.getVelocity()));
+                this.setPosition(ROFWarp.getPos_(this).add(this.getVelocity()));
                 ci.cancel();
             }
         }
@@ -138,7 +138,7 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity {
     @Inject(method =  "tick",at = @At(value = "RETURN"))
     private void ChunkUnloadingEnd(CallbackInfo ci){
         if (this.isRemoved()) {
-            World world = RofTool.getWorld_(this);
+            World world = ROFWarp.getWorld_(this);
             if (world instanceof ServerWorld world1) {
                 var forcedEntitylist = ExtraWorldDatas.fromWorld(world1).forcedEntitylist;
                 forcedEntitylist.add(this);

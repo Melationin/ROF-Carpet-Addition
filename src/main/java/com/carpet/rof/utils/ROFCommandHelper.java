@@ -10,21 +10,19 @@ import com.mojang.brigadier.context.ParsedArgument;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.CommandNode;
-import com.mojang.logging.LogUtils;
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
+import org.jetbrains.annotations.CheckReturnValue;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.carpet.rof.utils.RofTool.rDEBUG;
 
 public class ROFCommandHelper <S extends CommandSource>
 {
@@ -40,65 +38,67 @@ public class ROFCommandHelper <S extends CommandSource>
 
     final CommandNode<S> rootNode;
 
-    public Predicate<S> predicate(Predicate<S> predicate){
+    public Predicate<S> predicate(Predicate<S> predicate) {
         return predicate;
-    };
+    }
 
     public ROFCommandHelper(CommandNode<S> rootNode)
     {
         this.rootNode = rootNode;
     }
 
-    protected static class CommandArg{
+    protected static class CommandArg {
         String name;
-        public enum CommandArgTYPE{
-            NORMAl,
-            Argument,
-            OptionalArg
+
+        public enum CommandArgType {
+            NORMAL,
+            ARGUMENT,
+            OPTIONAL_ARG
         }
 
-        public CommandArgTYPE type;
+        public CommandArgType type;
         public List<Object> otherArg = new ArrayList<>();
     }
 
 
-    private  void command(CommandNode<S> commandNode, List<CommandArg> commandArgs, Command<S> execute)
+    private static final Pattern MAIN_PATTERN =
+            Pattern.compile("^(?:\\[([^]]+)]|<([^>]+)>|([^\\[{<]+))((?:\\{[^}]+})*)$");
+    private static final Pattern SUFFIX_PATTERN = Pattern.compile("\\{([^}]+)}");
+
+    @SuppressWarnings("unchecked")
+    private void command(CommandNode<S> commandNode, List<CommandArg> commandArgs, Command<S> execute)
     {
-        if(commandArgs.isEmpty()){
+        if (commandArgs.isEmpty()) {
             try {
                 Field commandField = CommandNode.class.getDeclaredField("command");
                 commandField.setAccessible(true);
-                commandField.set(commandNode,execute);
+                commandField.set(commandNode, execute);
             } catch (NoSuchFieldException | IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
             return;
         }
-        //rDEBUG("---------------");
 
-        var commandArg = commandArgs.get(0);
+        var commandArg = commandArgs.getFirst();
         var child = commandNode.getChild(commandArg.name);
-        if(child == null){
-            ArgumentBuilder<S,?> argBuilder;
-            if(commandArg.type == CommandArg.CommandArgTYPE.Argument || commandArg.type == CommandArg.CommandArgTYPE.OptionalArg){
-                RequiredArgumentBuilder<S,?> requiredArgumentBuilder = RequiredArgumentBuilder.argument(commandArg.name,(ArgumentType<?>)commandArg.otherArg.getFirst());
-                for(Object o: commandArg.otherArg.subList(1,commandArg.otherArg.size())){
-
-                    rDEBUG(o.getClass().getSimpleName());
-                    if(o instanceof SuggestionProvider<?> suggestionProvider){
+        if (child == null) {
+            ArgumentBuilder<S, ?> argBuilder;
+            if (commandArg.type == CommandArg.CommandArgType.ARGUMENT
+                    || commandArg.type == CommandArg.CommandArgType.OPTIONAL_ARG) {
+                RequiredArgumentBuilder<S, ?> requiredArgumentBuilder =
+                        RequiredArgumentBuilder.argument(commandArg.name, (ArgumentType<?>) commandArg.otherArg.getFirst());
+                for (Object o : commandArg.otherArg.subList(1, commandArg.otherArg.size())) {
+                    if (o instanceof SuggestionProvider<?> suggestionProvider) {
                         requiredArgumentBuilder.suggests((SuggestionProvider<S>) suggestionProvider);
-                       // rDEBUG("suggestionProvider");
-
-                    }else if(o instanceof Predicate<?> predicate){
+                    } else if (o instanceof Predicate<?> predicate) {
                         requiredArgumentBuilder.requires((Predicate<S>) predicate);
-                        //rDEBUG("predicate");
                     }
                 }
                 argBuilder = requiredArgumentBuilder;
-            }else {
+            } else {
                 argBuilder = LiteralArgumentBuilder.literal(commandArg.name);
-                for(Object o: commandArg.otherArg){
-                    if(o instanceof Predicate<?> predicate){
+                for (Object o : commandArg.otherArg) {
+                    if (o instanceof Predicate<?> predicate) {
                         argBuilder.requires((Predicate<S>) predicate);
                     }
                 }
@@ -107,108 +107,165 @@ public class ROFCommandHelper <S extends CommandSource>
             child = commandNode.getChild(commandArg.name);
         }
 
-        if(commandArg.type != CommandArg.CommandArgTYPE.OptionalArg){
-            command(child, commandArgs.subList(1,commandArgs.size()),execute);
-        }else {
-            command(child, commandArgs.subList(1,commandArgs.size()), execute);
-            command(commandNode, commandArgs.subList(1,commandArgs.size()),execute);
+        if (commandArg.type != CommandArg.CommandArgType.OPTIONAL_ARG) {
+            command(child, commandArgs.subList(1, commandArgs.size()), execute);
+        } else {
+            command(child, commandArgs.subList(1, commandArgs.size()), execute);
+            command(commandNode, commandArgs.subList(1, commandArgs.size()), execute);
         }
-    };
+    }
 
-    public static <S> boolean hasArgument(CommandContext<S> ctx, String arg){
+    @SuppressWarnings("unchecked")
+    public static <S> boolean hasArgument(CommandContext<S> ctx, String arg) {
         try {
             Field arguments = CommandContext.class.getDeclaredField("arguments");
             arguments.setAccessible(true);
-            return ((Map<String, ParsedArgument<S, ?>>)(arguments.get(ctx))).containsKey(arg);
-        } catch (NoSuchFieldException|IllegalAccessException e) {
-            LogUtils.getLogger().error(e.getMessage());
+            return ((Map<String, ParsedArgument<S, ?>>) arguments.get(ctx)).containsKey(arg);
+        } catch (NoSuchFieldException | IllegalAccessException ignored) {
         }
         return false;
     }
 
-    public static <S extends CommandSource> Predicate<S> carpetRequire(String ruleName){
-        return (S source)->carpet.utils.CommandHelper.canUseCommand((ServerCommandSource) source,ruleName);
+    public static <S extends CommandSource> Predicate<S> carpetRequire(Supplier<String> ruleName) {
+        return source -> carpet.utils.CommandHelper.canUseCommand((ServerCommandSource) source, ruleName.get());
     }
+
     @FunctionalInterface
     public interface ThrowingBiFunction<T, U, R> {
-        R apply(T t, U u) throws CommandSyntaxException; // 或其他特定异常/泛型异常
+        R apply(T t, U u) throws CommandSyntaxException;
     }
-    public static <S extends CommandSource, T> T getArgumentOrDefault(CommandContext<S> ctx, String arg, T defaultValue, ThrowingBiFunction<CommandContext<S>, String, T> function) throws CommandSyntaxException
-    {
 
+    public static <S extends CommandSource, T> T getArgumentOrDefault(
+            CommandContext<S> ctx, String arg, T defaultValue,
+            ThrowingBiFunction<CommandContext<S>, String, T> function)
+    {
         try {
             if (hasArgument(ctx, arg)) {
                 return function.apply(ctx, arg);
-            } else {
-                return defaultValue;
             }
-        }catch (Exception ignored){}
+        } catch (Exception ignored) {}
         return defaultValue;
     }
 
-    public  void registerCommand(String commandString, Command<S> execute, Object... args){
-        final Pattern MAIN =
-                Pattern.compile("^(?:\\[([^]]+)]|<([^>]+)>|([^\\[{<]+))((?:\\{[^}]+})*)$");
+    public void registerCommand(String commandString, Command<S> execute, Object... args) {
+        registerCommandList(commandString, execute, List.of(args));
+    }
 
-        //解析command
+    protected void registerCommandList(String commandString, Command<S> execute, List<Object> args) {
         List<CommandArg> commandArgs = new ArrayList<>();
-        var tokenList = commandString.split(" ");
         int index = 0;
+        try {
+            for (String token : commandString.split(" ")) {
+                if (token.isEmpty())
+                    continue;
 
-        for(var token : tokenList){
-            if(!token.isEmpty()){
                 CommandArg commandArg = new CommandArg();
-                Matcher mainMatcher = MAIN.matcher(token);
+                Matcher mainMatcher = MAIN_PATTERN.matcher(token);
                 if (!mainMatcher.find()) {
-                    throw new IllegalArgumentException("Invalid head: " + token);
+                    throw new IllegalArgumentException("Invalid token: " + token);
                 }
-                if(mainMatcher.group(1)!= null){
+                if (mainMatcher.group(1) != null) {
                     commandArg.name = mainMatcher.group(1);
-                    commandArg.type = CommandArg.CommandArgTYPE.OptionalArg;
-                }else if(mainMatcher.group(2)!= null){
+                    commandArg.type = CommandArg.CommandArgType.OPTIONAL_ARG;
+                } else if (mainMatcher.group(2) != null) {
                     commandArg.name = mainMatcher.group(2);
-                    commandArg.type = CommandArg.CommandArgTYPE.Argument;
-                }
-                else if(mainMatcher.group(3)!= null){
+                    commandArg.type = CommandArg.CommandArgType.ARGUMENT;
+                } else if (mainMatcher.group(3) != null) {
                     commandArg.name = mainMatcher.group(3);
-                    commandArg.type = CommandArg.CommandArgTYPE.NORMAl;
-                }else throw new IllegalArgumentException("Invalid head: " + token);
+                    commandArg.type = CommandArg.CommandArgType.NORMAL;
+                } else {
+                    throw new IllegalArgumentException("Invalid token: " + token);
+                }
 
-                List<String> other = new ArrayList<>();
+                List<String> suffixKeys = new ArrayList<>();
                 String suffixes = mainMatcher.group(4);
                 if (suffixes != null && !suffixes.isEmpty()) {
-                    // 第二步：提取所有后缀
-                    Pattern suffixPattern = Pattern.compile("\\{([^}]+)}");
-                    Matcher suffixMatcher = suffixPattern.matcher(suffixes);
+                    Matcher suffixMatcher = SUFFIX_PATTERN.matcher(suffixes);
                     while (suffixMatcher.find()) {
-                        other.add(suffixMatcher.group(1));
+                        suffixKeys.add(suffixMatcher.group(1));
                     }
                 }
-                if(commandArg.type != CommandArg.CommandArgTYPE.NORMAl){
-                    if(args[index] instanceof ArgumentType<?> || args[index] instanceof Reused){
-                        commandArg.otherArg.add(args[index]);
+
+                if (commandArg.type != CommandArg.CommandArgType.NORMAL) {
+                    if (args.get(index) instanceof ArgumentType<?> || args.get(index) instanceof Reused) {
+                        commandArg.otherArg.add(args.get(index));
                         index++;
-                    }else throw new IllegalArgumentException("Invalid Additional Parameters:  " + token);
+                    } else {
+                        throw new IllegalArgumentException("Invalid Additional Parameters: " + token);
+                    }
                 }
-                for(var it: other){
-                    if(it.equals("r")){
-                        if(args[index] instanceof Predicate<?>){
-                            commandArg.otherArg.add(args[index]);
-                            //rDEBUG(" PredicateSucc");
-                            index++;
-                        }else throw new IllegalArgumentException("Invalid Additional Parameters:  " + token);
-                    }else if(it.equals("s")){
-                        if(args[index] instanceof SuggestionProvider<?> ){
-                            commandArg.otherArg.add(args[index]);
-                           // rDEBUG("suggestionProviderSucc");
-                            index++;
-                        }else throw new IllegalArgumentException("Invalid Additional Parameters:  " + token);
-                    }else throw new IllegalArgumentException("Invalid Additional Parameters:  " + token);
+
+                for (String key : suffixKeys) {
+                    switch (key) {
+                        case "r" -> {
+                            if (args.get(index) instanceof Predicate<?>) {
+                                commandArg.otherArg.add(args.get(index++));
+                            } else
+                                throw new IllegalArgumentException("Invalid Additional Parameters: " + token);
+                        }
+                        case "s" -> {
+                            if (args.get(index) instanceof SuggestionProvider<?>) {
+                                commandArg.otherArg.add(args.get(index++));
+                            } else
+                                throw new IllegalArgumentException("Invalid Additional Parameters: " + token);
+                        }
+                        default -> throw new IllegalArgumentException("Invalid Additional Parameters: " + token);
+                    }
                 }
                 commandArgs.add(commandArg);
             }
+
+            command(rootNode, commandArgs, execute);
+        }catch (IndexOutOfBoundsException e) {
+            throw new IllegalArgumentException("Not Enough Additional Parameters for command: " + commandString, e);
+        }
+    }
+
+
+
+    public    class commandBuilder{
+
+        String string;
+        List<Object> objects = new ArrayList<>();
+
+        public commandBuilder(String string)
+        {
+            this.string = string;
         }
 
-       command(rootNode,commandArgs,execute);
+        //@CheckReturnValue
+        public commandBuilder r(Predicate<S> predicate){
+            objects.add(predicate);
+            return this;
+        }
+
+        //@CheckReturnValue
+        public commandBuilder rCarpet(Supplier<String> ruleName){
+            return r(source -> carpet.utils.CommandHelper.canUseCommand((ServerCommandSource) source, ruleName.get()));
+        }
+
+        @CheckReturnValue
+        public commandBuilder s(SuggestionProvider<S> suggestionProvider){
+            objects.add(suggestionProvider);
+            return this;
+        }
+
+        @CheckReturnValue
+        public commandBuilder arg(ArgumentType<?> argumentType){
+            objects.add(argumentType);
+            return this;
+        }
+
+        public void command(Command<S> command){
+
+
+            ROFCommandHelper.this.registerCommandList(string, command,objects);
+        }
+
+    }
+
+    @CheckReturnValue
+    public commandBuilder registerCommand(String commandString) {
+      return new commandBuilder(commandString);
     }
 }
