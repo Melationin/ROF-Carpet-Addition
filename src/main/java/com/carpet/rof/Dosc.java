@@ -42,6 +42,10 @@ public class Dosc
         }
     }
 
+    private static String mdSafe(String s) {
+        if (s == null) return "";
+        return "`" + s.replace("`", "\\`") + "`";
+    }
 
     public static void parseSettingsClass(Class<?> settingsClass)
     {
@@ -103,13 +107,13 @@ public class Dosc
             if(!rule.name.startsWith("command")) {
                 int i = 0;
                 while (translations.containsKey(trP + "extra." + i)) {
-                    sb.append("&emsp;").append(translations.get(trP + "extra." + i)).append("\n\n");
+                    sb.append("&emsp; `").append(translations.get(trP + "extra." + i)).append("`\n\n");
                     i++;
                 }
             }
 
             // 类型
-            sb.append("&emsp;- 类型: `").append(rule.type.getSimpleName()).append("`\n\n");
+            sb.append("&emsp;- 类型: `").append( rule.type.getSimpleName()).append("`\n\n");
 
             // 默认值
             sb.append("&emsp;- 默认值: `").append(rule.defaultValue).append("`\n\n");
@@ -160,7 +164,7 @@ public class Dosc
             sb.append("### &emsp;用法:\n\n");
             int i = 0;
             while (translations.containsKey(trP + "extra." + i)) {
-                sb.append("&emsp;&emsp;- ").append(translations.get(trP + "extra." + i)).append("\n\n");
+                sb.append("&emsp;&emsp;- `").append(translations.get(trP + "extra." + i)).append("`\n\n");
                 i++;
             }
 
