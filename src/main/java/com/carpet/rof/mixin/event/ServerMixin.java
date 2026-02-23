@@ -5,7 +5,7 @@ import com.mojang.datafixers.DataFixer;
 import net.minecraft.resource.ResourcePackManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.SaveLoader;
-//? <1.21.10 {
+//? <1.21.9 {
 import net.minecraft.server.WorldGenerationProgressListenerFactory;
 //?} else {
 /*import net.minecraft.world.chunk.ChunkLoadProgress;
@@ -24,7 +24,7 @@ import java.util.function.BooleanSupplier;
 @Mixin(MinecraftServer.class)
 public class ServerMixin
 {
-    //? <1.21.10 {
+    //? <1.21.9 {
     @Inject(method = "<init>",
             at = @At(value = "TAIL"))
     private void startServer(Thread serverThread, LevelStorage.Session session, ResourcePackManager dataPackManager, SaveLoader saveLoader, Proxy proxy, DataFixer dataFixer, ApiServices apiServices, WorldGenerationProgressListenerFactory worldGenerationProgressListenerFactory, CallbackInfo ci)

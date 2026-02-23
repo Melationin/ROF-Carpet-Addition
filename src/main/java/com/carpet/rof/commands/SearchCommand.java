@@ -12,13 +12,11 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import com.mojang.brigadier.tree.CommandNode;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
@@ -29,8 +27,6 @@ import java.util.concurrent.CompletableFuture;
 import static carpet.api.settings.RuleCategory.COMMAND;
 import static carpet.utils.Translations.tr;
 import static com.carpet.rof.rules.BaseSetting.ROF;
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
 
 @ROFRule
 @ROFCommand
@@ -39,7 +35,8 @@ public class SearchCommand
 
     @Rule(categories = {ROF, COMMAND}, strict = false, validators = {Validators.CommandLevel.class})
     @QuickTranslations(name = "Carpet规则搜索命令",
-            description = "添加了carpet的子命令search，可以通过关键字搜索carpet规则")
+            description = "添加了carpet的子命令search，可以通过关键字搜索carpet规则",
+                       extra = {"/carpet search <key> [isNoDefaultValue] [category] - 搜索carpet规则，key为搜索关键词，isNoDefaultValue为是否只搜索默认值改变(默认 false)，category为规则分类"})
     public static String commandRulesSearcher = "true";
     private static final String IDENTIFIER = "carpet";
 

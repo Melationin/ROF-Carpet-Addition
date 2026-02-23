@@ -9,7 +9,7 @@ import com.carpet.rof.annotation.ROFRule;
 @ROFRule
 public class BaseSetting
 {
-    public static final String ROF = "RofROF";
-    public static final String PACKET = "Packet";
+    public static final String ROF = "ROF";
+    public static final String PACKET = "packet";
 
 }

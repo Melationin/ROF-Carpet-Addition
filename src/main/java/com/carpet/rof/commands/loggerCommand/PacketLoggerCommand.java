@@ -29,7 +29,12 @@ public class PacketLoggerCommand
     @Rule(
             categories = {COMMAND,ROF}, strict = false, validators = {Validators.CommandLevel.class})
     @QuickTranslations(name = "数据包监视器Plus",
-            description = "可以记录各种数据包的发包数量与压缩前大小。同时，也为发包限制的前置。")
+            description = "记录各种数据包的压缩前大小。",
+                       extra = {"/packetLogger start - 开始记录数据包",
+                               "/packetLogger stop - 结束记录并显示数据",
+                               "/packetLogger - 显示当前数据（如果正在记录）"
+                                }
+    )
     public static String commandPacketLoggerPlus = "ops";
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher)

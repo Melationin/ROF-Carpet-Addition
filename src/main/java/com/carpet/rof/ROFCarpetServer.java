@@ -2,6 +2,7 @@ package com.carpet.rof;
 
 import carpet.CarpetExtension;
 import carpet.CarpetServer;
+import carpet.api.settings.SettingsManager;
 import com.carpet.rof.utils.RofCarpetTranslations;
 import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.api.ModInitializer;
@@ -34,15 +35,17 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
     public void onGameStarted()
     {
         ROFSettings.loadClasses();
+
         for (Class<?> r : ROFSettings.ruleClasses) {
             CarpetServer.settingsManager.parseSettingsClass(r);
         }
+
     }
 
     @Override
     public Map<String, String> canHasTranslations(String lang)
     {
-        return RofCarpetTranslations.getTranslationFromResourcePath(lang);
+        return RofCarpetTranslations.getTranslationFromResourcePath("zh_cn");
     }
 
     @Override

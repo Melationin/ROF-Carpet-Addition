@@ -1,9 +1,7 @@
 package com.carpet.rof.commands;
 
-import carpet.api.settings.CarpetRule;
 import carpet.api.settings.Rule;
-import carpet.api.settings.Validator;
-import carpet.api.settings.Validators;
+
 import carpet.patches.EntityPlayerMPFake;
 import com.carpet.rof.annotation.QuickTranslations;
 import com.carpet.rof.annotation.ROFCommand;
@@ -12,11 +10,9 @@ import com.carpet.rof.event.ROFEvents;
 import com.carpet.rof.utils.ROFCommandHelper;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.tree.CommandNode;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
-import java.util.List;
 
 import static carpet.api.settings.RuleCategory.COMMAND;
 import static com.carpet.rof.rules.BaseSetting.ROF;
@@ -30,7 +26,8 @@ public class SafeTickCommand
     public static int SafeTickRate = -1; //-1 表示不开启
 
     @Rule(categories = {ROF, COMMAND}, strict = false)
-    @QuickTranslations(name = "安全加速", description = "添加了命令tickSafe , 可以在无生存真人时自动加速")
+    @QuickTranslations(name = "安全加速", description = "添加了命令tickSafe , 可以在无生存真人时自动加速",
+                       extra = {"/tickSafe rate <rate> - 设置安全加速的tick速率. 当使用tick 的其他调速指令时，自动取消安全加速的效果"})
     public static String commandSafeTick = "false";
 
 
@@ -38,8 +35,8 @@ public class SafeTickCommand
     {
         ROFCommandHelper<ServerCommandSource> helper = new ROFCommandHelper<>(dispatcher.getRoot());
         helper.registerCommand("tickSafe{r} rate <rate2>")
-                //.r(source -> carpet.utils.CommandHelper.canUseCommand((ServerCommandSource) source, commandSafeTick)) //没问题！
-                 .rCarpet(()->commandSafeTick) //有问题！！
+                //.r(source -> carpet.utils.CommandHelper.canUseCommand((ServerCommandSource) source, commandSafeTick))
+                 .rCarpet(()->commandSafeTick)
                 .arg(IntegerArgumentType.integer(0))
                 .command(context->{
                     SafeTickRate = IntegerArgumentType.getInteger(context, "rate2");
@@ -64,10 +61,8 @@ public class SafeTickCommand
 
             if (survivalRealPlayerCount == 0) {
                 if (server.getTickManager().shouldTick()) {
-                    if (!server.getTickManager().isSprinting() && false) {
-                        server.getTickManager().startSprint(20 * 60 * 60 * 365);
-                        server.sendMessage(Text.of("Start tick sprint!!!"));
-                    } else if (SafeTickCommand.SafeTickRate >= 0 && server.getTickManager()
+                    server.getTickManager().isSprinting();
+                    if (SafeTickCommand.SafeTickRate >= 0 && server.getTickManager()
                             .getTickRate() != SafeTickCommand.SafeTickRate) {
                         server.getTickManager().setTickRate(SafeTickCommand.SafeTickRate);
                     }

@@ -121,8 +121,8 @@ public class ChunkModifyData extends ExtraChunkData
     {
 
         public long chunkPos;
-        public long createTime = -1;
-        public long modifyTime = -1;
+        public long createTime;
+        public long modifyTime;
 
         ChunkData(long chunkPos, long createTime, long modifyTime)
         {

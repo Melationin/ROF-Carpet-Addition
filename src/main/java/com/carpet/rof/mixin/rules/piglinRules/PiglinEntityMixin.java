@@ -42,7 +42,7 @@ public abstract class PiglinEntityMixin extends AbstractPiglinEntity implements 
 
 
     @Inject(method = "mobTick", at = @At(value = "HEAD"))
-            //? >=1.21.4 {
+            //? >=1.21.5 {
     private void piglinTick(ServerWorld world, CallbackInfo ci)
     {
         if ((this.age + this.getId() % 801) % 400 == 0) {
@@ -89,7 +89,7 @@ public abstract class PiglinEntityMixin extends AbstractPiglinEntity implements 
     @Inject(method = "writeCustomDataToNbt",at = @At(value = "HEAD"))
     private void writeCustomDataToNbt(NbtCompound tag, CallbackInfo ci) {
         if (tag.contains("nearPiglinCount")) {
-            nearPiglinCount= tag.getInt("nearPiglinCount");
+            nearPiglinCount= ROFWarp.getFromNbt(tag.getInt("nearPiglinCount"));
         }
     }
     *///?}

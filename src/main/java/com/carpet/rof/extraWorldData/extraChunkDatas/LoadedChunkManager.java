@@ -9,7 +9,7 @@ import java.util.*;
 public class LoadedChunkManager
 {
     public boolean needLog = false;
-    public Set<ChunkPos>  loadedChunks = new HashSet<ChunkPos>();
+    public Set<ChunkPos>  loadedChunks = new HashSet<>();
 
     public static class ConnectedChunksData{
         final Set<ChunkPos> loadedChunksConnected = new HashSet<>();
@@ -36,7 +36,7 @@ public class LoadedChunkManager
     public List<ConnectedChunksData> getConnectedChunks()
     {
         LongOpenHashSet  set = new LongOpenHashSet();
-        List<ConnectedChunksData> retList = new ArrayList<ConnectedChunksData>();
+        List<ConnectedChunksData> retList = new ArrayList<>();
         for(ChunkPos c : this.loadedChunks){
             set.add(c.toLong());
         }

@@ -159,10 +159,10 @@ public class ExceedChunkMarker extends ExtraChunkData
     public void read(NbtCompound nbt)
     {
         //? >1.21.4 {
-        for(long chunk : nbt.getLongArray("chunks").get()){
+        for(long chunk : nbt.getLongArray("chunks").orElse(new long[0])){
             chunks.add(chunk);
         }
-        topY = nbt.getInt("topY").get();
+        topY = nbt.getInt("topY").orElse(Integer.MAX_VALUE - 1);
         //?} else {
         /*for(long chunk : nbt.getLongArray("chunks")){
             chunks.add(chunk);

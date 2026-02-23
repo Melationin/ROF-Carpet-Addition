@@ -32,7 +32,6 @@ import static com.carpet.rof.rules.BaseSetting.ROF;
 @ROFRule
 public class EntityTrackerCommand
 {
-
     @Rule(
             categories = {COMMAND, ROF},
             strict = false,
@@ -40,7 +39,11 @@ public class EntityTrackerCommand
     )
     @QuickTranslations(
             name = "实体追踪",
-            description = "可以选择一个实体进行追踪，其坐标与位置将会实时广播给玩家。"
+            description = "可以选择一个实体进行追踪，其坐标与位置将会实时广播给玩家。",
+            extra = {
+                    "/entityTracker set <entity> - 开始追踪一个实体"
+                    , "/entityTracker clear - 结束追踪"
+            }
     )
     public static String commandEntityTracker = "true";
 

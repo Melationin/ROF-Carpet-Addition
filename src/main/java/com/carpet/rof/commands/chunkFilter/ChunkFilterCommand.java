@@ -45,15 +45,16 @@ public class ChunkFilterCommand
             categories = {ROF, COMMAND}, strict = false, validators = {Validators.CommandLevel.class})
     @QuickTranslations(name = "区块过滤器", description = "可以通过这个命令筛选区块，并以MCA支持的格式输出。用于删区块",
             extra = {
-                    "/chunkFilter load [dimension] : 加载某维度区块数据。一次只能加载一个维度的数据。默认无区块被筛选,即空区块",
-                    "/chunkFilter save [string>: 输出筛完的区块，输出文件将以cvs格式输出，并存储在维度的地图存档中",
-                    "/chunkFilter add/remove [chunkPos] : 添加或删除单区块",
-                    "/chunkFilter add/remove rect [from] [to] : 添加或删除矩形区域",
-                    "/chunkFilter add/remove inhabitedTime [value]: 玩家停留时间大于等于value的区块将会被添加或删除",
-                    "/chunkFilter add/remove modifyTime [value]: 修改时间小于等于value的区块将会被添加或删除. 在区块更新记录器未开启时无效，且此值应该低于等于维度minChunkLifetime",
-                    "/chunkFilter extend [distance]: 将过滤器里的区块向外扩展distance个区块( 以切比雪夫距离)",
-                    "/chunkFilter reverse: 反转现有区块", "/chunkFilter clear: 清空过滤器里的区块",
-                    "/chunkFilter close: 关闭过滤器"
+                    "/chunkFilter load <dimension> - 加载某维度区块数据。一次只能加载一个维度的数据。默认无区块被筛选,即空区块",
+                    "/chunkFilter save <string> - 输出筛完的区块，输出文件将以cvs格式输出，并存储在维度的地图存档中(注意文件名必须为英文)",
+                    "/chunkFilter add/remove <chunkPos> - 添加或删除单区块",
+                    "/chunkFilter add/remove rect <from> <to> - 添加或删除矩形区域",
+                    "/chunkFilter add/remove inhabitedTime <value> - 玩家停留时间大于等于value的区块将会被添加或删除",
+                    "/chunkFilter add/remove modifyTime <value> - 修改时间小于等于value的区块将会被添加或删除. 在区块更新记录器未开启时无效，且此值应该低于等于维度minChunkLifetime",
+                    "/chunkFilter extend <distance> - 将过滤器里的区块向外扩展distance个区块( 以切比雪夫距离)",
+                    "/chunkFilter reverse - 反转现有区块",
+                    "/chunkFilter clear -  清空过滤器里的区块",
+                    "/chunkFilter close - 关闭过滤器"
             })
     public static String commandChunkFilter = "ops";
     static ChunkFilterThread thread = null;
@@ -223,7 +224,7 @@ public class ChunkFilterCommand
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            },"loadFromWorld", ctx.getSource());
+            },"Save", ctx.getSource());
             return 0;
         }, StringArgumentType.string());
         helper2.registerCommand("add rect <from>{s} <to>{s}",ctx ->changeRect(ctx,true),

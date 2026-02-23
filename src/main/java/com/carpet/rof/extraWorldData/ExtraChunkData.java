@@ -10,11 +10,11 @@ public abstract class ExtraChunkData implements NBTData
 
     public boolean needSave(){
         return needSave;
-    };
+    }
 
     public boolean enable(){
         return enable;
-    };
+    }
 
     public void setEnable(boolean enable)
     {

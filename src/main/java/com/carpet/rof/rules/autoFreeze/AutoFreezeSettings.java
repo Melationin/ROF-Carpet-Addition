@@ -28,10 +28,6 @@ public class AutoFreezeSettings extends BaseSetting
           options = {"3", "5", "10"})
     public static int highLagFreezeTickLimit = 3;
 
-    @Rule(categories = {ROF, COMMAND},
-          strict = false,
-          validators = {Validators.CommandLevel.class})
-    public static String commandUnfreeze = "false";
 
     static {
         ROFEvents.ServerStart.register(server -> {

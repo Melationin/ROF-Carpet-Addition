@@ -40,7 +40,7 @@ public abstract class ServerWorldMixin extends World  {
 
     @Shadow @Final  EntityList entityList;
 
-    //? >=1.21.4 {
+    //? >=1.21.2 {
     protected ServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryRef, DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry, boolean isClient, boolean debugWorld, long seed, int maxChainedNeighborUpdates) {
         super(properties, registryRef, registryManager, dimensionEntry, isClient, debugWorld, seed, maxChainedNeighborUpdates);
     }

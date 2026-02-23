@@ -31,7 +31,10 @@ public class LoadedChunkFinderCommand
           strict = false,
           validators = {Validators.CommandLevel.class})
     @QuickTranslations(name = "记录加载区块命令",
-                       description = "记录一段时间内活动的连通区块，用于查找被遗忘的区块加载器")
+                       description = "记录一段时间内活动的连通区块，用于查找被遗忘的区块加载器",
+                       extra = {"/loadedChunkFinder - 记录当前维度1 tick内的区块加载情况",
+                             "/loadedChunkFinder <dimension> [tick] - 记录指定指定一段时间内的区块加载情况，tick默认为1"}
+                       )
     public static String commandLoadedChunkFinder = "ops";
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher)

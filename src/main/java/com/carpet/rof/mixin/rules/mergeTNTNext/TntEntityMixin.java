@@ -81,7 +81,7 @@ public abstract class TntEntityMixin extends Entity implements TntEntityAccessor
 
     }
 
-    //? >=1.21.6 {
+    //? >= 1.21.6 {
     @Inject(method = "writeCustomData", at = @At(value = "HEAD"))
     private void writeCustomData(WriteView view, CallbackInfo ci) {
         if (rof$mergedTNTNCount > 1) {
@@ -106,7 +106,7 @@ public abstract class TntEntityMixin extends Entity implements TntEntityAccessor
     @Inject(method = "writeCustomDataToNbt",at = @At(value = "HEAD"))
     private void writeCustomDataToNbt(NbtCompound tag, CallbackInfo ci) {
         if (tag.contains("mergedTNT")) {
-            rof$mergedTNTNCount  = tag.getInt("mergedTNT");
+            rof$mergedTNTNCount  = ROFWarp.getFromNbt(tag.getInt("mergedTNT"));
         }
     }
     *///?}

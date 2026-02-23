@@ -1,7 +1,6 @@
 {
-  "carpet.category.RofHCL": "HCL",
 
-  "carpet.category.RofROF": "ROF",
+  "carpet.category.ROF": "ROF",
 
   "carpet.rule.enderPearlRaycastLength.name":"珍珠碰撞检测长度",
   "carpet.rule.enderPearlRaycastLength.desc":"珍珠碰撞检测(Raycast)长度",

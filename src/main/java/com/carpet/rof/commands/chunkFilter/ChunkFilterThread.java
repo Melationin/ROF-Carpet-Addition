@@ -1,7 +1,6 @@
 package com.carpet.rof.commands.chunkFilter;
 
 import com.carpet.rof.event.ROFEvents;
-import com.carpet.rof.utils.ROFTool;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -21,11 +20,6 @@ public class ChunkFilterThread
     {
         this.chunkFilter = new ChunkFilter(world);
 
-    }
-
-    public double getProcess()
-    {
-        return this.chunkFilter.progress;
     }
 
     public void asyncFunc(Runnable runnable,String name, ServerCommandSource serverCommandSource)
@@ -52,7 +46,6 @@ public class ChunkFilterThread
                     return true;
                 }
                 player.sendMessage(processDisplay("[ChunkFilter]"+name,chunkFilter.progress),true);
-                return false;
             }else {
                 if(chunkFilter.progress >= 1){
                     serverCommandSource.sendFeedback(()-> processDisplay("[ChunkFilter]"+name,chunkFilter.progress),false);
@@ -62,8 +55,8 @@ public class ChunkFilterThread
                 if(tick % 20 == 0){
                     serverCommandSource.sendFeedback(()-> processDisplay("[ChunkFilter]"+name,chunkFilter.progress),false);
                 }
-                return false;
             }
+            return false;
         });
 
 

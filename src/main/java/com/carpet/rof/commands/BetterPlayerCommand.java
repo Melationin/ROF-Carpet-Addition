@@ -14,12 +14,8 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-
-import java.util.List;
-
 import static carpet.api.settings.RuleCategory.*;
 import static com.carpet.rof.rules.BaseSetting.ROF;
-import static com.carpet.rof.utils.ROFTextTool.textS;
 @ROFRule
 @ROFCommand
 public class BetterPlayerCommand
@@ -31,10 +27,10 @@ public class BetterPlayerCommand
             validators = {Validators.CommandLevel.class}
     )
     @QuickTranslations(
-            name = "真人召唤命令",
-            description = "添加真人召唤命令",
+            name = "无前缀假人召唤命令",
+            description = "用于召唤无前缀假人",
             extra = {
-                    "/playerReal <realPlayer> spawn"
+                    "/player <name> spawn original - 召唤一个无前缀假人"
             }
     )
     public static String commandSpawnWhitedListedPlayer = "ops";
@@ -42,7 +38,6 @@ public class BetterPlayerCommand
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher)
     {
-
         final SuggestionProvider<ServerCommandSource> REAL_PLAYER_SUGGEST = (context, builder) ->
         {
             var whiteList =  context.getSource().getServer().getPlayerManager().getWhitelistedNames();
@@ -55,19 +50,7 @@ public class BetterPlayerCommand
 
 
         Command<ServerCommandSource> command = (context)->{
-
-            String playerName = StringArgumentType.getString(context,"realPlayer");
-            if(context.getSource().getPlayerNames().contains(playerName)){
-                context.getSource().sendFeedback(textS("&c玩家已存在!"), false);
-                return 0;
-            }
-
-            var whiteList =  context.getSource().getServer().getPlayerManager().getWhitelist();
-
-            if(!List.of(whiteList.getNames()).contains(playerName)){
-                context.getSource().sendFeedback(textS("&c非白名单玩家!"), false);
-                return 0;
-            }
+            String playerName = StringArgumentType.getString(context,"player");
 
             if (context.getSource().getPlayer() instanceof ServerPlayerEntity player) {
                 var mode = ROFWarp.getGameMode(player);
@@ -85,10 +68,10 @@ public class BetterPlayerCommand
 
 
         ROFCommandHelper<ServerCommandSource> helper = new ROFCommandHelper<>(dispatcher.getRoot());
-        helper.registerCommand("playerReal{r} <realPlayer>{s} spawn",command
-        ,       ROFCommandHelper.carpetRequire(()->commandSpawnWhitedListedPlayer ),
-                StringArgumentType.word(),
-                REAL_PLAYER_SUGGEST
-        );
+        helper.registerCommand("player <player>{s} spawn original{r}")
+                .arg(StringArgumentType.word())
+                .s(REAL_PLAYER_SUGGEST)
+                .rCarpet(()->commandSpawnWhitedListedPlayer)
+                .command(command);
     }
 }

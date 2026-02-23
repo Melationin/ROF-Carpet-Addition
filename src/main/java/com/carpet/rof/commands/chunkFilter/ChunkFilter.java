@@ -82,7 +82,7 @@ public class ChunkFilter {
     private void loadFromRegion(Path RegionFileFolder, int x, int y) throws IOException {
         String currentRegionName = "r." + x + "." + y + ".mca";
         Path RegionFilePath = RegionFileFolder.resolve(currentRegionName);
-        try(RegionFile test = new RegionFile(new StorageKey("string1",world.getRegistryKey(),"string2"), RegionFilePath,RegionFileFolder,false);) {
+        try(RegionFile test = new RegionFile(new StorageKey("string1",world.getRegistryKey(),"string2"), RegionFilePath,RegionFileFolder,false)) {
             for(int i = 0;i<32;i++)
                 for(int j = 0;j<32;j++){
                     try (DataInputStream dataInputStream = test.getChunkInputStream(new ChunkPos((x<<5 )+ i,(y<<5) + j))){
