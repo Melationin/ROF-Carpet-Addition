@@ -18,6 +18,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -34,7 +35,8 @@ public class ROFCommandHelper <S extends CommandSource>
      */
     public static class Reused{}
 
-    public static Reused reused(){return new Reused();}
+    private static final Reused reused = new Reused();
+    public static Reused reused(){return reused;}
 
     final CommandNode<S> rootNode;
 
@@ -65,6 +67,48 @@ public class ROFCommandHelper <S extends CommandSource>
             Pattern.compile("^(?:\\[([^]]+)]|<([^>]+)>|([^\\[{<]+))((?:\\{[^}]+})*)$");
     private static final Pattern SUFFIX_PATTERN = Pattern.compile("\\{([^}]+)}");
 
+
+    public static class SetCommandPredicateError extends RuntimeException{
+        public SetCommandPredicateError(String message) {
+            super(message);
+        }
+    }
+
+
+    private void setCommandRequirementNode(CommandNode<S> commandNode, List<CommandArg> commandArgs, BiPredicate<S,Boolean> biPredicate)
+    {
+        if (commandArgs.isEmpty()) {
+            try {
+                Field commandField = CommandNode.class.getDeclaredField("requirement");
+                commandField.setAccessible(true);
+                if(commandField.get(commandNode) == null){
+                    commandField.set(commandNode,predicate((source)->biPredicate.test(source,false)));
+                }
+               else {
+                    Predicate<S> old = (Predicate<S>) commandField.get(commandNode);
+                    commandField.set(commandNode, predicate(source ->biPredicate.test(source,old.test(source))));
+                }
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+            return;
+        }
+
+        var commandArg = commandArgs.getFirst();
+        var child = commandNode.getChild(commandArg.name);
+
+        if(child == null){
+            throw new SetCommandPredicateError("无法找到命令节点: " + commandArg.name);
+        }
+
+        if (commandArg.type != CommandArg.CommandArgType.OPTIONAL_ARG) {
+            setCommandRequirementNode(child, commandArgs.subList(1, commandArgs.size()), biPredicate);
+        } else {
+            setCommandRequirementNode(child, commandArgs.subList(1, commandArgs.size()),  biPredicate);
+            setCommandRequirementNode(commandNode, commandArgs.subList(1, commandArgs.size()), biPredicate);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     private void command(CommandNode<S> commandNode, List<CommandArg> commandArgs, Command<S> execute)
     {
@@ -85,6 +129,10 @@ public class ROFCommandHelper <S extends CommandSource>
             ArgumentBuilder<S, ?> argBuilder;
             if (commandArg.type == CommandArg.CommandArgType.ARGUMENT
                     || commandArg.type == CommandArg.CommandArgType.OPTIONAL_ARG) {
+                if(! (commandArg.otherArg.getFirst() instanceof ArgumentType<?> )){
+                    throw new IllegalArgumentException("缺少参数:  "+ commandArg.name);
+                }
+
                 RequiredArgumentBuilder<S, ?> requiredArgumentBuilder =
                         RequiredArgumentBuilder.argument(commandArg.name, (ArgumentType<?>) commandArg.otherArg.getFirst());
                 for (Object o : commandArg.otherArg.subList(1, commandArg.otherArg.size())) {
@@ -92,6 +140,8 @@ public class ROFCommandHelper <S extends CommandSource>
                         requiredArgumentBuilder.suggests((SuggestionProvider<S>) suggestionProvider);
                     } else if (o instanceof Predicate<?> predicate) {
                         requiredArgumentBuilder.requires((Predicate<S>) predicate);
+                    }else {
+                        throw new IllegalArgumentException("无效的附加参数: " + o + " for argument: " + commandArg.name);
                     }
                 }
                 argBuilder = requiredArgumentBuilder;
@@ -100,6 +150,8 @@ public class ROFCommandHelper <S extends CommandSource>
                 for (Object o : commandArg.otherArg) {
                     if (o instanceof Predicate<?> predicate) {
                         argBuilder.requires((Predicate<S>) predicate);
+                    }else {
+                        throw new IllegalArgumentException("无效的附加参数: " + o + " for argument: " + commandArg.name);
                     }
                 }
             }
@@ -148,10 +200,10 @@ public class ROFCommandHelper <S extends CommandSource>
     }
 
     public void registerCommand(String commandString, Command<S> execute, Object... args) {
-        registerCommandList(commandString, execute, List.of(args));
+        command(rootNode, registerCommandList(commandString, List.of(args)), execute);
     }
 
-    protected void registerCommandList(String commandString, Command<S> execute, List<Object> args) {
+    protected List<CommandArg> registerCommandList(String commandString, List<Object> args) {
         List<CommandArg> commandArgs = new ArrayList<>();
         int index = 0;
         try {
@@ -187,24 +239,22 @@ public class ROFCommandHelper <S extends CommandSource>
                 }
 
                 if (commandArg.type != CommandArg.CommandArgType.NORMAL) {
-                    if (args.get(index) instanceof ArgumentType<?> || args.get(index) instanceof Reused) {
+                    if (index < args.size() && (args.get(index) instanceof ArgumentType<?> || args.get(index) instanceof Reused)) {
                         commandArg.otherArg.add(args.get(index));
                         index++;
-                    } else {
-                        throw new IllegalArgumentException("Invalid Additional Parameters: " + token);
                     }
                 }
 
                 for (String key : suffixKeys) {
                     switch (key) {
                         case "r" -> {
-                            if (args.get(index) instanceof Predicate<?>) {
+                            if (index < args.size() && args.get(index) instanceof Predicate<?>) {
                                 commandArg.otherArg.add(args.get(index++));
                             } else
                                 throw new IllegalArgumentException("Invalid Additional Parameters: " + token);
                         }
                         case "s" -> {
-                            if (args.get(index) instanceof SuggestionProvider<?>) {
+                            if (index < args.size() && args.get(index) instanceof SuggestionProvider<?>) {
                                 commandArg.otherArg.add(args.get(index++));
                             } else
                                 throw new IllegalArgumentException("Invalid Additional Parameters: " + token);
@@ -215,15 +265,18 @@ public class ROFCommandHelper <S extends CommandSource>
                 commandArgs.add(commandArg);
             }
 
-            command(rootNode, commandArgs, execute);
+            return commandArgs;
         }catch (IndexOutOfBoundsException e) {
             throw new IllegalArgumentException("Not Enough Additional Parameters for command: " + commandString, e);
         }
     }
 
+    /** 0 替换  1 并 -1 或*/
+    public void setCommandRequirement(String commandString, BiPredicate<S,Boolean> predicate){
+        setCommandRequirementNode(rootNode, registerCommandList(commandString, List.of()), predicate);
+    }
 
-
-    public    class commandBuilder{
+    public   class commandBuilder{
 
         String string;
         List<Object> objects = new ArrayList<>();
@@ -233,13 +286,13 @@ public class ROFCommandHelper <S extends CommandSource>
             this.string = string;
         }
 
-        //@CheckReturnValue
+        @CheckReturnValue
         public commandBuilder r(Predicate<S> predicate){
             objects.add(predicate);
             return this;
         }
 
-        //@CheckReturnValue
+        @CheckReturnValue
         public commandBuilder rCarpet(Supplier<String> ruleName){
             return r(source -> carpet.utils.CommandHelper.canUseCommand((ServerCommandSource) source, ruleName.get()));
         }
@@ -251,6 +304,12 @@ public class ROFCommandHelper <S extends CommandSource>
         }
 
         @CheckReturnValue
+        public commandBuilder reused(){
+            objects.add(ROFCommandHelper.reused());
+            return this;
+        }
+
+        @CheckReturnValue
         public commandBuilder arg(ArgumentType<?> argumentType){
             objects.add(argumentType);
             return this;
@@ -258,8 +317,7 @@ public class ROFCommandHelper <S extends CommandSource>
 
         public void command(Command<S> command){
 
-
-            ROFCommandHelper.this.registerCommandList(string, command,objects);
+            ROFCommandHelper.this.command(rootNode, registerCommandList(string, objects), command);
         }
 
     }

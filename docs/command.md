@@ -98,6 +98,31 @@
 &emsp;&emsp;- `/packetLogger - 显示当前数据（如果正在记录）`
 
 
+## 命令权限修改命令 (commandRequirementModify)
+
+&emsp;修改指定命令的权限要求
+
+### &emsp;用法:
+
+&emsp;&emsp;- `/requirementModify <commandPath> <permission> set - 将指定命令的权限要求设置为指定权限`
+
+&emsp;&emsp;- `/requirementModify <commandPath> <permission> add - 在原有权限要求的基础上添加一个权限要求`
+
+&emsp;&emsp;- `/requirementModify <commandPath> <permission> or - 在原有权限要求的基础上添加一个或条件的权限要求`
+
+&emsp;&emsp;- `/requirementModify <commandPath> clear - 清除指定命令的权限修改`
+
+&emsp;&emsp;- `/requirementModify clearAll - 清除所有命令的权限修改`
+
+&emsp;&emsp;- `/requirementModify list - 列出所有被修改权限要求的命令`
+
+&emsp;&emsp;- `对于commandPath ,用<>表示参数：`
+
+&emsp;&emsp;- `  - 例：/requirementModify "player <player> shadow" ops set`
+
+&emsp;&emsp;- `    表示将"player <player> shadow"的权限要求设置为ops`
+
+
 ## Carpet规则搜索命令 (commandRulesSearcher)
 
 &emsp;添加了carpet的子命令search，可以通过关键字搜索carpet规则

@@ -82,7 +82,7 @@ public class ROFEvents
     public static final Event<MinecraftServer> ServerStart     = new Event<>();
     public static final Event<MinecraftServer> ServerTickBegin = new Event<>();
     public static final Event<MinecraftServer> ServerTickEnd   = new Event<>();
-
+    public static final Event<MinecraftServer> ServerSave      = new Event<>();
     public static final TickTasks<MinecraftServer> ServerTickEndTasks = new TickTasks<>();
     public static final TickTasks<ServerWorld>     WorldTickEndTasks  = new TickTasks<>();
 

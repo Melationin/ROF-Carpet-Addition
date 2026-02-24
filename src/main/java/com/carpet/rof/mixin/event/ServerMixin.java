@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.net.Proxy;
 import java.util.function.BooleanSupplier;
@@ -50,5 +51,12 @@ public class ServerMixin
     private void tickBegin(BooleanSupplier shouldKeepTicking, CallbackInfo ci)
     {
         ROFEvents.ServerTickBegin.run((MinecraftServer) (Object)this);
+    }
+
+    @Inject(method = "save",
+            at = @At(value = "TAIL"))
+    private void save(boolean suppressLogs, boolean flush, boolean force, CallbackInfoReturnable<Boolean> cir)
+    {
+        ROFEvents.ServerSave.run((MinecraftServer) (Object)this);
     }
 }

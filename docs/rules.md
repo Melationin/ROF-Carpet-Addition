@@ -90,6 +90,17 @@
 &emsp;- 分类: `command`, `ROF`
 
 
+## 命令权限修改命令 (commandRequirementModify)
+
+&emsp;修改指定命令的权限要求
+
+&emsp;- 类型: `String`
+
+&emsp;- 默认值: `ops`
+
+&emsp;- 分类: `command`, `creative`
+
+
 ## Carpet规则搜索命令 (commandRulesSearcher)
 
 &emsp;添加了carpet的子命令search，可以通过关键字搜索carpet规则
