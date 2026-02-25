@@ -3,6 +3,7 @@ package com.carpet.rof;
 import carpet.CarpetExtension;
 import carpet.CarpetServer;
 import carpet.api.settings.SettingsManager;
+import com.carpet.rof.commands.RequirementModifyCommand;
 import com.carpet.rof.event.ROFEvents;
 import com.carpet.rof.utils.ROFConfig;
 import com.carpet.rof.utils.RofCarpetTranslations;
@@ -10,6 +11,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.WorldSavePath;
 
@@ -23,9 +25,7 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
 {
     public static void loadExtension()
     {
-
         CarpetServer.manageExtension(new ROFCarpetServer());
-        CarpetServer.registerExtensionLoggers();
     }
 
     @Override
@@ -43,14 +43,29 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
     @Override
     public void onGameStarted()
     {
-        if(ROFConfig.INSTANCE == null){};
         ROFSettings.loadClasses();
         for (Class<?> r : ROFSettings.ruleClasses) {
             CarpetServer.settingsManager.parseSettingsClass(r);
         }
+    }
 
 
+    @Override
+    public void onServerLoaded(MinecraftServer server)
+    {
+        initOnServer(server);
+        ROFEvents.ServerStart.run(server);
+    }
 
+    public void initOnServer(MinecraftServer server){
+        ROFConfig.INSTANCE = new ROFConfig(server.getSavePath(WorldSavePath.ROOT).resolve("carpet-rof-addition.json"));
+        ROFConfig.INSTANCE.load();
+        RequirementModifyCommand.initialization(server,ROFConfig.INSTANCE);
+
+        ROFEvents.ServerSave.register(server2 -> {
+            ROFConfig.INSTANCE.set("requirementModifyMap", requirementModifyMap);
+            ROFConfig.INSTANCE.save();
+        });
     }
 
     @Override

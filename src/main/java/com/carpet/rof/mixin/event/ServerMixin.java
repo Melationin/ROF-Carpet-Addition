@@ -25,17 +25,6 @@ import java.util.function.BooleanSupplier;
 @Mixin(MinecraftServer.class)
 public class ServerMixin
 {
-    //? <1.21.9 {
-    @Inject(method = "<init>",
-            at = @At(value = "TAIL"))
-    private void startServer(Thread serverThread, LevelStorage.Session session, ResourcePackManager dataPackManager, SaveLoader saveLoader, Proxy proxy, DataFixer dataFixer, ApiServices apiServices, WorldGenerationProgressListenerFactory worldGenerationProgressListenerFactory, CallbackInfo ci)
-    //?} else {
-    /*@Inject(method = "<init>",at = @At(value = "TAIL"))
-    private void startServer(Thread serverThread, LevelStorage.Session session, ResourcePackManager dataPackManager, SaveLoader saveLoader, Proxy proxy, DataFixer dataFixer, ApiServices apiServices, ChunkLoadProgress chunkLoadProgress, CallbackInfo ci)
-    *///?}
-    {
-        ROFEvents.ServerStart.run((MinecraftServer) (Object)this);
-    }
 
     @Inject(method = "tick",
             at = @At(value = "TAIL"))

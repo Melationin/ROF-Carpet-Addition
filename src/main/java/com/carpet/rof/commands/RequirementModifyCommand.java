@@ -7,8 +7,11 @@ import carpet.api.settings.Validators;
 import com.carpet.rof.annotation.QuickTranslations;
 import com.carpet.rof.annotation.ROFCommand;
 import com.carpet.rof.annotation.ROFRule;
+import com.carpet.rof.event.ROFEvents;
 import com.carpet.rof.utils.ROFCommandHelper;
 import com.carpet.rof.utils.ROFConfig;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -17,9 +20,11 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +33,7 @@ import java.util.function.BiFunction;
 
 import static carpet.api.settings.RuleCategory.*;
 import static com.carpet.rof.utils.ROFTextTool.textS;
+import static com.mojang.text2speech.Narrator.LOGGER;
 
 @ROFCommand
 @ROFRule
@@ -37,7 +43,51 @@ public class RequirementModifyCommand
     /** type: 0 set, 1 add, -1 or */
     public record RequirementModify(String permission, int type) { }
 
+
     public static Map<String,RequirementModify> requirementModifyMap = new HashMap<String,RequirementModify>();
+
+    public static void initialization(MinecraftServer server, ROFConfig config){
+        Type type = new TypeToken<Map<String, RequirementModify>>(){}.getType();
+        Gson gson = new Gson();
+        requirementModifyMap = gson.fromJson(ROFConfig.INSTANCE.get("requirementModifyMap"), type);
+        if(requirementModifyMap == null){
+            requirementModifyMap = new HashMap<String,RequirementModify>();
+        }
+        ROFEvents.ServerTickEndTasks.register(serverTick -> {
+            ROFCommandHelper<ServerCommandSource> helper = new ROFCommandHelper<>(server.getCommandManager().getDispatcher().getRoot());
+            for (var entry : requirementModifyMap.entrySet()) {
+                try {
+                    helper.setCommandRequirement(entry.getKey(), ((source, aBoolean) ->
+                    {
+                        if (!requirementModifyMap.containsKey(entry.getKey())) {
+                            return aBoolean;
+                        } else {
+                            var requirementModify = requirementModifyMap.get(entry.getKey());
+                            switch (requirementModify.type()) {
+                                case 0 -> {
+                                    return carpet.utils.CommandHelper.canUseCommand(source,
+                                            requirementModify.permission());
+                                }
+                                case -1 -> {
+                                    return aBoolean || carpet.utils.CommandHelper.canUseCommand(source,
+                                            requirementModify.permission());
+                                }
+                                case 1 -> {
+                                    return aBoolean && carpet.utils.CommandHelper.canUseCommand(source,
+                                            requirementModify.permission());
+                                }
+                            }
+                            return aBoolean;
+                        }
+                    }));
+                }catch (ROFCommandHelper.SetCommandPredicateError error){
+                    LOGGER.error(error.getMessage());
+                }
+            }
+            return true;
+        });
+    }
+
 
     @Rule(
             categories = {COMMAND,CREATIVE},
