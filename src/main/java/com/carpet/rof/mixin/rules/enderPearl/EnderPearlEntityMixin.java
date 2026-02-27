@@ -66,14 +66,7 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity {
                     forcedEntitylist.add(this);
                 }
             }else {
-                if (forceEnderPearlLogger) {
-                    if (this.getOwner() instanceof PlayerEntity player) {
-                        player.sendMessage(Text.of("[#" + EPTicks + "] " + "Pearl's Pos:" +
-                                ROFTool.toString_(ROFWarp.getPos_(this))
-                        ), true);
-                    }
-                }
-                if(optimizeForcedEnderPearlTick){
+                if(!optimizeForcedEnderPearlTick.equals("false")){
                     boolean  canSkip = true;
                     for (BlockPos blockPos : ROFWarp.getBlockPosIt(this.getBoundingBox())) {
                         if(!ExceedChunkMarker.mustBeAir((ServerWorld)ROFWarp.getWorld_(this) ,blockPos)
@@ -82,39 +75,64 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity {
                             break;
                         }
                     }
+
+                    boolean over1_21_2 = false;
+                    if(optimizeForcedEnderPearlTick.equals("1_21_2-")){
+                        over1_21_2 = false;
+                    }else if(optimizeForcedEnderPearlTick.equals("1_21_2+")){
+                        over1_21_2 = true;
+                    }else {
+                        //? > 1.21.2 {
+                        over1_21_2 = true;
+                        //?} else {
+                        /*over1_21_2 = false;
+                        *///?}
+                    }
+
                     if(canSkip) {
-                        this.applyGravity();
-                        this.setVelocity(this.getVelocity().multiply(0.99));
-                        HitResult hitResult = ProjectileUtil.getCollision(this, this::canHit);
-                        Vec3d vec3d;
-                        if (hitResult.getType() != HitResult.Type.MISS) {
-                            vec3d = hitResult.getPos();
-                        } else {
-                            vec3d =ROFWarp.getPos_(this) .add(this.getVelocity());
-                        }
+                        if(over1_21_2) {
+                            this.applyGravity();
+                            this.setVelocity(this.getVelocity().multiply(0.99));
+                            HitResult hitResult = ProjectileUtil.getCollision(this, this::canHit);
+                            Vec3d vec3d;
+                            if (hitResult.getType() != HitResult.Type.MISS) {
+                                vec3d = hitResult.getPos();
+                            } else {
+                                vec3d = ROFWarp.getPos_(this).add(this.getVelocity());
+                            }
 
-                        this.setPosition(vec3d);
-                        this.updateRotation();
+                            this.setPosition(vec3d);
+                            this.updateRotation();
 
-                        if (hitResult.getType() != HitResult.Type.MISS && this.isAlive()) {
-                            this.hitOrDeflect(hitResult);
-                        }
+                            if (hitResult.getType() != HitResult.Type.MISS && this.isAlive()) {
+                                this.hitOrDeflect(hitResult);
+                            }
 
-                        if (this.isRemoved()) {
-                            forcedEntitylist.remove(this);
+                            if (this.isRemoved()) {
+                                forcedEntitylist.remove(this);
+                            }
+                            ci.cancel();
+                        }else {
+                            HitResult hitResult = ProjectileUtil.getCollision(this, this::canHit);
+                            if (hitResult.getType() != HitResult.Type.MISS) {
+                                this.hitOrDeflect(hitResult);
+                            }
+                            Vec3d vec3d = this.getVelocity();
+                            double d = this.getX() + vec3d.x;
+                            double e = this.getY() + vec3d.y;
+                            double f = this.getZ() + vec3d.z;
+                            this.updateRotation();
+                            float h= 0.99F;;
+                            this.setVelocity(vec3d.multiply((double)h));
+                            this.applyGravity();
+                            this.setPosition(d, e, f);
+                            if (this.isRemoved()) {
+                                forcedEntitylist.remove(this);
+                            }
+                            ci.cancel();
                         }
-                        ci.cancel();
                     }
                 }
-            }
-            if(
-                   highEnderPearlNoChunkLoading
-                    && ROFWarp.getPos_(this).y>ROFWarp.getWorld_(this)./*? <=1.21.1 {*//*getTopY() *//*?} else {*/ getTopYInclusive()  /*?}*/
-                    && ROFWarp.getWorld_(this).getWorldBorder().contains(ROFWarp.getPos_(this).add(this.getVelocity()))) {
-                this.applyGravity();
-                this.setVelocity(this.getVelocity().multiply(0.99));
-                this.setPosition(ROFWarp.getPos_(this).add(this.getVelocity()));
-                ci.cancel();
             }
         }
     }
@@ -141,7 +159,7 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity {
             World world = ROFWarp.getWorld_(this);
             if (world instanceof ServerWorld world1) {
                 var forcedEntitylist = ExtraWorldDatas.fromWorld(world1).forcedEntitylist;
-                forcedEntitylist.add(this);
+                forcedEntitylist.remove(this);
             }
         }
     }

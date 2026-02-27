@@ -22,7 +22,7 @@ public class EnderPearlLogger extends Logger
     {
         try {
             return new EnderPearlLogger(EnderPearlLogger.class.getField("enderPearl"),"enderPearl","self",
-                    new String[]{"self", "all"},true);
+                    new String[]{"self", "all","selfAuto"},true);
         }
         catch (Exception ignored){}
         return null;

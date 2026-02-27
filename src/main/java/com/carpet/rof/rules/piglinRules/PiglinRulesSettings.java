@@ -21,5 +21,5 @@ public class PiglinRulesSettings extends BaseSetting {
             options = { "100", "10000" },
             strict = false
     )
-    public static int piglinMax= 10000;
+    public static int piglinStackingAISuppression = 10000;
 }

@@ -21,7 +21,7 @@ import net.minecraft.storage.WriteView;
 /*import net.minecraft.nbt.NbtCompound;
  *///?}
 
-import static com.carpet.rof.rules.piglinRules.PiglinRulesSettings.piglinMax;
+import static com.carpet.rof.rules.piglinRules.PiglinRulesSettings.piglinStackingAISuppression;
 
 @Mixin(PiglinEntity.class)
 public abstract class PiglinEntityMixin extends AbstractPiglinEntity implements PiglinEntityAccessor
@@ -67,7 +67,7 @@ public abstract class PiglinEntityMixin extends AbstractPiglinEntity implements 
     @Inject(method = "writeCustomData", at = @At(value = "HEAD"))
     private void writeCustomData(WriteView view, CallbackInfo ci)
     {
-        if (nearPiglinCount > piglinMax) {
+        if (nearPiglinCount > piglinStackingAISuppression) {
             view.putInt("nearPiglinCount", nearPiglinCount);
         }
     }
@@ -81,7 +81,7 @@ public abstract class PiglinEntityMixin extends AbstractPiglinEntity implements 
 
     /*@Inject(method = "readCustomDataFromNbt",at = @At(value = "HEAD"))
     private void readCustomDataFromNbt(NbtCompound tag, CallbackInfo ci) {
-        if (nearPiglinCount > piglinMax) {
+        if (nearPiglinCount > piglinStackingAISuppression) {
             tag.putInt("nearPiglinCount", nearPiglinCount);
         }
     }

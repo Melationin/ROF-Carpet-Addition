@@ -207,7 +207,7 @@
 &emsp;- 分类: `ROF`, `experimental`
 
 
-## 强制加载态珍珠广播 (forceEnderPearlLogger)
+## ~~强制加载态珍珠广播 (forceEnderPearlLogger)~~
 
 &emsp;向丢出者发送强加载态珍珠的坐标(容易刷屏)
 
@@ -217,8 +217,9 @@
 
 &emsp;- 分类: `ROF`, `feature`
 
+> *本规则已删除 相关功能由 log enderPearl 提供*
 
-## 高珍珠不加载区块 (highEnderPearlNoChunkLoading)
+## ~~高珍珠不加载区块 (highEnderPearlNoChunkLoading)~~
 
 &emsp;在开启更好的珍珠加载的情况下，超过世界高度的珍珠不会加载区块，但会加载自身
 
@@ -227,7 +228,7 @@
 &emsp;- 默认值: `false`
 
 &emsp;- 分类: `ROF`, `optimization`, `feature`
-
+> *本规则已删除 相关功能合并至[ 优化自加载态珍珠tick](#optimizeForcedEnderPearlTick)*
 
 ## 高卡自动暂停阈值 (highLagFreezeLimit)
 
@@ -265,16 +266,30 @@
 
 &emsp;- 分类: `ROF`, `optimization`, `tnt`
 
-
+<h2 id="optimizeForcedEnderPearlTick"></h2>
 ## 优化自加载态珍珠tick (optimizeForcedEnderPearlTick)
 
-&emsp;仅在更好的珍珠自加载与ECM启用时可用。让大多数情况下高速珍珠的飞行不生成新区块，可大幅度减少存档体积。开启时请保证ECM已打开且已经从存档加载过
+&emsp;仅在更好的珍珠自加载启用时可用。让大多数情况下高速珍珠的飞行不生成新区块，可大幅度减少存档体积。在ECM未打开时，只会让世界高度外的珍珠不生成区块。
+
+
+
+
+
+&emsp; `"false - 关闭优化",`
+
+&emsp; `"true - 开启优化,且珍珠特性符合当前版本",`
+
+&emsp; `"1_21_2- - 开启优化,且珍珠特性符合1.21.2及以下版本",`
+
+&emsp; `"1_21_2+ - 开启优化,且珍珠特性符合1.21.2以上版本"`
 
 &emsp; `已知特性：珍珠会忽略未加载的实体碰撞箱。`
 
-&emsp;- 类型: `boolean`
+&emsp;- 类型: `String`
 
 &emsp;- 默认值: `false`
+
+&emsp;- 参考选项: `true`, `false`, `1_21_2-`, `1_21_2+`
 
 &emsp;- 分类: `ROF`, `optimization`, `experimental`
 
@@ -316,9 +331,11 @@
 &emsp;- 分类: `ROF`, `optimization`, `feature`
 
 
-## 堆叠猪灵降智阈值 (piglinMax)
+## 堆叠猪灵AI抑制 (piglinStackingAISuppression)
 
-&emsp;堆叠到一定量的猪灵自动降智，减少卡顿（不会影响猪灵交易）
+&emsp;对于堆叠到一定量的猪灵，抑制其中部分猪灵的ai。
+
+&emsp;对于一组堆叠的猪灵中，规则保证概率上有设置值数量的猪灵表现正常。
 
 &emsp;- 类型: `int`
 
@@ -342,7 +359,7 @@
 
 ## tnt实体发包优化 (tntPacketOptimization)
 
-&emsp;通过去掉不必要的tnt实体发包(Fuse)与减少发包频率，优化tnt实体
+&emsp;通过去掉不必要的tnt实体发包(Fuse)，优化tnt实体
 
 &emsp; `可能会造成客户端显示错误`
 

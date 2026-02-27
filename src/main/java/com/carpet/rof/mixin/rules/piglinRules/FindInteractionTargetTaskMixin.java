@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static com.carpet.rof.rules.piglinRules.PiglinRulesSettings.piglinMax;
+import static com.carpet.rof.rules.piglinRules.PiglinRulesSettings.piglinStackingAISuppression;
 
 
 @Mixin(FindInteractionTargetTask.class)
@@ -27,7 +27,7 @@ public abstract class FindInteractionTargetTaskMixin
     {
         if (entity instanceof PiglinEntity piglin) {
             int count = ((PiglinEntityAccessor) piglin).getNearPiglinCount();
-            if (!ROFTool.canLoadAi(entity.getId(), count, piglinMax)) {
+            if (!ROFTool.canLoadAi(entity.getId(), count, piglinStackingAISuppression)) {
                 cir.setReturnValue(false);
                 cir.cancel();
             }

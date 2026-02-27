@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 
-import static com.carpet.rof.rules.piglinRules.PiglinRulesSettings.piglinMax;
+import static com.carpet.rof.rules.piglinRules.PiglinRulesSettings.piglinStackingAISuppression;
 
 @Mixin(Entity.class)
 public class EntityMixin
@@ -25,7 +25,7 @@ public class EntityMixin
     private static void adjustMovementCancel(@Nullable Entity entity, Vec3d movement, Box entityBoundingBox, World world, List<VoxelShape> collisions, CallbackInfoReturnable<Vec3d> cir){
         if(entity instanceof PiglinEntity piglin){
             int count = ((PiglinEntityAccessor) piglin).getNearPiglinCount();
-            if (!ROFTool.canLoadAi(entity.getId(), count, piglinMax)) {
+            if (!ROFTool.canLoadAi(entity.getId(), count, piglinStackingAISuppression)) {
                 cir.cancel();
             }
         }

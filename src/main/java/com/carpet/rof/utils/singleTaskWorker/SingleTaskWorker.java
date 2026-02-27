@@ -8,7 +8,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.LockSupport;
 
-public class SingleTaskWorker {
+public class SingleTaskWorker implements AutoCloseable
+{
     private final Map<String,SPSCRingBuffer<?>> BUFFERS = new ConcurrentHashMap<>();
     private Thread consumerThread;
     private volatile boolean running = true;
@@ -68,4 +69,12 @@ public class SingleTaskWorker {
         }
     }
 
+    @Override
+    public void close() throws Exception
+    {
+        running = false;
+        if(consumerThread!=null){
+            LockSupport.unpark(consumerThread);
+        }
+    }
 }

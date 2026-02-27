@@ -17,6 +17,7 @@ import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,12 +62,12 @@ public class EntityTrackerCommand
                 Entity entity = getEntity(minecraftServer, entry.getValue());
                 if (entity == null) continue;
 
-                if (entity.isRemoved()) {
+                if (entity.isRemoved() && !entity.isAlive()) {
                     player.sendMessage(Text.literal("因为实体移除，实体追踪结束"), false);
                     entityTrackerMap.put(entry.getKey(), null);
                 } else {
-                    var text = ROFTextTool.text("Pos: &9" + ROFTool.toString_(ROFWarp.getPos_(entity))
-                            + " &rVec: &9" + ROFTool.toString_(entity.getVelocity()));
+                    var text = ROFTextTool.text("["+entity.getName().getString()+ "] " +"Pos: &9" + ROFTool.toString_short(ROFWarp.getPos_(entity))
+                            + " &rVec: &9" + ROFTool.toString_short(entity.getVelocity()));
                     player.sendMessage(text, true);
                 }
             }
@@ -85,14 +86,19 @@ public class EntityTrackerCommand
     public static int addNormalEntity(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         Entity entity = EntityArgumentType.getEntity(ctx, "entity");
         var player = ctx.getSource().getPlayer();
+        if(player!=null){
+            player.sendMessage(Text.literal("已开始追踪实体: " + entity.getName().getString()), false);
+        }
+        return addNormalEntity(player, entity);
+    }
+    public static int addNormalEntity(ServerPlayerEntity player,Entity entity) {
         if (player != null) {
-            player.sendMessage(Text.literal("实体追踪开始，当前实体: ").append(entity.getName()));
+
             entityTrackerMap.put(player.getUuid(), entity.getUuid());
             return 0;
         }
         return 1;
     }
-
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
 
         ROFCommandHelper<ServerCommandSource> helper = new ROFCommandHelper<>(dispatcher.getRoot());

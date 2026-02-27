@@ -2,13 +2,16 @@ package com.carpet.rof.mixin.logger.enderPearlLogger;
 
 import carpet.logging.Logger;
 import carpet.logging.LoggerRegistry;
+import com.carpet.rof.commands.EntityTrackerCommand;
 import com.carpet.rof.utils.ROFWarp;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.thrown.EnderPearlEntity;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.MutableText;
@@ -18,6 +21,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import static com.carpet.rof.commands.EntityTrackerCommand.commandEntityTracker;
 
 @Mixin(EnderPearlEntity.class)
 public abstract class EnderPearlMixin extends ThrownItemEntity
@@ -39,13 +44,18 @@ public abstract class EnderPearlMixin extends ThrownItemEntity
         if(livingEntity instanceof ServerPlayerEntity){
             Logger logger = LoggerRegistry.getLogger("enderPearl");
             logger.log((str,player)->{
-                if(livingEntity instanceof ServerPlayerEntity){
+                if(livingEntity instanceof ServerPlayerEntity serverPlayer){
                     if(str.equals("all") || player == livingEntity) {
                         MutableText test = Text.literal("新的末影珍珠被丢出");
                         test.styled(style -> style
                                     .withClickEvent(ROFWarp.suggestCommand("/entityTracker set " + this.getUuid().toString()))
                                     .withHoverEvent(ROFWarp.showText(Text.literal("Owner: ").append(livingEntity.getName())))
                         );
+                        if(str.equals("selfAuto")) {
+                            if(carpet.utils.CommandHelper.canUseCommand(player.getCommandSource(/*? >=1.21.2 {*/(ServerWorld) world/*?}*/),commandEntityTracker)){
+                                EntityTrackerCommand.addNormalEntity(serverPlayer,this);
+                            }
+                        }
                         return new MutableText[]{test};
                     }
                     return null;

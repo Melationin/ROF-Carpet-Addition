@@ -100,6 +100,7 @@ public class ExceedChunkMarker extends ExtraChunkData
 
     public static boolean mustBeAir(ServerWorld world, BlockPos pos)
     {
+        if(world.isOutOfHeightLimit(pos)) return true;
         ExceedChunkMarker exceedChunkMarker = ExtraWorldDatas.fromWorld(world).exceedChunkMarker;
         return exceedChunkMarker.mustBeAir(pos.getX(),pos.getY(),pos.getZ());
     }

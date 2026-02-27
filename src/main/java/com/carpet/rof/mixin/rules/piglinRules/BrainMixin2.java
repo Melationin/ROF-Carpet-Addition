@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Map;
 import java.util.Set;
 
-import static com.carpet.rof.rules.piglinRules.PiglinRulesSettings.piglinMax;
+import static com.carpet.rof.rules.piglinRules.PiglinRulesSettings.piglinStackingAISuppression;
 
 
 @Mixin(value = Brain.class,
@@ -38,7 +38,7 @@ public class BrainMixin2<E extends LivingEntity>
     {
         if (entity instanceof PiglinEntity piglin) {
             int count = ((PiglinEntityAccessor) piglin).getNearPiglinCount();
-            if (!(ROFTool.canLoadAi(piglin.getId(), count, piglinMax)))
+            if (!(ROFTool.canLoadAi(piglin.getId(), count, piglinStackingAISuppression)))
                 ci.cancel();
         }
     }

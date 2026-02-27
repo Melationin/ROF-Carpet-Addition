@@ -33,16 +33,4 @@ public class EnderPearlSettings extends BaseSetting {
 
     )
     public static double enderPearlForcedTickMinSpeed = -1;
-
-    @Rule(
-
-            categories = {ROF,FEATURE}
-    )
-    public static boolean forceEnderPearlLogger = false;
-
-    @Rule(
-            categories = {ROF,OPTIMIZATION,FEATURE},
-            strict = false
-    )
-    public static boolean highEnderPearlNoChunkLoading = false;
 }

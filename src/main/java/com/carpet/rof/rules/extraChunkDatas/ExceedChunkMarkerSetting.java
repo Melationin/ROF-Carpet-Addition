@@ -32,12 +32,18 @@ public class ExceedChunkMarkerSetting extends BaseSetting {
     public static boolean optimizeRaycast = false;
 
     @Rule(
-            categories = {ROF,OPTIMIZATION,EXPERIMENTAL}
+            categories = {ROF,OPTIMIZATION,EXPERIMENTAL},
+            options = {"false","true","1_21_2-","1_21_2+"},
+            strict = true
     )
     @QuickTranslations(
             name = "优化自加载态珍珠tick",
-            description = "仅在更好的珍珠自加载与ECM启用时可用。让大多数情况下高速珍珠的飞行不生成新区块，可大幅度减少存档体积。开启时请保证ECM已打开且已经从存档加载过",
-            extra = "已知特性：珍珠会忽略未加载的实体碰撞箱。"
+            description = "仅在更好的珍珠自加载启用时可用。让大多数情况下高速珍珠的飞行不生成新区块，可大幅度减少存档体积。在ECM未打开时，只会让世界高度外的珍珠不生成区块",
+            extra = {"已知特性：珍珠会忽略未加载的实体碰撞箱。",
+            "false - 关闭优化",
+            "true - 开启优化,且珍珠特性符合当前版本",
+            "1_21_2- - 开启优化,且珍珠特性符合1.21.2及以下版本",
+            "1_21_2+ - 开启优化,且珍珠特性符合1.21.2以上版本"}
     )
-    public static boolean optimizeForcedEnderPearlTick = false;
+    public static String optimizeForcedEnderPearlTick = "false";
 }

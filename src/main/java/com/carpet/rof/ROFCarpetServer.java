@@ -7,6 +7,7 @@ import com.carpet.rof.commands.RequirementModifyCommand;
 import com.carpet.rof.event.ROFEvents;
 import com.carpet.rof.utils.ROFConfig;
 import com.carpet.rof.utils.RofCarpetTranslations;
+import com.carpet.rof.utils.singleTaskWorker.SingleTaskWorker;
 import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
@@ -49,7 +50,10 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
         }
     }
 
-
+    @Override
+    public void onServerClosed(MinecraftServer server) {
+        SingleTaskWorker.INSTANCE.stop();
+    }
     @Override
     public void onServerLoaded(MinecraftServer server)
     {
@@ -58,10 +62,10 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
     }
 
     public void initOnServer(MinecraftServer server){
+        SingleTaskWorker.INSTANCE.start();
         ROFConfig.INSTANCE = new ROFConfig(server.getSavePath(WorldSavePath.ROOT).resolve("carpet-rof-addition.json"));
         ROFConfig.INSTANCE.load();
         RequirementModifyCommand.initialization(server,ROFConfig.INSTANCE);
-
         ROFEvents.ServerSave.register(server2 -> {
             ROFConfig.INSTANCE.set("requirementModifyMap", requirementModifyMap);
             ROFConfig.INSTANCE.save();

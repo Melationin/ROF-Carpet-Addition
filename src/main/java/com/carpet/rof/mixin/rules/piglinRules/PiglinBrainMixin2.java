@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static com.carpet.rof.rules.piglinRules.PiglinRulesSettings.piglinMax;
+import static com.carpet.rof.rules.piglinRules.PiglinRulesSettings.piglinStackingAISuppression;
 
 
 @Mixin(PiglinBrain.class)
@@ -27,7 +27,7 @@ public abstract class PiglinBrainMixin2
             return;
         }
         int count = ((PiglinEntityAccessor) piglin).getNearPiglinCount();
-        if (!ROFTool.canLoadAi(piglin.getId(), count, piglinMax)) {
+        if (!ROFTool.canLoadAi(piglin.getId(), count, piglinStackingAISuppression)) {
             cir.setReturnValue(false);
             cir.cancel();
         }
