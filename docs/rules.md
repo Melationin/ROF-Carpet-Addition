@@ -267,6 +267,7 @@
 &emsp;- 分类: `ROF`, `optimization`, `tnt`
 
 <h2 id="optimizeForcedEnderPearlTick"></h2>
+
 ## 优化自加载态珍珠tick (optimizeForcedEnderPearlTick)
 
 &emsp;仅在更好的珍珠自加载启用时可用。让大多数情况下高速珍珠的飞行不生成新区块，可大幅度减少存档体积。在ECM未打开时，只会让世界高度外的珍珠不生成区块。
