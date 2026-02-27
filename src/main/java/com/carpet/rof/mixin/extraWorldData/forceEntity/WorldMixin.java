@@ -18,13 +18,14 @@ public class WorldMixin
     @Inject(method = "getEntity(Ljava/util/UUID;)Lnet/minecraft/entity/Entity;", at = @At(value = "HEAD"),
             cancellable = true)
     private void getEntityInject(UUID uuid, CallbackInfoReturnable<Entity> cir){
-        var forcedEntitylist = ExtraWorldDatas.fromWorld((ServerWorld)(Object)this).forcedEntitylist;
-        forcedEntitylist.forEach((entity)->{
-            if(entity.getUuid().equals(uuid)){
+        if((Object)this instanceof ServerWorld serverWorld) {
+            var forcedEntitylist = ExtraWorldDatas.fromWorld(serverWorld).forcedEntitylist;
+            Entity entity = forcedEntitylist.get(uuid);
+            if(entity != null) {
                 cir.setReturnValue(entity);
                 cir.cancel();
             }
-        });
+        }
     }
 
 

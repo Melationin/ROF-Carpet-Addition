@@ -73,7 +73,7 @@ public abstract class ServerWorldMixin extends World  {
     void ForceLoadedEntity(BooleanSupplier shouldKeepTicking, CallbackInfo ci){
         if(!server.getTickManager().shouldTick()) return;
         var forcedEntitylist = ExtraWorldDatas.fromWorld((ServerWorld)(Object)this).forcedEntitylist;
-        forcedEntitylist.forEach(entity -> {
+        forcedEntitylist.forEach((uuid,entity) -> {
             if(shouldBeForceLoaded(entity)){
                 if (!entity.isRemoved()) tickEntity(entity);
             }

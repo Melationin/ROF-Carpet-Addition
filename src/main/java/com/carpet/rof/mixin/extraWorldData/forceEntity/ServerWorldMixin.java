@@ -21,7 +21,7 @@ public class ServerWorldMixin
     private <T extends Entity>void collectEntitiesByTypeInject(TypeFilter<Entity, T> filter, Predicate<Entity> predicate, List<Entity> result, int limit, CallbackInfo ci)
     {
         var forcedEntitylist = ExtraWorldDatas.fromWorld((ServerWorld)(Object)this).forcedEntitylist;
-        forcedEntitylist.forEach((entity)->{
+        forcedEntitylist.forEach((UUID,entity)->{
             if(result.size() >= limit) return;
             if(filter.downcast(entity) !=null&& predicate.test(entity)) {
                 result.add(entity);
@@ -32,12 +32,11 @@ public class ServerWorldMixin
     /*@Inject(method = "getEntity",at = @At(value = "HEAD"),cancellable = true)
     private void getEntityInject(UUID uuid, CallbackInfoReturnable<Entity> cir){
         var forcedEntitylist = ExtraWorldDatas.fromWorld((ServerWorld)(Object)this).forcedEntitylist;
-        forcedEntitylist.forEach((entity)->{
-            if(entity.getUuid().equals(uuid)){
-                cir.setReturnValue(entity);
-                cir.cancel();
-            }
-        });
+        Entity entity = forcedEntitylist.get(uuid);
+        if(entity != null) {
+            cir.setReturnValue(entity);
+            cir.cancel();
+        }
     }
     *///?}
 }

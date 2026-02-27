@@ -10,6 +10,7 @@ import com.carpet.rof.rules.extraChunkDatas.ChunkModifySetting;
 import com.carpet.rof.rules.extraChunkDatas.ExceedChunkMarkerSetting;
 import com.carpet.rof.rules.mergeTNTNext.MergeTNTNextSetting;
 import com.carpet.rof.utils.NBTData;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.TntEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -18,6 +19,7 @@ import net.minecraft.world.EntityList;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class ExtraWorldDatas implements NBTData
 {
@@ -35,7 +37,7 @@ public class ExtraWorldDatas implements NBTData
 
     public LoadedChunkManager loadedChunkManager = new LoadedChunkManager();
 
-    public final EntityList forcedEntitylist = new EntityList();
+    public final Map<UUID, Entity> forcedEntitylist = new HashMap<>();
 
     public final HashMap<MergeTNTNextSetting.EntityPosAndVec, TntEntity> mergeTntMap =  new HashMap<>();
 

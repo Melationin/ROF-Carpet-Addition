@@ -63,7 +63,7 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity {
             if (syncMode) {  //此时为同步状态
                 if ((MinSpeed > 0) && (Math.abs(this.getVelocity().x) > MinSpeed || Math.abs(this.getVelocity().z) > MinSpeed)) {//大于最高速度，切换加载逻辑
                     syncMode = false; //模拟状态，不计算
-                    forcedEntitylist.add(this);
+                    forcedEntitylist.put(this.getUuid(), this);
                 }
             }else {
                 if(!optimizeForcedEnderPearlTick.equals("false")){
