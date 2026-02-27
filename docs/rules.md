@@ -266,7 +266,7 @@
 
 &emsp;- 分类: `ROF`, `optimization`, `tnt`
 
-<h2 id="optimizeForcedEnderPearlTick"></h2>
+<a id="optimizeForcedEnderPearlTick"></a>
 
 ## 优化自加载态珍珠tick (optimizeForcedEnderPearlTick)
 
