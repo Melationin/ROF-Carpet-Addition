@@ -22,7 +22,6 @@ import static com.carpet.rof.commands.EntityTrackerCommand.commandEntityTracker;
 public abstract class ProjectileEntityMixin
 {
 
-    //? >1.21.1 {
     @Inject(method = "setOwner(Lnet/minecraft/entity/Entity;)V",
             at = @At(value = "TAIL"))
     public void init(Entity owner, CallbackInfo ci)

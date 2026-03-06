@@ -191,10 +191,11 @@ public class ExceedChunkMarker extends ExtraChunkData
         LongOpenHashSet tempChunks2 = new LongOpenHashSet();
         workerThread = new Thread(()->{
                    var future = ROFIO.forEachExistingChunkParallel(world,chunkData->{
+
+
+                       AtomicBoolean isHighChunk = new AtomicBoolean(false);
                         //? if >1.21.4 {
-                        int finalJ = chunkData.getInt("xPos").get();
-                        int finalI = chunkData.getInt("zPos").get();
-                        AtomicBoolean isHighChunk = new AtomicBoolean(false);
+
                         chunkData.getCompound("Heightmaps").flatMap(heightmaps -> heightmaps.getLongArray(Heightmap.Type.MOTION_BLOCKING.getId())).ifPresent(heightmap -> {
                             for (long l : heightmap) {
                                 if (getHighest(l) + world.getBottomY() > topY) {
@@ -205,11 +206,10 @@ public class ExceedChunkMarker extends ExtraChunkData
                         });
 
                         //?} else {
-                        /*int finalJ = chunkData.getInt("xPos");
-                        int finalI = chunkData.getInt("zPos");
+                        /*
                         for (long l :  chunkData.getCompound("Heightmaps").getLongArray(Heightmap.Type.MOTION_BLOCKING.getName())) {
                                 if (getHighest(l) + world.getBottomY() > topY) {
-                                    tempChunks.add(ChunkPos.toLong(finalJ, finalI));
+                                    isHighChunk.set(true);
                                     break;
                                 }
                         }
