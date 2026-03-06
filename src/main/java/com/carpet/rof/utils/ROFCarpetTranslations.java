@@ -14,13 +14,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
 
-public class RofCarpetTranslations
+public class ROFCarpetTranslations
 {
     private static final Gson GSON = new Gson();
 
     public static Map<String, String> getTranslationFromResourcePath(String lang)
     {
-        InputStream langFile = RofCarpetTranslations.class.getClassLoader().getResourceAsStream(
+        InputStream langFile = ROFCarpetTranslations.class.getClassLoader().getResourceAsStream(
                 "assets/ROFCarpetAddition/lang/%s.json".formatted(lang));
         if (langFile == null) {
             return Collections.emptyMap();

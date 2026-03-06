@@ -13,10 +13,7 @@ public class SingleTaskWorker implements AutoCloseable
     private final Map<String,SPSCRingBuffer<?>> BUFFERS = new ConcurrentHashMap<>();
     private Thread consumerThread;
     private volatile boolean running = true;
-
     public static SingleTaskWorker INSTANCE = new SingleTaskWorker();
-
-
     public SingleTaskWorker get(ServerWorld world)
     {
         return INSTANCE;
@@ -35,7 +32,6 @@ public class SingleTaskWorker implements AutoCloseable
                     }
                 }
                 if(wait){
-
                     LockSupport.parkNanos(1_000_000 * 10);
                 }
                 if (!running) {

@@ -31,14 +31,17 @@ import static com.carpet.rof.rules.mergeTNTNext.MergeTNTNextSetting.mergeTNTNext
 @Mixin(TntEntity.class)
 public abstract class TntEntityMixin extends Entity implements TntEntityAccessor {
 
+
+
+
     @Unique
-    int rof$mergedTNTNCount = 1;
+    private int rof$mergedTNTNCount = 1;
 
     @Override
     public void ROF$addMergeCount(int mergeCount){
         rof$mergedTNTNCount += mergeCount;
     };
-
+    private int mergedTNTNCount2 = 1;
 
 
     @Shadow
@@ -50,6 +53,8 @@ public abstract class TntEntityMixin extends Entity implements TntEntityAccessor
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/TntEntity;getFuse()I"), cancellable = true)
     private void merge(CallbackInfo ci) {
+        System.out.println(mergedTNTNCount2);
+
         if (mergeTNTNext &&
                 ROFWarp.getWorld_(this)  instanceof ServerWorld world
                 && !this.isRemoved() && getFuse() > 2) {
@@ -110,4 +115,6 @@ public abstract class TntEntityMixin extends Entity implements TntEntityAccessor
         }
     }
     *///?}
+
+
 }

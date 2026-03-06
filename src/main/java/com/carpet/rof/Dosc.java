@@ -4,7 +4,7 @@ import carpet.CarpetSettings;
 
 import carpet.api.settings.Rule;
 
-import com.carpet.rof.utils.RofCarpetTranslations;
+import com.carpet.rof.utils.ROFCarpetTranslations;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -192,7 +192,7 @@ public class Dosc
             parseSettingsClass(clazz);
         }
 
-        Map<String,String> tr =RofCarpetTranslations.getTranslationFromResourcePath("zh_cn");
+        Map<String,String> tr = ROFCarpetTranslations.getTranslationFromResourcePath("zh_cn");
 
         List<RuleData<?>> sortRules = new ArrayList<>(rules.values());
         sortRules.sort(Comparator.comparing(r -> ((RuleData<?>)r).name));

@@ -18,6 +18,8 @@ import net.minecraft.world.Heightmap;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import static com.carpet.rof.utils.ROFTool.rDEBUG;
 
 
@@ -188,14 +190,15 @@ public class ExceedChunkMarker extends ExtraChunkData
 
         LongOpenHashSet tempChunks2 = new LongOpenHashSet();
         workerThread = new Thread(()->{
-            ROFIO.forEachExistingChunk(world,chunkData->{
+                   var future = ROFIO.forEachExistingChunkParallel(world,chunkData->{
                         //? if >1.21.4 {
                         int finalJ = chunkData.getInt("xPos").get();
                         int finalI = chunkData.getInt("zPos").get();
+                        AtomicBoolean isHighChunk = new AtomicBoolean(false);
                         chunkData.getCompound("Heightmaps").flatMap(heightmaps -> heightmaps.getLongArray(Heightmap.Type.MOTION_BLOCKING.getId())).ifPresent(heightmap -> {
                             for (long l : heightmap) {
                                 if (getHighest(l) + world.getBottomY() > topY) {
-                                    tempChunks2.add(ChunkPos.toLong(finalJ, finalI));
+                                    isHighChunk.set(true);
                                     break;
                                 }
                             }
@@ -211,10 +214,19 @@ public class ExceedChunkMarker extends ExtraChunkData
                                 }
                         }
                         *///?}
+
+                        return isHighChunk.get();
                     }
                     ,process);
-            this.tempChunks = tempChunks2;
+                   for(var entry: future.join().entrySet()){
+                       if(entry.getValue() == true){
+                           tempChunks2.add(entry.getKey().toLong());
+                       }
+                   }
+                   tempChunks = tempChunks2;
+                   process.set(1);
         });
+
 
         workerThread.start();
     }

@@ -1,8 +1,8 @@
 package com.carpet.rof.event;
 
-import com.carpet.rof.utils.Pair;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Pair;
 
 import java.util.*;
 import java.util.function.BiFunction;

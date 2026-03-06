@@ -15,9 +15,9 @@ public class ServerWorldMixin
             at = @At(value = "HEAD"))
     public void tickChunk(WorldChunk chunk, int randomTickSpeed, CallbackInfo ci)
     {
-        var manager = ExtraWorldDatas.fromWorld((ServerWorld) (Object)this).loadedChunkManager;
+        var manager = ExtraWorldDatas.fromWorld((ServerWorld) (Object)this).chunkLoadedFinder;
         if(manager.needLog){
-            manager.loadedChunks.add(chunk.getPos());
+            manager.ChunkLoadedMap.add(chunk.getPos());
         }
     }
 }

@@ -6,27 +6,27 @@ import net.minecraft.util.math.ChunkPos;
 
 import java.util.*;
 
-public class LoadedChunkManager
+public class ChunkLoadedFinder
 {
     public boolean needLog = false;
-    public Set<ChunkPos>  loadedChunks = new HashSet<>();
+    public Set<ChunkPos> ChunkLoadedMap = new HashSet<>();
 
     public static class ConnectedChunksData{
-        final Set<ChunkPos> loadedChunksConnected = new HashSet<>();
+        final Set<ChunkPos> chunkConnected = new HashSet<>();
         public int size(){
-            return loadedChunksConnected.size();
+            return chunkConnected.size();
         }
 
         public ChunkPos getCenterChunk(){
             double x = 0;
             double z = 0;
 
-            for(var it : loadedChunksConnected){
+            for(var it : chunkConnected){
                 x += it.x;
                 z += it.z;
             }
-            x/=loadedChunksConnected.size();
-            z/=loadedChunksConnected.size();
+            x/= chunkConnected.size();
+            z/= chunkConnected.size();
 
             return new ChunkPos((int)x,(int)z);
         }
@@ -37,7 +37,7 @@ public class LoadedChunkManager
     {
         LongOpenHashSet  set = new LongOpenHashSet();
         List<ConnectedChunksData> retList = new ArrayList<>();
-        for(ChunkPos c : this.loadedChunks){
+        for(ChunkPos c : this.ChunkLoadedMap){
             set.add(c.toLong());
         }
         LongArrayList stack = new LongArrayList();
@@ -51,7 +51,7 @@ public class LoadedChunkManager
             while(!stack.isEmpty()){
                 long pos = stack.popLong();
 
-                retList.getLast().loadedChunksConnected.add(new ChunkPos(pos));
+                retList.getLast().chunkConnected.add(new ChunkPos(pos));
                 //set.remove(pos);
                 int x = ChunkPos.getPackedX(pos);
                 int z = ChunkPos.getPackedZ(pos);

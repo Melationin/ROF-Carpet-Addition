@@ -31,33 +31,8 @@ public class ExtraChunkDatasCommand
     )
     public static String commandExceedChunkMarker= "ops";
 
-    @Rule(
-            categories = {COMMAND,ROF},
-            strict = false,
-            validators = {Validators.CommandLevel.class}
-    )
-    @QuickTranslations(
-            name = "区块修改记录器命令",
-            description = "区块修改记录器等级。在未开始区块修改记录器时无效",
-            extra = {"/chunkModify - 显示区块修改记录器的信息",
-                    "/chunkModify <dimension> - 显示选定维度的信息",
-                    "/chunkModify [dimension] clear - 清除选定维度的区块修改记录器数据（维度默认为玩家所在维度）",
-                    "/chunkModifyLogger [dimension] setMinChunkLifetime <minChunkLifetime> - 设置选定维度的区块修改记录器最小区块生命周期（维度默认为玩家所在维度）",
-                    " minChunkLifetime : 被记录的区块至少在创建后 minChunkLifetime tick内被修改过才会被记录"
-            }
-    )
-    public static String commandChunkModifyCommand= "ops";
-
-
-
-
-
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher)
     {
-
-
         ExceedChunkCommand.registerCommand(dispatcher.getRoot());
-        ChunkModifyCommand.registerCommand(dispatcher.getRoot());
-
     }
 }

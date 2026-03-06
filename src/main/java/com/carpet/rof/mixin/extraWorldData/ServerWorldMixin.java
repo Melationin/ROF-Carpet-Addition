@@ -4,7 +4,6 @@ package com.carpet.rof.mixin.extraWorldData;
 
 import com.carpet.rof.accessor.IExtraChunkDataAccessor;
 import com.carpet.rof.extraWorldData.ExtraWorldDatas;
-import com.carpet.rof.rules.extraChunkDatas.ChunkModifySetting;
 import com.carpet.rof.utils.ROFIO;
 import com.carpet.rof.utils.ROFTool;
 import com.carpet.rof.utils.singleTaskWorker.SingleTaskWorker;
@@ -52,7 +51,7 @@ public abstract class ServerWorldMixin implements IExtraChunkDataAccessor
             at = @At(value = "HEAD"))
     void saveWorld(CallbackInfo ci)
     {
-        if(exceedChunkMarker || ChunkModifySetting.chunkModifyLogger)
+        if(exceedChunkMarker )
        ROFTool.saveNBT2Data((ServerWorld) (Object)this,"extraWorldData.dat", ROFextraWorldDatas.toNbt());
        //rDEBUG("saveWorld");
     }
@@ -79,8 +78,6 @@ public abstract class ServerWorldMixin implements IExtraChunkDataAccessor
             }else {
                 ROFextraWorldDatas.read(nbtCompound);
             }
-            SingleTaskWorker.INSTANCE.addBuffer("chunkModify["+((ServerWorld)(Object)this).getDimensionEntry().getIdAsString()+"]",
-                    ROFextraWorldDatas.chunkModifyData.chunkChangeBuffer);
         }catch (IOException e) {
             e.printStackTrace();
         }

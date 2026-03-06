@@ -51,14 +51,14 @@ public class LoadedChunkFinderCommand
                 return 1;
             }
 
-            final var manager =  ExtraWorldDatas.fromWorld(world).loadedChunkManager;
+            final var manager =  ExtraWorldDatas.fromWorld(world).chunkLoadedFinder;
 
             final int endTick =ROFCommandHelper.getArgumentOrDefault(ctx,"tick",
                     1,
                     IntegerArgumentType::getInteger
             );
 
-            manager.loadedChunks.clear();
+            manager.ChunkLoadedMap.clear();
             manager.needLog = true;
             ctx.getSource().sendFeedback(textS("区块加载记录器已开启"),false);
             ROFEvents.ServerTickEndTasks.register((server,tick)-> {
@@ -85,7 +85,7 @@ public class LoadedChunkFinderCommand
                         ),false);
                        i++;
                     }
-                    ctx.getSource().sendFeedback(()->text("一共"+ret.size()+"个联通区域，共"+manager.loadedChunks.size()+"个区块"),false);
+                    ctx.getSource().sendFeedback(()->text("一共"+ret.size()+"个联通区域，共"+manager.ChunkLoadedMap.size()+"个区块"),false);
                     return true;
                 }
                 return false;

@@ -3,10 +3,8 @@ package com.carpet.rof.extraWorldData;
 import com.carpet.rof.accessor.IExtraChunkDataAccessor;
 import com.carpet.rof.event.ROFEvents;
 import com.carpet.rof.extraWorldData.extraChunkDatas.ChunkEntitySpawnLogger;
-import com.carpet.rof.extraWorldData.extraChunkDatas.ChunkModifyData;
+import com.carpet.rof.extraWorldData.extraChunkDatas.ChunkLoadedFinder;
 import com.carpet.rof.extraWorldData.extraChunkDatas.ExceedChunkMarker;
-import com.carpet.rof.extraWorldData.extraChunkDatas.LoadedChunkManager;
-import com.carpet.rof.rules.extraChunkDatas.ChunkModifySetting;
 import com.carpet.rof.rules.extraChunkDatas.ExceedChunkMarkerSetting;
 import com.carpet.rof.rules.mergeTNTNext.MergeTNTNextSetting;
 import com.carpet.rof.utils.NBTData;
@@ -15,7 +13,6 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.TntEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.EntityList;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,9 +30,7 @@ public class ExtraWorldDatas implements NBTData
 
     public ExceedChunkMarker exceedChunkMarker = new ExceedChunkMarker(Integer.MAX_VALUE/2);
 
-    public ChunkModifyData chunkModifyData = new ChunkModifyData(100);
-
-    public LoadedChunkManager loadedChunkManager = new LoadedChunkManager();
+    public ChunkLoadedFinder chunkLoadedFinder = new ChunkLoadedFinder();
 
     public final Map<UUID, Entity> forcedEntitylist = new HashMap<>();
 
@@ -44,7 +39,6 @@ public class ExtraWorldDatas implements NBTData
     public final Map<EntityType<?>,Integer> entitySpawnCountsPerTick = new HashMap<>();
 
     public final ChunkEntitySpawnLogger  chunkEntitySpawnLogger = new ChunkEntitySpawnLogger();
-
 
     public static ExtraWorldDatas fromWorld(ServerWorld world){
         return  ((IExtraChunkDataAccessor)world).getExtraChunkDatas();
@@ -57,9 +51,6 @@ public class ExtraWorldDatas implements NBTData
         if(ExceedChunkMarkerSetting.exceedChunkMarker){
             nbt.put(exceedChunkMarker.getName(), exceedChunkMarker.toNbt());
         }
-        if(ChunkModifySetting.chunkModifyLogger){
-            nbt.put(chunkModifyData.getName(), chunkModifyData.toNbt());
-        }
     }
 
     @Override
@@ -69,19 +60,12 @@ public class ExtraWorldDatas implements NBTData
         if(ExceedChunkMarkerSetting.exceedChunkMarker) nbt.getCompound(exceedChunkMarker.getName()).ifPresent(
                 nbtCompound->  exceedChunkMarker.read(nbtCompound));
 
-        if(chunkModifyData.enable()) nbt.getCompound(chunkModifyData.getName()).ifPresent(
-                nbtCompound -> chunkModifyData.read(nbtCompound));
         //?} else {
         /*if(ExceedChunkMarkerSetting.exceedChunkMarker){
             if(nbt.contains(exceedChunkMarker.getName())){
                 exceedChunkMarker.read(nbt.getCompound(exceedChunkMarker.getName()));
             }
-            if(nbt.contains(chunkModifyData.getName())){
-                chunkModifyData.read(nbt.getCompound(chunkModifyData.getName()));
-            }
         }
-
-
         *///?}
     }
 
@@ -90,6 +74,4 @@ public class ExtraWorldDatas implements NBTData
        write(nbt);
        return nbt;
    }
-
-
 }

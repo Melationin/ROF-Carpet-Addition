@@ -14,10 +14,6 @@ import java.util.*;
 
 public class ROFSettings
 {
-
-
-
-
     public static List<Class<?>> ruleClasses = Collections.emptyList();
 
     public static void loadClasses()
