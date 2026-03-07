@@ -21,11 +21,17 @@ import static com.carpet.rof.rules.piglinRules.PiglinRulesSettings.piglinStackin
 @Mixin(Entity.class)
 public class EntityMixin
 {
-    @Inject(method = "adjustMovementForCollisions(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Box;Lnet/minecraft/world/World;Ljava/util/List;)Lnet/minecraft/util/math/Vec3d;", at = @At(value = "HEAD"), cancellable = true)
-    private static void adjustMovementCancel(@Nullable Entity entity, Vec3d movement, Box entityBoundingBox, World world, List<VoxelShape> collisions, CallbackInfoReturnable<Vec3d> cir){
-        if(entity instanceof PiglinEntity piglin){
+
+    //这个会造成非常异常的情况：猪灵浮空
+    @Inject(method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;", at = @At(value = "HEAD"), cancellable = true)
+    private void adjustMovementCancel(Vec3d movement, CallbackInfoReturnable<Vec3d> cir){
+        if((Object)(this) instanceof PiglinEntity piglin){
             int count = ((PiglinEntityAccessor) piglin).getNearPiglinCount();
-            if (!ROFTool.canLoadAi(entity.getId(), count, piglinStackingAISuppression)) {
+            if (!ROFTool.canLoadAi(piglin.getId(), count, piglinStackingAISuppression)
+
+
+            ) {
+                cir.setReturnValue(Vec3d.ZERO);
                 cir.cancel();
             }
         }

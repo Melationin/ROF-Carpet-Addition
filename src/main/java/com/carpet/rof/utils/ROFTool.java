@@ -46,7 +46,8 @@ public class ROFTool
         return "(%.3f, %.3f, %.3f)".formatted(vec.x, vec.y, vec.z);
     }
     public static boolean canLoadAi(int id, int count, int max) {
-        return (fastHash(id) % (count + 1)) <= max;
+
+        return (fastHash(id) % (count + 1)) <= max ;
     }
     public static void rDEBUG(String message) {
         if (DEBUG) LOGGER.info("[ROF]{}", message);

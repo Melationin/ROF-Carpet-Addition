@@ -47,7 +47,7 @@ public abstract class PiglinEntityMixin extends AbstractPiglinEntity implements 
     {
         if ((this.age + this.getId() % 801) % 400 == 0) {
             nearPiglinCount = world.getEntitiesByType(EntityType.PIGLIN,
-                    new Box(ROFWarp.getPos_(this).add(0.5, 0.5, 0.5),ROFWarp.getPos_(this).add(-0.5, -0.5, -0.5)),
+                    new Box(ROFWarp.getPos_(this).add(0.05, 0.05, 0.05),ROFWarp.getPos_(this).add(-0.05, -0.05, -0.05)),
                     piglin -> true).size();
         }
     }
