@@ -24,7 +24,7 @@ public class ProjectileTraker extends Logger
     {
         try {
             return new ProjectileTraker(ProjectileTraker.class.getField(NAME),NAME,"self",
-                    new String[]{"self", "all","selfAuto"},true);
+                    new String[]{"self", "all","selfAuto","pearlCannon"},true);
         }
         catch (Exception ignored){}
         return null;

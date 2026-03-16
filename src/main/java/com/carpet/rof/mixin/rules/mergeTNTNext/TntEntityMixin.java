@@ -4,6 +4,7 @@ package com.carpet.rof.mixin.rules.mergeTNTNext;
 import com.carpet.rof.extraWorldData.ExtraWorldDatas;
 import com.carpet.rof.rules.mergeTNTNext.MergeTNTNextSetting;
 import com.carpet.rof.rules.mergeTNTNext.TntEntityAccessor;
+import com.carpet.rof.utils.ROFTool;
 import com.carpet.rof.utils.ROFWarp;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -27,6 +28,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.HashMap;
 
 import static com.carpet.rof.rules.mergeTNTNext.MergeTNTNextSetting.mergeTNTNext;
+import static com.carpet.rof.rules.mergeTNTNext.MergeTNTNextSetting.mergeTNTOnlyNether;
 
 @Mixin(TntEntity.class)
 public abstract class TntEntityMixin extends Entity implements TntEntityAccessor {
@@ -41,7 +43,7 @@ public abstract class TntEntityMixin extends Entity implements TntEntityAccessor
     public void ROF$addMergeCount(int mergeCount){
         rof$mergedTNTNCount += mergeCount;
     };
-    private int mergedTNTNCount2 = 1;
+   // private int mergedTNTNCount2 = 1;
 
 
     @Shadow
@@ -53,11 +55,13 @@ public abstract class TntEntityMixin extends Entity implements TntEntityAccessor
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/TntEntity;getFuse()I"), cancellable = true)
     private void merge(CallbackInfo ci) {
-        System.out.println(mergedTNTNCount2);
+        //System.out.println(mergedTNTNCount2);
 
         if (mergeTNTNext &&
                 ROFWarp.getWorld_(this)  instanceof ServerWorld world
-                && !this.isRemoved() && getFuse() > 2) {
+                && !this.isRemoved() && getFuse() > 2
+        &&(!mergeTNTOnlyNether || ROFTool.isNetherWorld(world))
+        ) {
             MergeTNTNextSetting.EntityPosAndVec TntPosAndVec = new MergeTNTNextSetting.EntityPosAndVec(ROFWarp.getPos_(this), this.getVelocity(), this.getFuse());
             HashMap<MergeTNTNextSetting.EntityPosAndVec, TntEntity> TntMergeMap = ExtraWorldDatas.fromWorld(world).mergeTntMap;
             if (TntMergeMap.containsKey(TntPosAndVec)) {

@@ -56,4 +56,15 @@ public class PacketRulesSettings extends BaseSetting {
     )
     public static int entitySpawnPacketLimitSeconds = -1;
 
+    @Rule(
+            categories = {ROF,OPTIMIZATION,PACKET},
+            strict = false,
+            options = {"32.0","1.0","8.0"}
+    )
+    @QuickTranslations(
+            name = "粒子包发包距离",
+            description = "此距离只能影响forced的粒子发包。但大部分粒子都是forced",
+            extra = {"原版默认为32"}
+    )
+    public static double particlesPacketsRange = 32.0;
 }

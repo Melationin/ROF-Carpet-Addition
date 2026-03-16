@@ -7,11 +7,13 @@ import com.carpet.rof.logger.ProjectileTraker;
 import com.carpet.rof.utils.ROFWarp;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.entity.projectile.thrown.EnderPearlEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -22,6 +24,9 @@ import static com.carpet.rof.commands.EntityTrackerCommand.commandEntityTracker;
 public abstract class ProjectileEntityMixin
 {
 
+    @Unique
+    private boolean rof$logged = false;
+
     @Inject(method = "setOwner(Lnet/minecraft/entity/Entity;)V",
             at = @At(value = "TAIL"))
     public void init(Entity owner, CallbackInfo ci)
@@ -30,9 +35,15 @@ public abstract class ProjectileEntityMixin
         if(owner instanceof ServerPlayerEntity){
             Logger logger = LoggerRegistry.getLogger(ProjectileTraker.NAME);
             logger.log((str,player)->{
+
+                if(str.equals("pearlCannon")){
+                    return null;
+                }
+
                 if(owner instanceof ServerPlayerEntity serverPlayer){
                     if(str.equals("all") || player == owner) {
-                        MutableText test = Text.literal("[ProjectileTraker] ").append(((Entity)(Object)this).getName());
+                        rof$logged = true;
+                        MutableText test = Text.literal("新的投掷物被抛出: ").append(((Entity)(Object)this).getName());
                         test.styled(style -> style
                                     .withClickEvent(ROFWarp.suggestCommand("/entityTracker set " + ((Entity)(Object)this).getUuid().toString()))
                                     .withHoverEvent(ROFWarp.showText(Text.literal("Owner: ").append(owner.getName())))
@@ -49,5 +60,24 @@ public abstract class ProjectileEntityMixin
                 return null;
             });
         }
+    }
+
+
+    @Inject(method = "tick()V",at = @At(value = "TAIL"))
+    void tick(CallbackInfo ci){
+
+        Logger logger = LoggerRegistry.getLogger(ProjectileTraker.NAME);
+        logger.log((str,player)->{
+            if((!rof$logged)&& str.equals("pearlCannon")
+            && ((Entity)(Object)this) instanceof EnderPearlEntity enderPearl ){
+                if(enderPearl.getVelocity().multiply(1,0,1).length()>=10){
+                    rof$logged = true;
+                    if(carpet.utils.CommandHelper.canUseCommand(player.getCommandSource(/*? >=1.21.2 {*/(ServerWorld)ROFWarp.getWorld_( ((Entity)(Object)this))/*?}*/),commandEntityTracker)){
+                        EntityTrackerCommand.addNormalEntity((ServerPlayerEntity) player,((Entity)(Object)this));
+                    }
+                }
+            }
+            return null;
+        });
     }
 }
