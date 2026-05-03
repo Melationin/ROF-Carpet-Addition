@@ -5,88 +5,88 @@
 
 &emsp;Command to view and control entity IDs
 
-&emsp;- 类型: `String`
+&emsp;- type: `String`
 
-&emsp;- 默认值: `false`
+&emsp;- default: `false`
 
-&emsp;- 分类: `ROF`, `feature`, `creative`, `command`
+&emsp;- categories: `ROF`, `feature`, `creative`, `command`
 
 
 ## commandEntityIDSet
 
 &emsp;Command to set entity IDs
 
-&emsp;- 类型: `String`
+&emsp;- type: `String`
 
-&emsp;- 默认值: `false`
+&emsp;- default: `false`
 
-&emsp;- 分类: `ROF`, `feature`, `creative`, `command`
+&emsp;- categories: `ROF`, `feature`, `creative`, `command`
 
 
 ## commandExceedChunkMarker
 
 &emsp;Controls the permission level of ECM command. Invalid when ECM is not started.
 
-&emsp;- 类型: `String`
+&emsp;- type: `String`
 
-&emsp;- 默认值: `ops`
+&emsp;- default: `ops`
 
-&emsp;- 分类: `command`, `ROF`
+&emsp;- categories: `command`, `ROF`
 
 
 ## commandLoadedChunkFinder
 
 &emsp;Records connected chunks that are active during a certain period, used to find forgotten chunk loaders.
 
-&emsp;- 类型: `String`
+&emsp;- type: `String`
 
-&emsp;- 默认值: `ops`
+&emsp;- default: `ops`
 
-&emsp;- 分类: `ROF`, `command`
+&emsp;- categories: `ROF`, `command`
 
 
 ## commandPacketLoggerPlus
 
 &emsp;Records the pre-compression size of various packets.
 
-&emsp;- 类型: `String`
+&emsp;- type: `String`
 
-&emsp;- 默认值: `ops`
+&emsp;- default: `ops`
 
-&emsp;- 分类: `command`, `ROF`
+&emsp;- categories: `command`, `ROF`
 
 
 ## commandRequirementModify
 
 &emsp;Modify permission requirements of specified commands
 
-&emsp;- 类型: `String`
+&emsp;- type: `String`
 
-&emsp;- 默认值: `ops`
+&emsp;- default: `ops`
 
-&emsp;- 分类: `command`, `creative`
+&emsp;- categories: `command`, `creative`
 
 
 ## commandRulesSearcher
 
 &emsp;Adds a subcommand 'search' to carpet, allowing to search carpet rules by keyword
 
-&emsp;- 类型: `String`
+&emsp;- type: `String`
 
-&emsp;- 默认值: `true`
+&emsp;- default: `true`
 
-&emsp;- 分类: `ROF`, `command`
+&emsp;- categories: `ROF`, `command`
 
 
 ## commandSpawnWhitedListedPlayer
 
 &emsp;Used to summon fake players without prefix
 
-&emsp;- 类型: `String`
+&emsp;- type: `String`
 
-&emsp;- 默认值: `ops`
+&emsp;- default: `ops`
 
-&emsp;- 分类: `ROF`, `command`, `creative`
+&emsp;- categories: `ROF`, `command`, `creative`
 
 
 ## enderPearlForcedTickMinSpeed
@@ -97,24 +97,24 @@
 
 &emsp; `For pearls with the new loading logic, the loading behavior differs significantly from vanilla.`
 
-&emsp;- 类型: `double`
+&emsp;- type: `double`
 
-&emsp;- 默认值: `-1.0`
+&emsp;- default: `-1.0`
 
-&emsp;- 参考选项: `16.0`, `-1.0`
+&emsp;- options: `16.0`, `-1.0`
 
-&emsp;- 分类: `ROF`, `optimization`, `feature`
+&emsp;- categories: `ROF`, `optimization`, `feature`
 
 
 ## entityIDOverflowPeriod
 
 &emsp;Set to 0 to disable
 
-&emsp;- 类型: `int`
+&emsp;- type: `int`
 
-&emsp;- 默认值: `0`
+&emsp;- default: `0`
 
-&emsp;- 分类: `ROF`, `feature`, `creative`
+&emsp;- categories: `ROF`, `feature`, `creative`
 
 
 ## entitySpawnPacketLimitSeconds
@@ -123,13 +123,13 @@
 
 &emsp; `Set to a negative number to disable`
 
-&emsp;- 类型: `int`
+&emsp;- type: `int`
 
-&emsp;- 默认值: `-1`
+&emsp;- default: `-1`
 
-&emsp;- 参考选项: `-1`, `100`
+&emsp;- options: `-1`, `100`
 
-&emsp;- 分类: `ROF`, `optimization`, `packet`
+&emsp;- categories: `ROF`, `optimization`, `packet`
 
 
 ## entitySpawnPacketLimitTicks
@@ -138,26 +138,26 @@
 
 &emsp; `Set to a negative number to disable`
 
-&emsp;- 类型: `int`
+&emsp;- type: `int`
 
-&emsp;- 默认值: `-1`
+&emsp;- default: `-1`
 
-&emsp;- 参考选项: `-1`, `100`, `1000`
+&emsp;- options: `-1`, `100`, `1000`
 
-&emsp;- 分类: `ROF`, `optimization`, `packet`
+&emsp;- categories: `ROF`, `optimization`, `packet`
 
 
 ## entitySpawnPacketLimitTicksTrackerDistance
 
 &emsp;Sets the packet sending distance for entities that are limited
 
-&emsp;- 类型: `int`
+&emsp;- type: `int`
 
-&emsp;- 默认值: `16`
+&emsp;- default: `16`
 
-&emsp;- 参考选项: `2`, `16`, `64`
+&emsp;- options: `2`, `16`, `64`
 
-&emsp;- 分类: `ROF`, `optimization`, `packet`
+&emsp;- categories: `ROF`, `optimization`, `packet`
 
 
 ## exceedChunkMarker
@@ -166,22 +166,22 @@
 
 &emsp; `When enabling for the first time, be sure to load once with /exceedChunkMarker`
 
-&emsp;- 类型: `boolean`
+&emsp;- type: `boolean`
 
-&emsp;- 默认值: `false`
+&emsp;- default: `false`
 
-&emsp;- 分类: `ROF`, `experimental`
+&emsp;- categories: `ROF`, `experimental`
 
 
 ## mergeTNTNext
 
 &emsp;A more aggressive TNT merging scheme, may cause unexpected results. Cannot be used together with other TNT merging rules.
 
-&emsp;- 类型: `boolean`
+&emsp;- type: `boolean`
 
-&emsp;- 默认值: `false`
+&emsp;- default: `false`
 
-&emsp;- 分类: `ROF`, `optimization`, `tnt`, `feature`
+&emsp;- categories: `ROF`, `optimization`, `tnt`, `feature`
 
 
 ## optimizeForcedEnderPearlTick
@@ -198,13 +198,13 @@
 
 &emsp; `1_21_2+ - Enable optimization, and pearl behavior matches version 1.21.2 and above`
 
-&emsp;- 类型: `String`
+&emsp;- type: `String`
 
-&emsp;- 默认值: `false`
+&emsp;- default: `false`
 
-&emsp;- 参考选项: `false`, `true`, `1_21_2-`, `1_21_2+`
+&emsp;- options: `false`, `true`, `1_21_2-`, `1_21_2+`
 
-&emsp;- 分类: `ROF`, `optimization`, `experimental`
+&emsp;- categories: `ROF`, `optimization`, `experimental`
 
 
 ## optimizeRaycast
@@ -213,11 +213,11 @@
 
 &emsp; `Known feature: Projectiles will ignore entity hitboxes at some specific positions.`
 
-&emsp;- 类型: `boolean`
+&emsp;- type: `boolean`
 
-&emsp;- 默认值: `false`
+&emsp;- default: `false`
 
-&emsp;- 分类: `ROF`, `optimization`, `experimental`
+&emsp;- categories: `ROF`, `optimization`, `experimental`
 
 
 ## particlesPacketsRange
@@ -226,39 +226,39 @@
 
 &emsp; `Vanilla default is 32`
 
-&emsp;- 类型: `double`
+&emsp;- type: `double`
 
-&emsp;- 默认值: `32.0`
+&emsp;- default: `32.0`
 
-&emsp;- 参考选项: `32.0`, `1.0`, `8.0`
+&emsp;- options: `32.0`, `1.0`, `8.0`
 
-&emsp;- 分类: `ROF`, `optimization`, `packet`
+&emsp;- categories: `ROF`, `optimization`, `packet`
 
 
 ## piglinLootItemDelay
 
 &emsp;Only items that have been present for a certain time will be picked up by piglins
 
-&emsp;- 类型: `int`
+&emsp;- type: `int`
 
-&emsp;- 默认值: `0`
+&emsp;- default: `0`
 
-&emsp;- 参考选项: `0`, `20`
+&emsp;- options: `0`, `20`
 
-&emsp;- 分类: `ROF`, `optimization`, `feature`
+&emsp;- categories: `ROF`, `optimization`, `feature`
 
 
 ## piglinStackingAISuppression
 
 &emsp;For piglins stacked to a certain amount, suppress AI of some of them.
 
-&emsp;- 类型: `int`
+&emsp;- type: `int`
 
-&emsp;- 默认值: `10000`
+&emsp;- default: `10000`
 
-&emsp;- 参考选项: `100`, `10000`
+&emsp;- options: `100`, `10000`
 
-&emsp;- 分类: `ROF`, `optimization`, `feature`
+&emsp;- categories: `ROF`, `optimization`, `feature`
 
 
 ## tntPacketOptimization
@@ -267,10 +267,10 @@
 
 &emsp; `May cause client display errors`
 
-&emsp;- 类型: `boolean`
+&emsp;- type: `boolean`
 
-&emsp;- 默认值: `false`
+&emsp;- default: `false`
 
-&emsp;- 分类: `ROF`, `optimization`, `packet`
+&emsp;- categories: `ROF`, `optimization`, `packet`
 
 
