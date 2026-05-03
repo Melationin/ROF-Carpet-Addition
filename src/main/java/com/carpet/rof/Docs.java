@@ -184,7 +184,7 @@ public class Docs
     }
 
 
-    public static void main(String[] args)
+    public static void main2(String[] args)
     {
         ROFSettings.loadClasses();
 

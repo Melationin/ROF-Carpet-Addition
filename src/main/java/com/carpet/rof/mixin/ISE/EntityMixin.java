@@ -19,8 +19,6 @@ public abstract class EntityMixin
 {
     @Shadow @Final private static AtomicInteger CURRENT_ID;
 
-    @Shadow public abstract World getWorld();
-
     @Inject(method = "<init>", at = @At(value = "TAIL"))
     void s(EntityType type, World world, CallbackInfo ci){
         if(CURRENT_ID.get() == entityIDOverflowPeriod){

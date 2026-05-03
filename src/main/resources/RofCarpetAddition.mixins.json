@@ -16,7 +16,6 @@
     "packetRules.EntityTrackerEntryMixin",
     "packetRules.EntityTrackerMixin",
     "rules.enderPearl.EnderPearlEntityMixin",
-    "rules.enderPearl.ServerPlayerMixin",
     "rules.enderPearl.ServerWorldMixin",
     "rules.mergeTNTNext.TntEntityMixin",
     "rules.particlesPacketsRange.ServerWorldMixin",

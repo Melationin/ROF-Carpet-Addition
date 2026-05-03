@@ -67,15 +67,18 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity {
                     forcedEntitylist.put(this.getUuid(), this);
                 }
             }else {
-                if((Math.abs(this.getVelocity().x) <= MinSpeed && Math.abs(this.getVelocity().z) <= MinSpeed) ){
-                    forcedEntitylist.put(this.getUuid(),null);
+
+                //? >=1.21.2 {
+
+                if ((Math.abs(this.getVelocity().x) <= MinSpeed && Math.abs(this.getVelocity().z) <= MinSpeed)) {
+                    forcedEntitylist.put(this.getUuid(), null);
                     ChunkPos chunkPos = getChunkPos();
-                    this.setPosition(this.getPos());
-                    ServerPlayerEntity.addEnderPearlTicket(serverWorld,getChunkPos());
+                    this.setPosition(ROFWarp.getPos_(this));
+                    ServerPlayerEntity.addEnderPearlTicket(serverWorld, getChunkPos());
                     syncMode = true;
                     return;
                 }
-
+                //?}
                 if(!optimizeForcedEnderPearlTick.equals("false")){
                     boolean  canSkip = true;
                     for (BlockPos blockPos : ROFWarp.getBlockPosIt(this.getBoundingBox())) {

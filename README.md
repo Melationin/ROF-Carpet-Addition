@@ -22,3 +22,7 @@
 - [规则](docs/zh_cn/rules.md)
 - [命令](docs/zh_cn/command.md)
 
+English(Using LLM Translation):
+- [Rules](docs/en_us/rules.md)
+- [Commands](docs/en_us/command.md)
+
