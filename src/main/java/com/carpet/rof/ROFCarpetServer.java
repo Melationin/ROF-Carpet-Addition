@@ -4,6 +4,7 @@ import carpet.CarpetExtension;
 import carpet.CarpetServer;
 import com.carpet.rof.commands.RequirementModifyCommand;
 import com.carpet.rof.event.ROFEvents;
+import com.carpet.rof.extraWorldData.ExtraWorldDatas;
 import com.carpet.rof.utils.ROFConfig;
 import com.carpet.rof.utils.ROFCarpetTranslations;
 import com.carpet.rof.utils.singleTaskWorker.SingleTaskWorker;
@@ -35,6 +36,7 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
     public void onInitialize()
     {
         ROFCarpetServer.loadExtension();
+
     }
 
     @Override
@@ -44,6 +46,17 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
         for (Class<?> r : ROFSettings.ruleClasses) {
             CarpetServer.settingsManager.parseSettingsClass(r);
         }
+
+        ROFEvents.WorldTickBegin.register(world -> {
+            ExtraWorldDatas.fromWorld(world).entitySpawnCountsPerTick.clear();
+            ExtraWorldDatas.fromWorld(world).mergeTntMap.clear();
+            ExtraWorldDatas.fromWorld(world).chunkEntitySpawnLogger.run(world);
+        });
+
+        ROFEvents.ServerSave.register(server2 -> {
+            ROFConfig.INSTANCE.set("requirementModifyMap", requirementModifyMap);
+            ROFConfig.INSTANCE.save();
+        });
     }
 
     @Override
@@ -62,16 +75,24 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
         ROFConfig.INSTANCE = new ROFConfig(server.getSavePath(WorldSavePath.ROOT).resolve("carpet-rof-addition.json"));
         ROFConfig.INSTANCE.load();
         RequirementModifyCommand.initialization(server,ROFConfig.INSTANCE);
-        ROFEvents.ServerSave.register(server2 -> {
-            ROFConfig.INSTANCE.set("requirementModifyMap", requirementModifyMap);
-            ROFConfig.INSTANCE.save();
-        });
     }
 
     @Override
     public Map<String, String> canHasTranslations(String lang)
     {
-        return ROFCarpetTranslations.getTranslationFromResourcePath("zh_cn");
+        var map = ROFCarpetTranslations.getTranslationFromResourcePath(lang);
+
+
+        /*
+        StringBuilder builder = new StringBuilder();
+
+        map.forEach((string, string2) -> {
+            builder.append("\"").append(string).append("\" : \"").append(string2).append("\",\n");
+        });
+        System.out.println(builder.toString());
+
+         */
+        return map;
     }
 
     @Override

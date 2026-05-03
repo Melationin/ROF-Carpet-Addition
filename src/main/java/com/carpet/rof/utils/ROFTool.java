@@ -1,13 +1,16 @@
 package com.carpet.rof.utils;
 import carpet.script.external.Vanilla;
 import com.mojang.logging.LogUtils;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.WorldSavePath;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -26,6 +29,11 @@ public class ROFTool
     }
     public static Path getSavePath(ServerWorld world) {
         return Vanilla.MinecraftServer_storageSource(world.getServer()).getWorldDirectory(world.getRegistryKey());
+    }
+
+    public static Path getPlayerPath(MinecraftServer server)
+    {
+        return server.getSavePath(WorldSavePath.PLAYERDATA);
     }
     public static int fastHash(int x) {
         x = ((x >> 8) ^ x) * 0x119de1f3;

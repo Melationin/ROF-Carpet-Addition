@@ -26,6 +26,10 @@ public class MergeTNTNextSetting extends BaseSetting {
     @Rule(
             categories = {ROF,OPTIMIZATION,TNT,FEATURE}
     )
+    @QuickTranslations(
+            name = "合并TNTnext",
+            description = "更为激进的tnt合并方案, 可能会导致预期之外的结果。不能与其他tnt合并一起开。"
+    )
     public static boolean mergeTNTNext = false;
 
 

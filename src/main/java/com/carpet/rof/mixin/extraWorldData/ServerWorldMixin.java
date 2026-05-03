@@ -48,12 +48,11 @@ public abstract class ServerWorldMixin implements IExtraChunkDataAccessor
 
 
     @Inject(method = "save",
-            at = @At(value = "HEAD"))
+            at = @At(value = "TAIL"))
     void saveWorld(CallbackInfo ci)
     {
         if(exceedChunkMarker )
        ROFTool.saveNBT2Data((ServerWorld) (Object)this,"extraWorldData.dat", ROFextraWorldDatas.toNbt());
-       //rDEBUG("saveWorld");
     }
 
     @Inject(method = "<init>",

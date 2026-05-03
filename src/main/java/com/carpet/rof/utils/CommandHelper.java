@@ -25,13 +25,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class ROFCommandHelper <S extends CommandSource>
+public class CommandHelper<S extends CommandSource>
 {
 
     /*
     输入格式 xxx <arg1> <arg2>{} xx [arg3]{} [arg4]
 
-    {}为附加参数
+    {}为附加参数.{r}表示权限要求, {s}表示建议提供器, 可以同时存在.
      */
     public static class Reused{}
 
@@ -44,7 +44,7 @@ public class ROFCommandHelper <S extends CommandSource>
         return predicate;
     }
 
-    public ROFCommandHelper(CommandNode<S> rootNode)
+    public CommandHelper(CommandNode<S> rootNode)
     {
         this.rootNode = rootNode;
     }
@@ -199,9 +199,7 @@ public class ROFCommandHelper <S extends CommandSource>
         return defaultValue;
     }
 
-    public void registerCommand(String commandString, Command<S> execute, Object... args) {
-        command(rootNode, registerCommandList(commandString, List.of(args)), execute);
-    }
+
 
     protected List<CommandArg> registerCommandList(String commandString, List<Object> args) {
         List<CommandArg> commandArgs = new ArrayList<>();
@@ -276,7 +274,7 @@ public class ROFCommandHelper <S extends CommandSource>
         setCommandRequirementNode(rootNode, registerCommandList(commandString, List.of()), predicate);
     }
 
-    public   class commandBuilder{
+    public class commandBuilder{
 
         String string;
         List<Object> objects = new ArrayList<>();
@@ -305,7 +303,7 @@ public class ROFCommandHelper <S extends CommandSource>
 
         @CheckReturnValue
         public commandBuilder reused(){
-            objects.add(ROFCommandHelper.reused());
+            objects.add(CommandHelper.reused());
             return this;
         }
 
@@ -317,7 +315,7 @@ public class ROFCommandHelper <S extends CommandSource>
 
         public void command(Command<S> command){
 
-            ROFCommandHelper.this.command(rootNode, registerCommandList(string, objects), command);
+            CommandHelper.this.command(rootNode, registerCommandList(string, objects), command);
         }
 
     }

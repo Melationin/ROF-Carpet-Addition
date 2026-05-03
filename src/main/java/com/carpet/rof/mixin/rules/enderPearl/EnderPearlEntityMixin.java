@@ -11,12 +11,16 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.entity.projectile.thrown.EnderPearlEntity;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.chunk.WorldChunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -53,19 +57,25 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity {
     @Inject(method = "tick", at = @At(value = "HEAD"),cancellable = true)
     private void EndPearlHead(CallbackInfo ci) {
 
-
-
         World world = ROFWarp.getWorld_(this);
-
-        if (world instanceof ServerWorld) {
-            var forcedEntitylist = ExtraWorldDatas.fromWorld((ServerWorld) ROFWarp.getWorld_(this) ).forcedEntitylist;
+        if (world instanceof ServerWorld serverWorld) {
+            var forcedEntitylist = ExtraWorldDatas.fromWorld(serverWorld ).forcedEntitylist;
             EPTicks++;
-            if (syncMode) {  //此时为同步状态
+            if (syncMode) {
                 if ((MinSpeed > 0) && (Math.abs(this.getVelocity().x) > MinSpeed || Math.abs(this.getVelocity().z) > MinSpeed)) {//大于最高速度，切换加载逻辑
-                    syncMode = false; //模拟状态，不计算
+                    syncMode = false;
                     forcedEntitylist.put(this.getUuid(), this);
                 }
             }else {
+                if((Math.abs(this.getVelocity().x) <= MinSpeed && Math.abs(this.getVelocity().z) <= MinSpeed) ){
+                    forcedEntitylist.put(this.getUuid(),null);
+                    ChunkPos chunkPos = getChunkPos();
+                    this.setPosition(this.getPos());
+                    ServerPlayerEntity.addEnderPearlTicket(serverWorld,getChunkPos());
+                    syncMode = true;
+                    return;
+                }
+
                 if(!optimizeForcedEnderPearlTick.equals("false")){
                     boolean  canSkip = true;
                     for (BlockPos blockPos : ROFWarp.getBlockPosIt(this.getBoundingBox())) {
@@ -159,7 +169,7 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity {
             World world = ROFWarp.getWorld_(this);
             if (world instanceof ServerWorld world1) {
                 var forcedEntitylist = ExtraWorldDatas.fromWorld(world1).forcedEntitylist;
-                forcedEntitylist.remove(this);
+                forcedEntitylist.put(this.getUuid(),null);
             }
         }
     }

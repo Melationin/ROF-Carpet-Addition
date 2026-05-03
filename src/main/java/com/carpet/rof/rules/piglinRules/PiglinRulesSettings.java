@@ -1,6 +1,7 @@
 package com.carpet.rof.rules.piglinRules;
 
 import carpet.api.settings.Rule;
+import com.carpet.rof.annotation.QuickTranslations;
 import com.carpet.rof.rules.BaseSetting;
 import com.carpet.rof.annotation.ROFRule;
 
@@ -14,12 +15,20 @@ public class PiglinRulesSettings extends BaseSetting {
             options = { "0", "20" },
             strict = false
     )
+    @QuickTranslations(
+            name = "猪灵捡掉落物延迟",
+            description = "只有出现一定时间的掉落物才会被猪灵捡起"
+    )
     public static int piglinLootItemDelay = 0;
 
     @Rule(
             categories = {ROF,OPTIMIZATION,FEATURE},
             options = { "100", "10000" },
             strict = false
+    )
+    @QuickTranslations(
+            name = "堆叠猪灵AI抑制",
+            description = "对于堆叠到一定量的猪灵，抑制其中部分猪灵的ai。"
     )
     public static int piglinStackingAISuppression = 10000;
 }

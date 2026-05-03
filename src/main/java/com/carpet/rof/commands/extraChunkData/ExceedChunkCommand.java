@@ -4,7 +4,7 @@ import com.carpet.rof.event.ROFEvents;
 import com.carpet.rof.extraWorldData.ExtraWorldDatas;
 
 
-import com.carpet.rof.utils.ROFCommandHelper;
+import com.carpet.rof.utils.CommandHelper;
 import com.carpet.rof.utils.ROFTextTool;
 import com.carpet.rof.utils.ROFWarp;
 import com.carpet.rof.utils.ROFTool;
@@ -54,7 +54,7 @@ public class ExceedChunkCommand
 
 
     public static ServerWorld getWorldFromContext(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        if (ROFCommandHelper.hasArgument(ctx, "dimension")) {
+        if (CommandHelper.hasArgument(ctx, "dimension")) {
             return DimensionArgumentType.getDimensionArgument(ctx, "dimension");
         } else {
             return ctx.getSource().getWorld();
@@ -143,8 +143,11 @@ public class ExceedChunkCommand
 
 
     public static void registerCommand(CommandNode<ServerCommandSource> commandNode){
-        ROFCommandHelper<ServerCommandSource> helper = new ROFCommandHelper<>(commandNode);
-        helper.registerCommand("exceedChunkMarker{r} [dimension]", ctx ->
+        CommandHelper<ServerCommandSource> helper = new CommandHelper<>(commandNode);
+        helper.registerCommand("exceedChunkMarker{r} [dimension]")
+                .rCarpet(()->ExtraChunkDatasCommand.commandExceedChunkMarker)
+                .arg(DimensionArgumentType.dimension())
+                .command( ctx ->
                 {
 
                     if(!exceedChunkMarker){
@@ -154,7 +157,7 @@ public class ExceedChunkCommand
 
                     ctx.getSource().sendFeedback(textS("----------ExceedChunkMarker----------"),false);
 
-                    if(ROFCommandHelper.hasArgument(ctx,"dimension")){
+                    if(CommandHelper.hasArgument(ctx,"dimension")){
                         ServerWorld world = DimensionArgumentType.getDimensionArgument(ctx,"dimension");
                         for (Text text : display(world)) {
                             ctx.getSource().sendFeedback(() -> text, false);
@@ -167,24 +170,17 @@ public class ExceedChunkCommand
                         }
                     }
                     return 1;
-                },
-                helper.predicate(
-                        s->carpet.utils.CommandHelper.canUseCommand(s,ExtraChunkDatasCommand.commandExceedChunkMarker)),
-                DimensionArgumentType.dimension()
-        );
+                });
+        helper.registerCommand("exceedChunkMarker [dimension] setTopY <topY>")
+                .reused()
+                .arg(IntegerArgumentType.integer())
+                .command(ExceedChunkCommand::setTopY);
 
-        helper.registerCommand("exceedChunkMarker [dimension] setTopY <topY>",
-                ExceedChunkCommand::setTopY,
-                ROFCommandHelper.reused(),
-                IntegerArgumentType.integer()
-        );
-        helper.registerCommand("exceedChunkMarker [dimension] clear",
-                ExceedChunkCommand::clear,
-                ROFCommandHelper.reused()
-        );
-        helper.registerCommand("exceedChunkMarker [dimension] loadFromWorld",
-                ExceedChunkCommand::loadFromWorld,
-                ROFCommandHelper.reused()
-        );
+        helper.registerCommand("exceedChunkMarker [dimension] clear")
+                .reused()
+                .command(ExceedChunkCommand::clear);
+        helper.registerCommand("exceedChunkMarker [dimension] loadFromWorld")
+                .reused()
+                .command(ExceedChunkCommand::loadFromWorld);
     }
 }

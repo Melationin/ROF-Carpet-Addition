@@ -1,36 +1,4 @@
 {
-
   "carpet.category.ROF": "ROF",
-
-  "carpet.rule.enderPearlForcedTickMinSpeed.name":"更好的高速珍珠自加载",
-  "carpet.rule.enderPearlForcedTickMinSpeed.desc":"对速度高于一定值的珍珠使用新的加载逻辑，更加稳定，需要加载的区块更少。",
-  "carpet.rule.enderPearlForcedTickMinSpeed.extra.0": "设置的值表示自加载速度阈值。设置为负值时，表示禁用。",
-  "carpet.rule.enderPearlForcedTickMinSpeed.extra.1": "对弱加载炮可能有预料之外的影响",
-
-  "carpet.rule.forceEnderPearlLogger.name":"强制加载态珍珠广播",
-  "carpet.rule.forceEnderPearlLogger.desc":"向丢出者发送强加载态珍珠的坐标(容易刷屏)",
-
-  "carpet.rule.mergeTNTNext.name":"合并TNTnext",
-  "carpet.rule.mergeTNTNext.desc":"更为激进的tnt合并方案, 可能会导致预期之外的结果。不能与其他tnt合并一起开。",
-
-  "carpet.rule.mobAIDelay.name":"怪物AI延迟",
-  "carpet.rule.mobAIDelay.desc":"可能造成预期之外的结果。可以降低大型刷怪塔的卡顿(效果不明显)",
-
-  "carpet.rule.optimizeItemMerge.name": "物品合并优化",
-  "carpet.rule.optimizeItemMerge.desc": "尽量让物品达到一组，以减轻卡顿",
-
-  "carpet.rule.piglinLootItemDelay.name": "猪灵捡掉落物延迟",
-  "carpet.rule.piglinLootItemDelay.desc": "只有出现一定时间的掉落物才会被猪灵捡起",
-
-  "carpet.rule.piglinStackingAISuppression.name": "堆叠猪灵AI抑制",
-  "carpet.rule.piglinStackingAISuppression.desc": "对于堆叠到一定量的猪灵，抑制其中部分猪灵的ai。",
-
-  "carpet.rule.TntPacketOptimization.name": "tnt实体发包优化",
-  "carpet.rule.TntPacketOptimization.desc": "优化tnt实体的发包。可能会使客户端显示异常。",
-
-  "carpet.rule.highLagFreezeLimit.name":"高卡顿自动暂停阈值",
-  "carpet.rule.highLagFreezeLimit.desc":"设置正数表示启用。当连续几tick用时超过此阈值时，自动暂停。",
-
-  "carpet.rule.highLagFreezeTickLimit.name":"高卡顿自动暂停tick阈值",
-  "carpet.rule.highLagFreezeTickLimit.desc":"设置正数表示启用。当连续几tick用时超过此阈值时，自动暂停。"
+  "carpet.category.PACKET": "PACKET"
 }

@@ -20,14 +20,6 @@ import java.util.UUID;
 
 public class ExtraWorldDatas implements NBTData
 {
-    static {
-        ROFEvents.WorldTickBegin.register(world -> {
-            ExtraWorldDatas.fromWorld(world).entitySpawnCountsPerTick.clear();
-            ExtraWorldDatas.fromWorld(world).mergeTntMap.clear();
-            ExtraWorldDatas.fromWorld(world).chunkEntitySpawnLogger.run(world);
-        });
-    }
-
     public ExceedChunkMarker exceedChunkMarker = new ExceedChunkMarker(Integer.MAX_VALUE/2);
 
     public ChunkLoadedFinder chunkLoadedFinder = new ChunkLoadedFinder();

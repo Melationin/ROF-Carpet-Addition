@@ -7,17 +7,21 @@ import carpet.utils.Messenger;
 import com.carpet.rof.annotation.QuickTranslations;
 import com.carpet.rof.annotation.ROFCommand;
 import com.carpet.rof.annotation.ROFRule;
-import com.carpet.rof.utils.ROFCommandHelper;
+import com.carpet.rof.utils.CommandHelper;
 import com.carpet.rof.utils.ROFWarp;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.StringHelper;
+
+import java.util.UUID;
+
 import static carpet.api.settings.RuleCategory.*;
 import static com.carpet.rof.rules.BaseSetting.ROF;
+
 @ROFRule
 @ROFCommand
 public class BetterPlayerCommand
@@ -36,13 +40,11 @@ public class BetterPlayerCommand
             }
     )
     public static String commandSpawnWhitedListedPlayer = "ops";
-    private static int maxNameLength(MinecraftServer server)
-    {
-        return server.getServerPort() >= 0 ? 20 : 40;
-    }
+
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher)
     {
+
         final SuggestionProvider<ServerCommandSource> REAL_PLAYER_SUGGEST = (context, builder) ->
         {
             var whiteList =  context.getSource().getServer().getPlayerManager().getWhitelistedNames();
@@ -61,9 +63,9 @@ public class BetterPlayerCommand
                 var source = context.getSource();
                 var mode = ROFWarp.getGameMode(player);
                 boolean flying = !mode.isSurvivalLike();
-                if (playerName.length() > maxNameLength(source.getServer()))
+                if (!StringHelper.isValidPlayerName(playerName))
                 {
-                    Messenger.m(source, "rb Player name: " + playerName + " is too long");
+                    Messenger.m(source, "rb Player name: " + playerName + " is Invalid Name");
                     return 0;
                 }
                 EntityPlayerMPFake.createFake(playerName, context.getSource().getServer(),
@@ -77,11 +79,12 @@ public class BetterPlayerCommand
             return 1;
         };
 
-        ROFCommandHelper<ServerCommandSource> helper = new ROFCommandHelper<>(dispatcher.getRoot());
+        CommandHelper<ServerCommandSource> helper = new CommandHelper<>(dispatcher.getRoot());
         helper.registerCommand("player <player>{s} spawn original{r}")
                 .arg(StringArgumentType.word())
                 .s(REAL_PLAYER_SUGGEST)
                 .rCarpet(()->commandSpawnWhitedListedPlayer)
                 .command(command);
     }
+
 }

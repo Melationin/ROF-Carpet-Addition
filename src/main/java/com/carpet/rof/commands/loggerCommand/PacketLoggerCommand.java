@@ -49,20 +49,20 @@ public class PacketLoggerCommand
                     }
                     PacketLogger.instance.start(ctx.getSource().getWorld().getTime());
 
-                    ctx.getSource().sendFeedback(() -> Text.of("数据包记录器已启用"), false);
+                    ctx.getSource().sendFeedback(() -> Text.of("Packet logger enabled"), false);
                     return 0;
                 })).then(literal("stop").executes(ctx ->
                 {
 
                     if (PacketLogger.instance == null) {
-                        ctx.getSource().sendFeedback(() -> Text.of("数据包记录器未启用！"), false);
+                        ctx.getSource().sendError(Text.of("Packet logger not enabled!"));
                     }
                     PacketLogger.instance.stop(ctx.getSource().getWorld().getTime());
                     return printPacketData(ctx);
                 })).executes(ctx ->
                 {
                     if (PacketLogger.instance == null) {
-                        ctx.getSource().sendFeedback(() -> Text.of("数据包记录器未启用！"), false);
+                        ctx.getSource().sendError(Text.of("Packet logger not enabled!"));
                         return 0;
                     }
                     PacketLogger.instance.setEndtime(ctx.getSource().getWorld().getTime());
@@ -84,7 +84,7 @@ public class PacketLoggerCommand
 
 
         ctx.getSource().sendFeedback(() -> Text.of(
-                        "过去" + ticks + " tick / " + realtime / 1000.0 + "s 内, 发包总量为：" + byteSizeToString(allSize)),
+                        "In the past " + ticks + " tick(s) / " + realtime / 1000.0 + "s, total packet size: " + byteSizeToString(allSize)),
                 false);
         for (var item : list) {
             ctx.getSource()

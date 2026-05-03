@@ -57,8 +57,6 @@ public abstract class ServerWorldMixin extends World  {
 
     @Shadow public abstract void addSyncedBlockEvent(BlockPos pos, Block block, int type, int data);
 
-
-
     @Unique
     private boolean shouldBeForceLoaded(Entity entity){
         if(!entityList.has(entity)) return true;
@@ -73,6 +71,7 @@ public abstract class ServerWorldMixin extends World  {
     void ForceLoadedEntity(BooleanSupplier shouldKeepTicking, CallbackInfo ci){
         if(!server.getTickManager().shouldTick()) return;
         var forcedEntitylist = ExtraWorldDatas.fromWorld((ServerWorld)(Object)this).forcedEntitylist;
+        forcedEntitylist.entrySet().removeIf(entry -> entry.getValue() == null||entry.getValue().isRemoved());
         forcedEntitylist.forEach((uuid,entity) -> {
             if(shouldBeForceLoaded(entity)){
                 if (!entity.isRemoved()) tickEntity(entity);

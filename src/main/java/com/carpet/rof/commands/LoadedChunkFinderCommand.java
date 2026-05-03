@@ -7,7 +7,7 @@ import com.carpet.rof.annotation.ROFCommand;
 import com.carpet.rof.annotation.ROFRule;
 import com.carpet.rof.event.ROFEvents;
 import com.carpet.rof.extraWorldData.ExtraWorldDatas;
-import com.carpet.rof.utils.ROFCommandHelper;
+import com.carpet.rof.utils.CommandHelper;
 import com.carpet.rof.utils.ROFTextTool;
 import com.carpet.rof.utils.ROFWarp;
 import com.mojang.brigadier.Command;
@@ -39,10 +39,10 @@ public class LoadedChunkFinderCommand
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher)
     {
-        ROFCommandHelper<ServerCommandSource> helper = new ROFCommandHelper<>(dispatcher.getRoot());
+        CommandHelper<ServerCommandSource> helper = new CommandHelper<>(dispatcher.getRoot());
 
         Command<ServerCommandSource> command = (ctx)->{
-            ServerWorld world = ROFCommandHelper.getArgumentOrDefault(ctx,"dimension",
+            ServerWorld world = CommandHelper.getArgumentOrDefault(ctx,"dimension",
                     ctx.getSource().getWorld(),
                     DimensionArgumentType::getDimensionArgument
                     );
@@ -53,7 +53,7 @@ public class LoadedChunkFinderCommand
 
             final var manager =  ExtraWorldDatas.fromWorld(world).chunkLoadedFinder;
 
-            final int endTick =ROFCommandHelper.getArgumentOrDefault(ctx,"tick",
+            final int endTick = CommandHelper.getArgumentOrDefault(ctx,"tick",
                     1,
                     IntegerArgumentType::getInteger
             );
@@ -93,13 +93,12 @@ public class LoadedChunkFinderCommand
             return 0;
         };
 
-        helper.registerCommand("loadedChunkFinder{r}",command,
-                ROFCommandHelper.carpetRequire(()->commandLoadedChunkFinder)
-        );
-
-        helper.registerCommand("loadedChunkFinder <dimension> [tick]",command,
-                DimensionArgumentType.dimension(),
-                IntegerArgumentType.integer(1)
-                );
+        helper.registerCommand("loadedChunkFinder{r}")
+                .rCarpet(()->commandLoadedChunkFinder)
+                .command(command);
+        helper.registerCommand("loadedChunkFinder <dimension> [tick]")
+                .arg(DimensionArgumentType.dimension())
+                .arg(IntegerArgumentType.integer(1))
+                .command(command);
     }
 }

@@ -32,7 +32,6 @@ public class ServerMixin
     {
         ROFEvents.ServerTickEnd.run((MinecraftServer) (Object)this);
         ROFEvents.ServerTickEndTasks.run((MinecraftServer) (Object)this);
-
     }
 
     @Inject(method = "tick",

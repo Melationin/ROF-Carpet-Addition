@@ -14,7 +14,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Dosc
+public class Docs
 {
     private static final Map<String, RuleData<?>> rules = new HashMap<>();
 
@@ -161,7 +161,7 @@ public class Dosc
 
             // 描述（可能多行，直接输出，注意保持原样）
             sb.append("&emsp;").append(translations.getOrDefault(trP+ "desc","[ERROR]")).append("\n\n");
-            sb.append("### &emsp;用法:\n\n");
+           // sb.append("### &emsp;用法:\n\n");
             int i = 0;
             while (translations.containsKey(trP + "extra." + i)) {
                 sb.append("&emsp;&emsp;- `").append(translations.get(trP + "extra." + i)).append("`\n\n");
@@ -184,7 +184,7 @@ public class Dosc
     }
 
 
-    public static void main2(String[] args)
+    public static void main(String[] args)
     {
         ROFSettings.loadClasses();
 
@@ -192,14 +192,15 @@ public class Dosc
             parseSettingsClass(clazz);
         }
 
-        Map<String,String> tr = ROFCarpetTranslations.getTranslationFromResourcePath("zh_cn");
+        String lang = "en_us";
+        Map<String,String> tr = ROFCarpetTranslations.getTranslationFromResourcePath(lang);
 
         List<RuleData<?>> sortRules = new ArrayList<>(rules.values());
         sortRules.sort(Comparator.comparing(r -> ((RuleData<?>)r).name));
 
         String doc = generateDocument(sortRules, tr);
         try {
-            saveStringToFile(doc, "docs/rules.md");
+            saveStringToFile(doc, "docs/"+lang+"/rules.md");
             //System.out.println("文档已成功保存到 carpet_rules.md");
         } catch (IOException e) {
             //System.err.println("保存文档时出错：" + e.getMessage());
@@ -208,7 +209,7 @@ public class Dosc
 
         String docC = generateCommand(sortRules, tr);
         try {
-            saveStringToFile(docC, "docs/command.md");
+            saveStringToFile(docC, "docs/"+lang+"/command.md");
            // System.out.println("文档已成功保存到 carpet_rules.md");
         } catch (IOException e) {
             //System.err.println("保存文档时出错：" + e.getMessage());

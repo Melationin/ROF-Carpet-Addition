@@ -7,7 +7,7 @@ import carpet.utils.TranslationKeys;
 import com.carpet.rof.annotation.QuickTranslations;
 import com.carpet.rof.annotation.ROFCommand;
 import com.carpet.rof.annotation.ROFRule;
-import com.carpet.rof.utils.ROFCommandHelper;
+import com.carpet.rof.utils.CommandHelper;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -85,17 +85,17 @@ public class SearchCommand
         }
 
         String key = StringArgumentType.getString( context, "key");
-        boolean enable = ROFCommandHelper.getArgumentOrDefault(context, "isNoDefaultValue", false,
+        boolean enable = CommandHelper.getArgumentOrDefault(context, "isNoDefaultValue", false,
                 BoolArgumentType::getBool);
 
-        String category = ROFCommandHelper.getArgumentOrDefault(context, "category", null,
+        String category = CommandHelper.getArgumentOrDefault(context, "category", null,
                 StringArgumentType::getString);
 
         ServerCommandSource source = context.getSource();
 
         SettingsManager manager = CarpetServer.settingsManager;
         Messenger.m(source, " ");
-        Messenger.m(source, "wb 搜索结果为: ");
+        Messenger.m(source, "wb search results: ");
         int i = 0;
         for (var c : manager.getCarpetRules()) {
             String allText = c.name() + RuleHelper.translatedDescription(c);
@@ -105,7 +105,7 @@ public class SearchCommand
                 i++;
             }
         }
-        Messenger.m(source, "wb 一共搜索到" + i + "条规则");
+        Messenger.m(source, "wb total " + i + " rules found");
         return 1;
     }
 
@@ -113,7 +113,7 @@ public class SearchCommand
     {
 
 
-        ROFCommandHelper<ServerCommandSource> helper = new ROFCommandHelper<>(dispatcher.getRoot().getChild(IDENTIFIER));
+        CommandHelper<ServerCommandSource> helper = new CommandHelper<>(dispatcher.getRoot().getChild(IDENTIFIER));
 
 
         helper.registerCommand("search{r} <key> [isNoDefaultValue] [category]{s}")

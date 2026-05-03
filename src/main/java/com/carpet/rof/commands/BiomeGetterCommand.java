@@ -1,13 +1,12 @@
 package com.carpet.rof.commands;
 
-import com.carpet.rof.annotation.ROFCommand;
-import com.carpet.rof.utils.ROFCommandHelper;
+import com.carpet.rof.utils.CommandHelper;
 import com.mojang.brigadier.CommandDispatcher;
+import net.minecraft.block.Blocks;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
 
 
@@ -16,7 +15,8 @@ public class BiomeGetterCommand
 {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher)
     {
-        ROFCommandHelper<ServerCommandSource> helper = new ROFCommandHelper<>(dispatcher.getRoot());
+
+        CommandHelper<ServerCommandSource> helper = new CommandHelper<>(dispatcher.getRoot());
         helper.registerCommand("getBiome").command(context -> {
             if(context.getSource().getPlayer() instanceof ServerPlayerEntity serverPlayer){
                 int sum = 0;

@@ -3,7 +3,6 @@
   "package": "com.carpet.rof.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "carpetMixin.SettingsManagerMixin",
     "event.ServerMixin",
     "event.ServerWorldMixin",
     "extraWorldData.HeightmapMixin",
@@ -11,15 +10,15 @@
     "extraWorldData.forceEntity.ServerWorldMixin",
     "extraWorldData.forceEntity.WorldMixin",
     "extraWorldData.raycast.BlockViewMixin2",
+    "ISE.EntityMixin",
     "loadedChunkFinder.ServerWorldMixin",
     "logger.packetLogger.EncoderHandlerMixin",
-    "logger.projectileEntityTraker.ProjectileEntityMixin",
     "packetRules.EntityTrackerEntryMixin",
     "packetRules.EntityTrackerMixin",
     "rules.enderPearl.EnderPearlEntityMixin",
+    "rules.enderPearl.ServerPlayerMixin",
     "rules.enderPearl.ServerWorldMixin",
     "rules.mergeTNTNext.TntEntityMixin",
-    "rules.optimizeItemMerge.ItemEntityMixin",
     "rules.particlesPacketsRange.ServerWorldMixin",
     "rules.piglinRules.BrainMixin2",
     "rules.piglinRules.EntityMixin",
@@ -27,9 +26,7 @@
     "rules.piglinRules.LookAtMobTaskMixin",
     "rules.piglinRules.MobEntityMixin",
     "rules.piglinRules.PiglinBrainMixin2",
-    "rules.piglinRules.PiglinEntityMixin",
-    "rules.reverseBlockPosTraversal.BlockPosMixin",
-    "safeTick.TickCommandMixin"
+    "rules.piglinRules.PiglinEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1
