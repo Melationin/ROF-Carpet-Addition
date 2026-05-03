@@ -19,6 +19,6 @@
 
 ## 文档
 
-- [规则](docs/rules.md)
-- [命令](docs/command.md)
+- [规则](docs/zh_cn/rules.md)
+- [命令](docs/zh_cn/command.md)
 
