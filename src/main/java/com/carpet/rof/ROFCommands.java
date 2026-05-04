@@ -2,7 +2,7 @@ package com.carpet.rof;
 
 import com.carpet.rof.annotation.ROFCommand;
 import com.mojang.brigadier.CommandDispatcher;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.CommandSourceStack;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -12,7 +12,7 @@ import static com.carpet.rof.generated.CommandList.CLASS_NAMES;
 
 public class ROFCommands
 {
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher)
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
     {
         for (String className : CLASS_NAMES) {
             try {

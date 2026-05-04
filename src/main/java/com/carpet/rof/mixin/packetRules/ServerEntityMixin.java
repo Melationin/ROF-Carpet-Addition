@@ -1,8 +1,8 @@
 package com.carpet.rof.mixin.packetRules;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.TntEntity;
-import net.minecraft.server.network.EntityTrackerEntry;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.PrimedTnt;
+import net.minecraft.server.level.ServerEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -12,19 +12,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static com.carpet.rof.rules.packerRules.PacketRulesSettings.tntPacketOptimization;
 
-@Mixin(EntityTrackerEntry.class)
-public class EntityTrackerEntryMixin
+@Mixin(ServerEntity.class)
+public class ServerEntityMixin
 {
 
 
     @Shadow @Final private Entity entity;
 
-    @Inject(method = "syncEntityData",
+    @Inject(method = "sendDirtyEntityData",
             at = @At(value = "HEAD"),
             cancellable = true)
     public void syncEntityData(CallbackInfo ci)
     {
-        if (tntPacketOptimization && entity instanceof TntEntity tntEntity) {
+        if (tntPacketOptimization && entity instanceof PrimedTnt tntEntity) {
             if (tntEntity.getFuse() > 1) {
                 ci.cancel();
             }

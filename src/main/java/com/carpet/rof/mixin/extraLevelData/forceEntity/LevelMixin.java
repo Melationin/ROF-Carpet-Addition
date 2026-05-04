@@ -1,9 +1,9 @@
-package com.carpet.rof.mixin.extraWorldData.forceEntity;
+package com.carpet.rof.mixin.extraLevelData.forceEntity;
 
 import com.carpet.rof.extraWorldData.ExtraWorldDatas;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -11,14 +11,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.UUID;
 
-@Mixin(World.class)
-public class WorldMixin
+@Mixin(Level.class)
+public class LevelMixin
 {
     //? >=1.21.5 {
-    @Inject(method = "getEntity(Ljava/util/UUID;)Lnet/minecraft/entity/Entity;", at = @At(value = "HEAD"),
+    @Inject(method = "getEntity(Ljava/util/UUID;)Lnet/minecraft/world/entity/Entity;", at = @At(value = "HEAD"),
             cancellable = true)
     private void getEntityInject(UUID uuid, CallbackInfoReturnable<Entity> cir){
-        if((Object)this instanceof ServerWorld serverWorld) {
+        if((Object)this instanceof ServerLevel serverWorld) {
             var forcedEntitylist = ExtraWorldDatas.fromWorld(serverWorld).forcedEntitylist;
             Entity entity = forcedEntitylist.get(uuid);
             if(entity != null) {

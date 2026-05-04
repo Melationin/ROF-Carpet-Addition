@@ -2,27 +2,27 @@ package com.carpet.rof.commands;
 
 import com.carpet.rof.utils.CommandHelper;
 import com.mojang.brigadier.CommandDispatcher;
-import net.minecraft.block.Blocks;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.biome.BiomeKeys;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.biome.Biomes;
 
 
 //@ROFCommand
 public class BiomeGetterCommand
 {
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher)
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
     {
 
-        CommandHelper<ServerCommandSource> helper = new CommandHelper<>(dispatcher.getRoot());
+        CommandHelper<CommandSourceStack> helper = new CommandHelper<>(dispatcher.getRoot());
         helper.registerCommand("getBiome").command(context -> {
-            if(context.getSource().getPlayer() instanceof ServerPlayerEntity serverPlayer){
+            if(context.getSource().getPlayer() instanceof ServerPlayer serverPlayer){
                 int sum = 0;
                 int rsum = 0;
 
-                var pos = serverPlayer.getBlockPos();
+                var pos = serverPlayer.blockPosition();
 
                 int x1 = pos.getX() - 128;
                 int z1 = pos.getZ() - 128;
@@ -36,14 +36,14 @@ public class BiomeGetterCommand
                         int d = dx * dx + dz * dz;
                         if(d>=128*128 || d < 24*24) continue;
                         sum++;
-                        if(context.getSource().getWorld().getBiome(new BlockPos(x,pos.getY(),z)).matchesKey(BiomeKeys.RIVER)){
+                        if(context.getSource().getLevel().getBiome(new BlockPos(x,pos.getY(),z)).is(Biomes.RIVER)){
                             rsum++;
                         }
                     }
                 }
                 int finalRsum = rsum;
                 int finalSum = sum;
-                context.getSource().sendFeedback(()->Text.of(finalRsum*1.0/finalSum +""),false);
+                context.getSource().sendSuccess(()-> Component.nullToEmpty(finalRsum*1.0/finalSum +""),false);
             }
             return 1;
         });

@@ -1,12 +1,12 @@
 package com.carpet.rof.utils;
 
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.CompoundTag;
 
 public interface NBTData
 {
-    void write(NbtCompound nbt);
+    void write(CompoundTag nbt);
 
-    void read(NbtCompound nbt);
+    void read(CompoundTag nbt);
 
-    NbtCompound toNbt();
+    CompoundTag toNbt();
 }

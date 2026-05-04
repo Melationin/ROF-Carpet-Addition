@@ -5,9 +5,9 @@ import com.carpet.rof.utils.singleTaskWorker.ROFTask;
 import com.carpet.rof.utils.singleTaskWorker.SPSCRingBuffer;
 import com.carpet.rof.utils.singleTaskWorker.SingleTaskWorker;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.listener.PacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.PacketType;
+import net.minecraft.network.PacketListener;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +45,7 @@ public class PacketLogger {
             }
         }
 
-        public PacketLoggerTask(Packet<?> packet,Type  type, ByteBuf byteBuf) {
+        public PacketLoggerTask(Packet<?> packet, Type  type, ByteBuf byteBuf) {
             this.type = type;
             this.packet = packet;
             this.byteBuf = byteBuf;
@@ -54,7 +54,7 @@ public class PacketLogger {
 
     public final SPSCRingBuffer<PacketLoggerTask> ringBuffer = new SPSCRingBuffer<>(10000);
 
-    public void addPacket(Packet<?> packet,ByteBuf byteBuf){
+    public void addPacket(Packet<?> packet, ByteBuf byteBuf){
         if(isRunning){
             ringBuffer.offer(new PacketLoggerTask(packet, PacketLoggerTask.Type.ADD,byteBuf));
         }

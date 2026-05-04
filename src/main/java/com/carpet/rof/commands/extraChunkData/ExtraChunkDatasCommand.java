@@ -6,7 +6,7 @@ import com.carpet.rof.annotation.QuickTranslations;
 import com.carpet.rof.annotation.ROFCommand;
 import com.carpet.rof.annotation.ROFRule;
 import com.mojang.brigadier.CommandDispatcher;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.CommandSourceStack;
 
 import static carpet.api.settings.RuleCategory.COMMAND;
 import static com.carpet.rof.rules.BaseSetting.ROF;
@@ -31,7 +31,7 @@ public class ExtraChunkDatasCommand
     )
     public static String commandExceedChunkMarker= "ops";
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher)
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
     {
         ExceedChunkCommand.registerCommand(dispatcher.getRoot());
     }

@@ -1,9 +1,9 @@
 package com.carpet.rof.mixin.extraWorldData.forceEntity;
 
 import com.carpet.rof.extraWorldData.ExtraWorldDatas;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.TypeFilter;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.entity.EntityTypeTest;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -14,16 +14,16 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-@Mixin(ServerWorld.class)
-public class ServerWorldMixin
+@Mixin(ServerLevel.class)
+public class ServerLevelMixin
 {
-    @Inject(method = "collectEntitiesByType(Lnet/minecraft/util/TypeFilter;Ljava/util/function/Predicate;Ljava/util/List;I)V", at = @At(value = "HEAD"), cancellable = true)
-    private <T extends Entity>void collectEntitiesByTypeInject(TypeFilter<Entity, T> filter, Predicate<Entity> predicate, List<Entity> result, int limit, CallbackInfo ci)
+    @Inject(method = "getEntities(Lnet/minecraft/world/level/entity/EntityTypeTest;Ljava/util/function/Predicate;Ljava/util/List;I)V", at = @At(value = "HEAD"), cancellable = true)
+    private <T extends Entity>void collectEntitiesByTypeInject(EntityTypeTest<Entity, T> filter, Predicate<Entity> predicate, List<Entity> result, int limit, CallbackInfo ci)
     {
-        var forcedEntitylist = ExtraWorldDatas.fromWorld((ServerWorld)(Object)this).forcedEntitylist;
+        var forcedEntitylist = ExtraWorldDatas.fromWorld((ServerLevel)(Object)this).forcedEntitylist;
         forcedEntitylist.forEach((UUID,entity)->{
             if(result.size() >= limit) return;
-            if(filter.downcast(entity) !=null&& predicate.test(entity)) {
+            if(filter.tryCast(entity) !=null&& predicate.test(entity)) {
                 result.add(entity);
             }
         });

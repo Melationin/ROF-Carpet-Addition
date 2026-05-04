@@ -2,21 +2,21 @@ package com.carpet.rof.mixin.rules.enderPearl;
 
 
 import com.carpet.rof.extraWorldData.ExtraWorldDatas;
-import net.minecraft.block.Block;
-import net.minecraft.entity.Entity;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.Holder;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerChunkManager;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.profiler.Profiler;
-import net.minecraft.world.EntityList;
-import net.minecraft.world.MutableWorldProperties;
-import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.tick.TickManager;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.level.entity.EntityTickList;
+import net.minecraft.world.level.storage.WritableLevelData;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.TickRateManager;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -29,19 +29,21 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 @SuppressWarnings("ConstantValue")
-@Mixin(ServerWorld.class)
-public abstract class ServerWorldMixin extends World  {
+@Mixin(ServerLevel.class)
+public abstract class ServerLevelMixin extends Level
+{
 
     @Shadow  @Final
     private MinecraftServer server;
 
     @Shadow  @Final
-    private ServerChunkManager chunkManager;
+    private ServerChunkCache chunkSource;
 
-    @Shadow @Final  EntityList entityList;
+    @Shadow @Final
+    EntityTickList entityTickList;
 
     //? >=1.21.2 {
-    protected ServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryRef, DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry, boolean isClient, boolean debugWorld, long seed, int maxChainedNeighborUpdates) {
+    protected ServerLevelMixin(WritableLevelData properties, ResourceKey<Level> registryRef, RegistryAccess registryManager, Holder<DimensionType> dimensionEntry, boolean isClient, boolean debugWorld, long seed, int maxChainedNeighborUpdates) {
         super(properties, registryRef, registryManager, dimensionEntry, isClient, debugWorld, seed, maxChainedNeighborUpdates);
     }
     //?} else {
@@ -51,30 +53,30 @@ public abstract class ServerWorldMixin extends World  {
 
     *///?}
 
-    @Shadow public abstract void tickEntity(Entity entity);
+    @Shadow public abstract void tickNonPassenger(Entity entity);
 
-    @Shadow public abstract TickManager getTickManager();
+    @Shadow public abstract TickRateManager tickRateManager();
 
-    @Shadow public abstract void addSyncedBlockEvent(BlockPos pos, Block block, int type, int data);
+    @Shadow public abstract void blockEvent(BlockPos pos, Block block, int type, int data);
 
     @Unique
     private boolean shouldBeForceLoaded(Entity entity){
-        if(!entityList.has(entity)) return true;
+        if(!entityTickList.contains(entity)) return true;
         //? <=1.21.4 {
         /*return !this.chunkManager.chunkLoadingManager.getTicketManager().shouldTickEntities(entity.getChunkPos().toLong());
          *///?} else {
-        return !this.chunkManager.chunkLoadingManager.getLevelManager().shouldTickEntities(entity.getChunkPos().toLong());
+        return !this.chunkSource.chunkMap.getDistanceManager().inEntityTickingRange(entity.chunkPosition().pack());
         //?}
     }
 
-    @Inject(method = "tick",at = @At(value = "INVOKE",target = "Lnet/minecraft/world/EntityList;forEach(Ljava/util/function/Consumer;)V"))
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/entity/EntityTickList;forEach(Ljava/util/function/Consumer;)V"))
     void ForceLoadedEntity(BooleanSupplier shouldKeepTicking, CallbackInfo ci){
-        if(!server.getTickManager().shouldTick()) return;
-        var forcedEntitylist = ExtraWorldDatas.fromWorld((ServerWorld)(Object)this).forcedEntitylist;
+        if(!server.tickRateManager().runsNormally()) return;
+        var forcedEntitylist = ExtraWorldDatas.fromWorld((ServerLevel)(Object)this).forcedEntitylist;
         forcedEntitylist.entrySet().removeIf(entry -> entry.getValue() == null||entry.getValue().isRemoved());
         forcedEntitylist.forEach((uuid,entity) -> {
             if(shouldBeForceLoaded(entity)){
-                if (!entity.isRemoved()) tickEntity(entity);
+                if (!entity.isRemoved()) tickNonPassenger(entity);
             }
         });
     }

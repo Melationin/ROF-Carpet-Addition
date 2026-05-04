@@ -8,11 +8,11 @@ import com.carpet.rof.extraWorldData.extraChunkDatas.ExceedChunkMarker;
 import com.carpet.rof.rules.extraChunkDatas.ExceedChunkMarkerSetting;
 import com.carpet.rof.rules.mergeTNTNext.MergeTNTNextSetting;
 import com.carpet.rof.utils.NBTData;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.TntEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.PrimedTnt;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,19 +26,19 @@ public class ExtraWorldDatas implements NBTData
 
     public final Map<UUID, Entity> forcedEntitylist = new HashMap<>();
 
-    public final HashMap<MergeTNTNextSetting.EntityPosAndVec, TntEntity> mergeTntMap =  new HashMap<>();
+    public final HashMap<MergeTNTNextSetting.EntityPosAndVec, PrimedTnt> mergeTntMap =  new HashMap<>();
 
     public final Map<EntityType<?>,Integer> entitySpawnCountsPerTick = new HashMap<>();
 
     public final ChunkEntitySpawnLogger  chunkEntitySpawnLogger = new ChunkEntitySpawnLogger();
 
-    public static ExtraWorldDatas fromWorld(ServerWorld world){
+    public static ExtraWorldDatas fromWorld(ServerLevel world){
         return  ((IExtraChunkDataAccessor)world).getExtraChunkDatas();
     }
 
 
     @Override
-    public void write(NbtCompound nbt)
+    public void write(CompoundTag nbt)
     {
         if(ExceedChunkMarkerSetting.exceedChunkMarker){
             nbt.put(exceedChunkMarker.getName(), exceedChunkMarker.toNbt());
@@ -46,7 +46,7 @@ public class ExtraWorldDatas implements NBTData
     }
 
     @Override
-    public void read(NbtCompound nbt)
+    public void read(CompoundTag nbt)
     {
         //? if >1.21.4 {
         if(ExceedChunkMarkerSetting.exceedChunkMarker) nbt.getCompound(exceedChunkMarker.getName()).ifPresent(
@@ -61,8 +61,8 @@ public class ExtraWorldDatas implements NBTData
         *///?}
     }
 
-    public NbtCompound toNbt(){
-       NbtCompound nbt = new NbtCompound();
+    public CompoundTag toNbt(){
+       CompoundTag nbt = new CompoundTag();
        write(nbt);
        return nbt;
    }

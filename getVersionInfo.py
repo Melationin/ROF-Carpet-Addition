@@ -31,13 +31,6 @@ def get_carpet_core_version(mc_version: str) -> str:
     return version_number
 
 
-def get_yarn(mc_ver):
-    url = f"https://meta.fabricmc.net/v2/versions/yarn/{mc_ver}"
-    with urllib.request.urlopen(url) as r:
-        data = json.loads(r.read())
-    if data:
-        return data[0]["version"]
-    return None
 
 def get_loader(mc_ver):
     url = f"https://meta.fabricmc.net/v2/versions/loader/{mc_ver}"
@@ -60,12 +53,10 @@ def get_fabric_api(mc_ver):
         pass
     return None
 
-versions = ["1.21","1.21.2", "1.21.3", "1.21.5", "1.21.8", "1.21.9"]
+versions = ["26.1.0"]
 for v in versions:
-    yarn = get_yarn(v)
     loader = get_loader(v)
     print(f"--- {v} ---")
-    print(f"yarn_mappings =  {yarn}")
     print(f"loader_version= {loader}")
     print(f"carpet_core_version={get_carpet_core_version(v)}")
 

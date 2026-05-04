@@ -6,19 +6,20 @@ import com.carpet.rof.rules.mergeTNTNext.MergeTNTNextSetting;
 import com.carpet.rof.rules.mergeTNTNext.TntEntityAccessor;
 import com.carpet.rof.utils.ROFTool;
 import com.carpet.rof.utils.ROFWarp;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.TntEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Entity.RemovalReason;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.PrimedTnt;
 
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
 //? >=1.21.6 {
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 //?} else {
 /*import net.minecraft.nbt.NbtCompound;
 *///?}
 
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -30,8 +31,8 @@ import java.util.HashMap;
 import static com.carpet.rof.rules.mergeTNTNext.MergeTNTNextSetting.mergeTNTNext;
 import static com.carpet.rof.rules.mergeTNTNext.MergeTNTNextSetting.mergeTNTOnlyNether;
 
-@Mixin(TntEntity.class)
-public abstract class TntEntityMixin extends Entity implements TntEntityAccessor {
+@Mixin(PrimedTnt.class)
+public abstract class PrimedTntMixin extends Entity implements TntEntityAccessor {
 
 
 
@@ -49,29 +50,29 @@ public abstract class TntEntityMixin extends Entity implements TntEntityAccessor
     @Shadow
     public abstract int getFuse();
 
-    public TntEntityMixin(EntityType<?> type, World world) {
+    public PrimedTntMixin(EntityType<?> type, Level world) {
         super(type, world);
     }
 
-    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/TntEntity;getFuse()I"), cancellable = true)
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/PrimedTnt;getFuse()I"), cancellable = true)
     private void merge(CallbackInfo ci) {
         //System.out.println(mergedTNTNCount2);
 
         if (mergeTNTNext &&
-                ROFWarp.getWorld_(this)  instanceof ServerWorld world
+                ROFWarp.getWorld_(this)  instanceof ServerLevel world
                 && !this.isRemoved() && getFuse() > 2
         &&(!mergeTNTOnlyNether || ROFTool.isNetherWorld(world))
         ) {
-            MergeTNTNextSetting.EntityPosAndVec TntPosAndVec = new MergeTNTNextSetting.EntityPosAndVec(ROFWarp.getPos_(this), this.getVelocity(), this.getFuse());
-            HashMap<MergeTNTNextSetting.EntityPosAndVec, TntEntity> TntMergeMap = ExtraWorldDatas.fromWorld(world).mergeTntMap;
+            MergeTNTNextSetting.EntityPosAndVec TntPosAndVec = new MergeTNTNextSetting.EntityPosAndVec(ROFWarp.getPos_(this), this.getDeltaMovement(), this.getFuse());
+            HashMap<MergeTNTNextSetting.EntityPosAndVec, PrimedTnt> TntMergeMap = ExtraWorldDatas.fromWorld(world).mergeTntMap;
             if (TntMergeMap.containsKey(TntPosAndVec)) {
-                TntEntity mainTNT = TntMergeMap.get(TntPosAndVec);
+                PrimedTnt mainTNT = TntMergeMap.get(TntPosAndVec);
                 ((TntEntityAccessor) mainTNT).ROF$addMergeCount(rof$mergedTNTNCount);
                 this.remove(RemovalReason.DISCARDED);
                 rof$mergedTNTNCount = 0;
                 ci.cancel();
             } else {
-                TntMergeMap.put(TntPosAndVec, (TntEntity) (Object) this);
+                TntMergeMap.put(TntPosAndVec, (PrimedTnt) (Object) this);
             }
         }
     }
@@ -81,8 +82,8 @@ public abstract class TntEntityMixin extends Entity implements TntEntityAccessor
         if (rof$mergedTNTNCount > 1)
             for (int i = 0; i < rof$mergedTNTNCount - 1; i++) {
                 ROFWarp.getWorld_(this)
-                        .createExplosion(this, this.getX(), this.getBodyY(0.0625),
-                        this.getZ(), 4.0F, World.ExplosionSourceType.TNT);
+                        .explode(this, this.getX(), this.getY(0.0625),
+                        this.getZ(), 4.0F, Level.ExplosionInteraction.TNT);
             }
         else if (rof$mergedTNTNCount == 0) {
             ci.cancel();
@@ -91,16 +92,16 @@ public abstract class TntEntityMixin extends Entity implements TntEntityAccessor
     }
 
     //? >= 1.21.6 {
-    @Inject(method = "writeCustomData", at = @At(value = "HEAD"))
-    private void writeCustomData(WriteView view, CallbackInfo ci) {
+    @Inject(method = "addAdditionalSaveData", at = @At(value = "HEAD"))
+    private void writeCustomData(ValueOutput view, CallbackInfo ci) {
         if (rof$mergedTNTNCount > 1) {
             view.putInt("mergedTNT", rof$mergedTNTNCount);
         }
     }
 
-    @Inject(method = "readCustomData", at = @At(value = "HEAD"))
-    private void readCustomData(ReadView view, CallbackInfo ci) {
-        view.getOptionalInt("mergedTNT").ifPresent(integer -> rof$mergedTNTNCount = integer);
+    @Inject(method = "readAdditionalSaveData", at = @At(value = "HEAD"))
+    private void readCustomData(ValueInput view, CallbackInfo ci) {
+        view.getInt("mergedTNT").ifPresent(integer -> rof$mergedTNTNCount = integer);
     }
 
     //?} else {

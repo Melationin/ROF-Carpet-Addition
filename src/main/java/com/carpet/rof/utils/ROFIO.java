@@ -1,12 +1,12 @@
 package com.carpet.rof.utils;
 
 import com.google.common.util.concurrent.AtomicDouble;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.storage.RegionFile;
-import net.minecraft.world.storage.StorageKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.chunk.storage.RegionFile;
+import net.minecraft.world.level.chunk.storage.RegionStorageInfo;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -35,20 +35,20 @@ public class ROFIO
         }
     }
 
-    public static void loadFromRegion(Path regionFileFolder, int x, int y, ServerWorld world, Consumer<NbtCompound> action)
+    public static void loadFromRegion(Path regionFileFolder, int x, int y, ServerLevel world, Consumer<CompoundTag> action)
     {
         String currentRegionName = "r." + x + "." + y + ".mca";
         Path regionFilePath = regionFileFolder.resolve(currentRegionName);
         try (RegionFile regionFile = new RegionFile(
-                new StorageKey("string1", world.getRegistryKey(), "string2"),
+                new RegionStorageInfo("string1", world.dimension(), "string2"),
                 regionFilePath, regionFileFolder, false))
         {
             for (int i = 0; i < 32; i++) {
                 for (int j = 0; j < 32; j++) {
-                    DataInputStream dataInputStream = regionFile.getChunkInputStream(
+                    DataInputStream dataInputStream = regionFile.getChunkDataInputStream(
                             new ChunkPos((x << 5) + i, (y << 5) + j));
                     if (dataInputStream != null) {
-                        final NbtCompound chunkData = NbtIo.readCompound(dataInputStream);
+                        final CompoundTag chunkData = NbtIo.read(dataInputStream);
                         action.accept(chunkData);
                         dataInputStream.close();
                     }
@@ -59,23 +59,23 @@ public class ROFIO
         }
     }
 
-    public static <T> Map<ChunkPos,T> loadFromRegion(Path regionFileFolder, int x, int y, ServerWorld world, Function<NbtCompound,T> action)
+    public static <T> Map<ChunkPos,T> loadFromRegion(Path regionFileFolder, int x, int y, ServerLevel world, Function<CompoundTag,T> action)
     {
         Map<ChunkPos,T> map = new HashMap<>();
 
         String currentRegionName = "r." + x + "." + y + ".mca";
         Path regionFilePath = regionFileFolder.resolve(currentRegionName);
         try (RegionFile regionFile = new RegionFile(
-                new StorageKey("string1", world.getRegistryKey(), "string2"),
+                new RegionStorageInfo("string1", world.dimension(), "string2"),
                 regionFilePath, regionFileFolder, false))
         {
             for (int i = 0; i < 32; i++) {
                 for (int j = 0; j < 32; j++) {
                     ChunkPos chunkPos = new ChunkPos((x * 32) + i, (y *32) + j);
 
-                    DataInputStream dataInputStream = regionFile.getChunkInputStream(chunkPos);
+                    DataInputStream dataInputStream = regionFile.getChunkDataInputStream(chunkPos);
                     if (dataInputStream != null) {
-                        final NbtCompound chunkData = NbtIo.readCompound(dataInputStream);
+                        final CompoundTag chunkData = NbtIo.read(dataInputStream);
                         map.put(chunkPos ,action.apply(chunkData));
                         dataInputStream.close();
                     }
@@ -88,7 +88,7 @@ public class ROFIO
         return map;
     }
 
-    public static void forEachExistingChunk(ServerWorld world, Consumer<NbtCompound> action, AtomicDouble progress)
+    public static void forEachExistingChunk(ServerLevel world, Consumer<CompoundTag> action, AtomicDouble progress)
     {
         Path regionsFolder = ROFTool.getSavePath(world).resolve("region");
         File folder = regionsFolder.toFile();
@@ -118,7 +118,7 @@ public class ROFIO
 
 
     public static <T> CompletableFuture<Map<ChunkPos,T>>
-    forEachExistingChunkParallel(ServerWorld world, Function<NbtCompound,T> action, AtomicDouble progress)
+    forEachExistingChunkParallel(ServerLevel world, Function<CompoundTag,T> action, AtomicDouble progress)
     {
         Path regionsFolder = ROFTool.getSavePath(world).resolve("region");
         File folder = regionsFolder.toFile();

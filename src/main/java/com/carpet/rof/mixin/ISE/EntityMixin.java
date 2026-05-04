@@ -1,8 +1,8 @@
 package com.carpet.rof.mixin.ISE;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,12 +17,12 @@ import static com.carpet.rof.commands.ISECommand.entityIDOverflowPeriod;
 @Mixin(Entity.class)
 public abstract class EntityMixin
 {
-    @Shadow @Final private static AtomicInteger CURRENT_ID;
+    @Shadow @Final private static AtomicInteger ENTITY_COUNTER;
 
     @Inject(method = "<init>", at = @At(value = "TAIL"))
-    void s(EntityType type, World world, CallbackInfo ci){
-        if(CURRENT_ID.get() == entityIDOverflowPeriod){
-            CURRENT_ID.set(0);
+    void s(EntityType type, Level world, CallbackInfo ci){
+        if(ENTITY_COUNTER.get() == entityIDOverflowPeriod){
+            ENTITY_COUNTER.set(0);
         }
     }
 }

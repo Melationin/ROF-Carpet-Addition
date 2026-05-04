@@ -17,8 +17,8 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +40,7 @@ public class SearchCommand
     public static String commandRulesSearcher = "true";
     private static final String IDENTIFIER = "carpet";
 
-    private static Text makeSetRuleButton(CarpetRule<?> rule, String option)
+    private static Component makeSetRuleButton(CarpetRule<?> rule, String option)
     {
         String style = RuleHelper.isInDefaultValue(rule) ? "g" : (option.equalsIgnoreCase(
                 RuleHelper.toRuleString(rule.defaultValue())) ? "e" : "y");
@@ -58,7 +58,7 @@ public class SearchCommand
                 "?/" + IDENTIFIER + " " + rule.name() + " " + option);
     }
 
-    private static Text displayInteractiveSetting(CarpetRule<?> rule)
+    private static Component displayInteractiveSetting(CarpetRule<?> rule)
     {
         String displayName = RuleHelper.translatedName(rule);
         List<Object> args = new ArrayList<>();
@@ -77,10 +77,10 @@ public class SearchCommand
         return Messenger.c(args.toArray(new Object[0]));
     }
 
-    public static int executeCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException
+    public static int executeCommand(CommandContext<CommandSourceStack> context) throws CommandSyntaxException
     {
         if(context.getSource().getPlayer() == null){
-            context.getSource().sendFeedback(() -> Text.of("This command can only be used by players."), false);
+            context.getSource().sendSuccess(() -> Component.nullToEmpty("This command can only be used by players."), false);
             return 0;
         }
 
@@ -91,7 +91,7 @@ public class SearchCommand
         String category = CommandHelper.getArgumentOrDefault(context, "category", null,
                 StringArgumentType::getString);
 
-        ServerCommandSource source = context.getSource();
+        CommandSourceStack source = context.getSource();
 
         SettingsManager manager = CarpetServer.settingsManager;
         Messenger.m(source, " ");
@@ -109,11 +109,11 @@ public class SearchCommand
         return 1;
     }
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher)
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
     {
 
 
-        CommandHelper<ServerCommandSource> helper = new CommandHelper<>(dispatcher.getRoot().getChild(IDENTIFIER));
+        CommandHelper<CommandSourceStack> helper = new CommandHelper<>(dispatcher.getRoot().getChild(IDENTIFIER));
 
 
         helper.registerCommand("search{r} <key> [isNoDefaultValue] [category]{s}")
@@ -125,10 +125,10 @@ public class SearchCommand
                 .command(SearchCommand::executeCommand);
     }
 
-    public static class CategoriesSuggestionProvider implements SuggestionProvider<ServerCommandSource>
+    public static class CategoriesSuggestionProvider implements SuggestionProvider<CommandSourceStack>
     {
         @Override
-        public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder)
+        public CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder)
         {
 
             for (String str : CarpetServer.settingsManager.getCategories()) {

@@ -8,9 +8,9 @@ import com.carpet.rof.annotation.ROFRule;
 import com.carpet.rof.logger.packetLogger.PacketLogger;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
-import net.minecraft.network.packet.PacketType;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
+import net.minecraft.network.protocol.PacketType;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -18,7 +18,7 @@ import java.util.Map;
 import static carpet.api.settings.RuleCategory.COMMAND;
 import static carpet.api.settings.RuleCategory.EXPERIMENTAL;
 import static com.carpet.rof.rules.BaseSetting.ROF;
-import static net.minecraft.server.command.CommandManager.literal;
+import static net.minecraft.commands.Commands.literal;
 
 @ROFRule
 @ROFCommand
@@ -37,7 +37,7 @@ public class PacketLoggerCommand
     )
     public static String commandPacketLoggerPlus = "ops";
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher)
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
     {
         dispatcher.register(literal("packetLogger").requires(
                         source -> carpet.utils.CommandHelper.canUseCommand(source, commandPacketLoggerPlus))
@@ -47,32 +47,32 @@ public class PacketLoggerCommand
                     if (PacketLogger.instance == null) {
                         PacketLogger.instance = new PacketLogger();
                     }
-                    PacketLogger.instance.start(ctx.getSource().getWorld().getTime());
+                    PacketLogger.instance.start(ctx.getSource().getLevel().getGameTime());
 
-                    ctx.getSource().sendFeedback(() -> Text.of("Packet logger enabled"), false);
+                    ctx.getSource().sendSuccess(() -> Component.nullToEmpty("Packet logger enabled"), false);
                     return 0;
                 })).then(literal("stop").executes(ctx ->
                 {
 
                     if (PacketLogger.instance == null) {
-                        ctx.getSource().sendError(Text.of("Packet logger not enabled!"));
+                        ctx.getSource().sendFailure(Component.nullToEmpty("Packet logger not enabled!"));
                     }
-                    PacketLogger.instance.stop(ctx.getSource().getWorld().getTime());
+                    PacketLogger.instance.stop(ctx.getSource().getLevel().getGameTime());
                     return printPacketData(ctx);
                 })).executes(ctx ->
                 {
                     if (PacketLogger.instance == null) {
-                        ctx.getSource().sendError(Text.of("Packet logger not enabled!"));
+                        ctx.getSource().sendFailure(Component.nullToEmpty("Packet logger not enabled!"));
                         return 0;
                     }
-                    PacketLogger.instance.setEndtime(ctx.getSource().getWorld().getTime());
+                    PacketLogger.instance.setEndtime(ctx.getSource().getLevel().getGameTime());
                     return printPacketData(ctx);
                 }));
     }
 
-    private static int printPacketData(CommandContext<ServerCommandSource> ctx)
+    private static int printPacketData(CommandContext<CommandSourceStack> ctx)
     {
-        ArrayList<java.util.Map.Entry<net.minecraft.network.packet.PacketType<?>, Long>> list = new ArrayList<>(
+        ArrayList<java.util.Map.Entry<net.minecraft.network.protocol.PacketType<?>, Long>> list = new ArrayList<>(
                 PacketLogger.instance.packetSizeMap.entrySet());
 
         list.sort(java.util.Map.Entry.<PacketType<?>, Long>comparingByValue().reversed());
@@ -83,12 +83,12 @@ public class PacketLoggerCommand
         long allSize = list.stream().mapToLong(Map.Entry::getValue).sum();
 
 
-        ctx.getSource().sendFeedback(() -> Text.of(
+        ctx.getSource().sendSuccess(() -> Component.nullToEmpty(
                         "In the past " + ticks + " tick(s) / " + realtime / 1000.0 + "s, total packet size: " + byteSizeToString(allSize)),
                 false);
         for (var item : list) {
             ctx.getSource()
-                    .sendFeedback(() -> Text.of(item.getKey().id() + " : " + byteSizeToString(item.getValue())), false);
+                    .sendSuccess(() -> Component.nullToEmpty(item.getKey().id() + " : " + byteSizeToString(item.getValue())), false);
         }
         return 0;
     }

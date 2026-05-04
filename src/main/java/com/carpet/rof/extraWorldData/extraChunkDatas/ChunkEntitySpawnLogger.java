@@ -1,7 +1,7 @@
 package com.carpet.rof.extraWorldData.extraChunkDatas;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.server.level.ServerLevel;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,8 +11,8 @@ public class ChunkEntitySpawnLogger
 {
 
     public record Key (
-        long chunkPos,
-        EntityType<?> entityType
+            long chunkPos,
+            EntityType<?> entityType
     )
     {
         public boolean equals(Object o)
@@ -31,8 +31,8 @@ public class ChunkEntitySpawnLogger
     final Map<Key,Integer> entitySpawnChunkCount = new HashMap<>();
     final Map<Key,Integer> entitySpawnChunkCountLast = new HashMap<>();
 
-    public void run(ServerWorld world){
-        if(world.getTime()%20 == 0){
+    public void run(ServerLevel world){
+        if(world.getGameTime()%20 == 0){
             entitySpawnChunkCountLast.clear();
             entitySpawnChunkCountLast.putAll(entitySpawnChunkCount);
             entitySpawnChunkCount.clear();

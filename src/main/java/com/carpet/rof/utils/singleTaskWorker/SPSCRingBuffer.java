@@ -1,67 +1,64 @@
 package com.carpet.rof.utils.singleTaskWorker;
 
-import java.lang.reflect.Field;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class SPSCRingBuffer<T extends ROFTask> {
-    private final T[] buffer;
+    private final Object[] buffer;      // 实际存储 Object，避免泛型数组创建警告
     private final int mask;
-    private volatile long producerIndex = 0;
-    private volatile long consumerIndex = 0;
+    private final AtomicLong producerIndex = new AtomicLong(0);
+    private final AtomicLong consumerIndex = new AtomicLong(0);
 
     @SuppressWarnings("unchecked")
     public SPSCRingBuffer(int capacity) {
+        // 确保 capacity 是 2 的幂（向上取整）
         capacity = 1 << (32 - Integer.numberOfLeadingZeros(capacity - 1));
-        this.buffer = (T[]) new ROFTask[capacity];
+        this.buffer = new Object[capacity];
         this.mask = capacity - 1;
     }
 
+    /**
+     * 生产者向队列尾部添加任务。
+     * @param item 待添加的任务，不能为 null
+     * @return true 如果添加成功，false 表示队列已满
+     */
     public boolean offer(T item) {
-        long pi = producerIndex;
-        long ci = consumerIndex;
+        long pi = producerIndex.get();          // 当前生产位置
+        long ci = consumerIndex.get();          // 当前消费位置
 
         if (pi - ci >= buffer.length) {
-            return false; // 缓冲区满
+            return false;                       // 队列已满
         }
 
-        buffer[(int)(pi & mask)] = item;
+        int idx = (int) (pi & mask);
+        buffer[idx] = item;
 
-        UNSAFE.putOrderedLong(this, PRODUCER_INDEX_OFFSET, pi + 1);
+        // 使用 lazySet 等价于原来的 putOrderedLong，仅保证 StoreStore 屏障，不释放全屏障
+        producerIndex.lazySet(pi + 1);
         return true;
     }
 
-    // 消费者部分（开销在消费者，不影响生产者）
+    /**
+     * 消费者从队列头部取出任务。
+     * @return 任务对象，若队列为空则返回 null
+     */
+    @SuppressWarnings("unchecked")
     public T poll() {
-        long ci = consumerIndex;
-        long pi = UNSAFE.getLongVolatile(this, PRODUCER_INDEX_OFFSET);
+        long ci = consumerIndex.get();           // 当前消费位置
+        long pi = producerIndex.get();           // volatile 读，保证可见性
 
         if (ci >= pi) {
-            return null;
+            return null;                         // 队列为空
         }
 
-        T item = buffer[(int)(ci & mask)];
-        buffer[(int)(ci & mask)] = null;
-        UNSAFE.putOrderedLong(this, CONSUMER_INDEX_OFFSET, ci + 1);
+        int idx = (int) (ci & mask);
+        T item = (T) buffer[idx];
+        buffer[idx] = null;                      // 帮助 GC
+
+        consumerIndex.lazySet(ci + 1);
         return item;
     }
 
-    private static final sun.misc.Unsafe UNSAFE;
-    private static final long PRODUCER_INDEX_OFFSET;
-    private static final long CONSUMER_INDEX_OFFSET;
-
     public boolean isEmpty() {
-        return producerIndex == consumerIndex;
-    }
-
-
-    static {
-        try {
-            Field f = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
-            f.setAccessible(true);
-            UNSAFE = (sun.misc.Unsafe) f.get(null);
-            PRODUCER_INDEX_OFFSET = UNSAFE.objectFieldOffset(
-                    SPSCRingBuffer.class.getDeclaredField("producerIndex"));
-            CONSUMER_INDEX_OFFSET = UNSAFE.objectFieldOffset(
-                    SPSCRingBuffer.class.getDeclaredField("consumerIndex"));
-        } catch (Exception e) { throw new Error(e); }
+        return producerIndex.get() == consumerIndex.get();
     }
 }

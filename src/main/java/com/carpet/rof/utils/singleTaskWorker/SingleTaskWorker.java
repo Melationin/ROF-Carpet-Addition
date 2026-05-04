@@ -1,6 +1,6 @@
 package com.carpet.rof.utils.singleTaskWorker;
 
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,7 +14,7 @@ public class SingleTaskWorker implements AutoCloseable
     private Thread consumerThread;
     private volatile boolean running = true;
     public static SingleTaskWorker INSTANCE = new SingleTaskWorker();
-    public SingleTaskWorker get(ServerWorld world)
+    public SingleTaskWorker get(ServerLevel world)
     {
         return INSTANCE;
     }

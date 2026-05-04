@@ -15,8 +15,8 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -46,7 +46,7 @@ public class RequirementModifyCommand
             requirementModifyMap = new HashMap<String,RequirementModify>();
         }
         ROFEvents.ServerTickEndTasks.register(serverTick -> {
-            CommandHelper<ServerCommandSource> helper = new CommandHelper<>(server.getCommandManager().getDispatcher().getRoot());
+            CommandHelper<CommandSourceStack> helper = new CommandHelper<>(server.getCommands().getDispatcher().getRoot());
             for (var entry : requirementModifyMap.entrySet()) {
                 try {
                     helper.setCommandRequirement(entry.getKey(), ((source, aBoolean) ->
@@ -107,18 +107,18 @@ public class RequirementModifyCommand
 
 
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher)
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
     {
 
 
-        SuggestionProvider<ServerCommandSource> modSuggestion = (context, builder) -> {
+        SuggestionProvider<CommandSourceStack> modSuggestion = (context, builder) -> {
             builder.suggest("add");
             builder.suggest("set");
             builder.suggest("or");
             return builder.buildFuture();
         };
 
-        SuggestionProvider<ServerCommandSource> permissionSuggestion = (context, builder) -> {
+        SuggestionProvider<CommandSourceStack> permissionSuggestion = (context, builder) -> {
             builder.suggest("0");
             builder.suggest("1");
             builder.suggest("2");
@@ -130,8 +130,8 @@ public class RequirementModifyCommand
             return builder.buildFuture();
         };
 
-        CommandHelper<ServerCommandSource> helper= new CommandHelper<>(dispatcher.getRoot());
-        BiFunction<CommandContext<ServerCommandSource>,Integer,Integer> setCommand = ( context, type) -> {
+        CommandHelper<CommandSourceStack> helper= new CommandHelper<>(dispatcher.getRoot());
+        BiFunction<CommandContext<CommandSourceStack>,Integer,Integer> setCommand = (context, type) -> {
             String commandPath = StringArgumentType.getString(context,"commandPath").trim();
             String permission = StringArgumentType.getString(context,"permission");
             try {
@@ -170,16 +170,16 @@ public class RequirementModifyCommand
                     }));
 
                 }
-                context.getSource().getServer().getPlayerManager().getPlayerList().forEach(player ->
+                context.getSource().getServer().getPlayerList().getPlayers().forEach(player ->
                 {
-                    context.getSource().getServer().getCommandManager().sendCommandTree(player);
+                    context.getSource().getServer().getCommands().sendCommands(player);
                 });
-                context.getSource().sendFeedback(textS("&aSuccess！"), false);
+                context.getSource().sendSuccess(textS("&aSuccess！"), false);
                 return 1;
             }
             catch (CommandHelper.SetCommandPredicateError error) {
                 requirementModifyMap.remove(commandPath);
-                context.getSource().sendError(Text.of(error.getMessage()));
+                context.getSource().sendFailure(Component.nullToEmpty(error.getMessage()));
                 return 0;
             }
         };
@@ -211,7 +211,7 @@ public class RequirementModifyCommand
                     if(requirementModifyMap.containsKey(commandPath) && requirementModifyMap.get(commandPath).type!=2){
                         requirementModifyMap.put(commandPath,new RequirementModify("false",2));
                     }else  {
-                        ctx.getSource().sendFeedback(textS("&eThe permission requirements of the current command have not been modified.\n"),false);
+                        ctx.getSource().sendSuccess(textS("&eThe permission requirements of the current command have not been modified.\n"),false);
                         return 0;
                     }
                     return 1;
@@ -226,11 +226,11 @@ public class RequirementModifyCommand
         helper.registerCommand("requirementModify list")
                 .command(context -> {
 
-                    context.getSource().sendFeedback(textS("&6---------RequirementModify----------"), false);
+                    context.getSource().sendSuccess(textS("&6---------RequirementModify----------"), false);
 
                     for(Map.Entry<String, RequirementModify> entry: requirementModifyMap.entrySet()){
                         if(entry.getValue().type != 2) {
-                            context.getSource().sendFeedback(
+                            context.getSource().sendSuccess(
                                     textS("&6CommandPath: &e/" + entry.getKey() + " &6Permission: &e" + entry.getValue().permission + " &6ModifyType: &e" + switch (entry.getValue().type) {
                                         case 0 -> "set";
                                         case 1 -> "add";

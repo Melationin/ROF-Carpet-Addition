@@ -6,7 +6,7 @@ import carpet.api.settings.Validator;
 import com.carpet.rof.annotation.QuickTranslations;
 import com.carpet.rof.rules.BaseSetting;
 import com.carpet.rof.annotation.ROFRule;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.CommandSourceStack;
 
 import static carpet.api.settings.RuleCategory.FEATURE;
 import static carpet.api.settings.RuleCategory.OPTIMIZATION;

@@ -2,12 +2,12 @@ package com.carpet.rof.mixin.rules.piglinRules;
 
 import com.carpet.rof.rules.piglinRules.PiglinEntityAccessor;
 import com.carpet.rof.utils.ROFTool;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.brain.MemoryQueryResult;
-import net.minecraft.entity.ai.brain.task.LookAtMobTask;
-import net.minecraft.entity.ai.brain.task.TaskTriggerer;
-import net.minecraft.entity.mob.PiglinEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.behavior.declarative.MemoryAccessor;
+import net.minecraft.world.entity.ai.behavior.SetEntityLookTarget;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
+import net.minecraft.world.entity.monster.piglin.Piglin;
+import net.minecraft.server.level.ServerLevel;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,15 +18,15 @@ import java.util.function.Predicate;
 import static com.carpet.rof.rules.piglinRules.PiglinRulesSettings.piglinStackingAISuppression;
 
 
-@Mixin(LookAtMobTask.class)
-public abstract class LookAtMobTaskMixin
+@Mixin(SetEntityLookTarget.class)
+public abstract class SetEntityLookTargetMixin
 {
-    @Inject(method = "method_47063",
+    @Inject(method = "lambda$create$4",
             at = @At(value = "HEAD"),
             cancellable = true)
-    private static void method_47063(TaskTriggerer.TaskContext taskContext, MemoryQueryResult memoryQueryResult, Predicate predicate, float f, MemoryQueryResult memoryQueryResult2, ServerWorld world, LivingEntity entity, long time, CallbackInfoReturnable<Boolean> cir)
+    private static void method_47063(BehaviorBuilder.Instance taskContext, MemoryAccessor memoryQueryResult, Predicate predicate, float f, MemoryAccessor memoryQueryResult2, ServerLevel world, LivingEntity entity, long time, CallbackInfoReturnable<Boolean> cir)
     {
-        if (entity instanceof PiglinEntity piglin) {
+        if (entity instanceof Piglin piglin) {
             int count = ((PiglinEntityAccessor) piglin).getNearPiglinCount();
             if (!ROFTool.canLoadAi(entity.getId(), count, piglinStackingAISuppression)) {
                 cir.setReturnValue(false);

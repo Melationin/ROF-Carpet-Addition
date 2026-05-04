@@ -13,9 +13,9 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.StringHelper;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.StringUtil;
 
 import java.util.UUID;
 
@@ -42,12 +42,12 @@ public class BetterPlayerCommand
     public static String commandSpawnWhitedListedPlayer = "ops";
 
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher)
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
     {
 
-        final SuggestionProvider<ServerCommandSource> REAL_PLAYER_SUGGEST = (context, builder) ->
+        final SuggestionProvider<CommandSourceStack> REAL_PLAYER_SUGGEST = (context, builder) ->
         {
-            var whiteList =  context.getSource().getServer().getPlayerManager().getWhitelistedNames();
+            var whiteList =  context.getSource().getServer().getPlayerList().getWhiteListNames();
 
             for(String player : whiteList){
                 builder.suggest(player);
@@ -56,30 +56,30 @@ public class BetterPlayerCommand
         };
 
 
-        Command<ServerCommandSource> command = (context)->{
+        Command<CommandSourceStack> command = (context)->{
             String playerName = StringArgumentType.getString(context,"player");
-            if (context.getSource().getPlayer() instanceof ServerPlayerEntity player) {
-                var world = context.getSource().getWorld();
+            if (context.getSource().getPlayer() instanceof ServerPlayer player) {
+                var world = context.getSource().getLevel();
                 var source = context.getSource();
                 var mode = ROFWarp.getGameMode(player);
-                boolean flying = !mode.isSurvivalLike();
-                if (!StringHelper.isValidPlayerName(playerName))
+                boolean flying = !mode.isSurvival();
+                if (!StringUtil.isValidPlayerName(playerName))
                 {
                     Messenger.m(source, "rb Player name: " + playerName + " is Invalid Name");
                     return 0;
                 }
                 EntityPlayerMPFake.createFake(playerName, context.getSource().getServer(),
                         ROFWarp.getPos_(player),
-                        player.getYaw(),
-                        player.getPitch(),
-                        ROFWarp.getWorld_(player).getRegistryKey(),
+                        player.getYRot(),
+                        player.getXRot(),
+                        ROFWarp.getWorld_(player).dimension(),
                         mode,
                         flying);
             }
             return 1;
         };
 
-        CommandHelper<ServerCommandSource> helper = new CommandHelper<>(dispatcher.getRoot());
+        CommandHelper<CommandSourceStack> helper = new CommandHelper<>(dispatcher.getRoot());
         helper.registerCommand("player <player>{s} spawn original{r}")
                 .arg(StringArgumentType.word())
                 .s(REAL_PLAYER_SUGGEST)

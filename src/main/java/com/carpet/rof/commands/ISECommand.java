@@ -11,8 +11,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.commands.CommandSourceStack;
 
 import static carpet.api.settings.RuleCategory.*;
 import static com.carpet.rof.rules.BaseSetting.ROF;
@@ -63,7 +63,7 @@ public class ISECommand
     )
     public static int entityIDOverflowPeriod = 0;
 
-    private static int ShowEntityID(CommandContext<ServerCommandSource> context) throws CommandSyntaxException
+    private static int ShowEntityID(CommandContext<CommandSourceStack> context) throws CommandSyntaxException
     {
         int count = 5;
 
@@ -74,23 +74,23 @@ public class ISECommand
             Messenger.m(context.getSource(), "rb " + "Too many entities to display!");
             return 0;
         }
-        var CURRENT_ID = Entity.CURRENT_ID;
-        var world = context.getSource().getWorld();
-        context.getSource().sendFeedback(
+        var CURRENT_ID = Entity.ENTITY_COUNTER;
+        var world = context.getSource().getLevel();
+        context.getSource().sendSuccess(
                 textS(""),false
         );
-        context.getSource().sendFeedback(
+        context.getSource().sendSuccess(
                 textS("Current ID is " + CURRENT_ID.get() + ". Next entity ID will be " + (CURRENT_ID.get() + 1)),false
         );
         if(count>0){
-            context.getSource().sendFeedback(
+            context.getSource().sendSuccess(
                     textS("---------- Next Entities ----------"),false
             );
             for(int i = 0;i<count;i++){
                 int id = CURRENT_ID.get() + i + 1;
-                if( world.getEntityById(id)!= null){
-                    Entity entity = world.getEntityById(id);
-                    context.getSource().sendFeedback(
+                if( world.getEntity(id)!= null){
+                    Entity entity = world.getEntity(id);
+                    context.getSource().sendSuccess(
                             textS("ID: "+id +  " Entity: "+entity.getName().getString()+" Distance: " + (i+1)),false
                     );
                 }
@@ -99,7 +99,7 @@ public class ISECommand
         }
         return 1;
     }
-    private static int ShowEntityID2(CommandContext<ServerCommandSource> context) throws CommandSyntaxException
+    private static int ShowEntityID2(CommandContext<CommandSourceStack> context) throws CommandSyntaxException
     {
         int begin = IntegerArgumentType.getInteger(context, "begin");
 
@@ -110,42 +110,42 @@ public class ISECommand
             return 0;
         }
 
-        var CURRENT_ID = Entity.CURRENT_ID;
-        var world = context.getSource().getWorld();
-        context.getSource().sendFeedback(
+        var CURRENT_ID = Entity.ENTITY_COUNTER;
+        var world = context.getSource().getLevel();
+        context.getSource().sendSuccess(
                 textS(""),false
         );
-        context.getSource().sendFeedback(
+        context.getSource().sendSuccess(
                 textS("Current ID is " + CURRENT_ID.get()),false
         );
-        context.getSource().sendFeedback(
+        context.getSource().sendSuccess(
                 textS("----------------------------------"),false
         );
         for(int i = begin;i<=end;i++){
             int id =i ;
-            if( world.getEntityById(id)!= null){
-                Entity entity = world.getEntityById(id);
-                context.getSource().sendFeedback(
+            if( world.getEntity(id)!= null){
+                Entity entity = world.getEntity(id);
+                context.getSource().sendSuccess(
                         textS("ID: "+id +  " Entity: "+entity.getName().getString()),false
                 );
             }
         }
         return 1;
     }
-    private static int SetEntityID(CommandContext<ServerCommandSource> context) throws CommandSyntaxException
+    private static int SetEntityID(CommandContext<CommandSourceStack> context) throws CommandSyntaxException
     {
 
 
         int id = IntegerArgumentType.getInteger(context, "id");
 
-        var CURRENT_ID = Entity.CURRENT_ID;
+        var CURRENT_ID = Entity.ENTITY_COUNTER;
         CURRENT_ID.set(id);
-        context.getSource().sendFeedback(textS("Set current entity ID to: " + id),true);
+        context.getSource().sendSuccess(textS("Set current entity ID to: " + id),true);
         return 1;
     }
 
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher)
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
     {
         var helper = new CommandHelper<>(dispatcher.getRoot());
         helper.registerCommand("entityID{r}")

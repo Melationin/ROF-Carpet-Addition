@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version "${loom_version}"
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
 }
 
@@ -26,6 +26,42 @@ repositories {
 	maven{
 		url "https://api.modrinth.com/maven"
 	}
+	maven {
+		url = 'https://api.modrinth.com/maven'
+	}
+	maven {
+		url = 'https://masa.dy.fi/maven'
+	}
+	maven {
+		url = 'https://repo1.maven.org/maven2'
+	}
+	maven {
+		name = 'ParchmentMC'
+		url = 'https://maven.parchmentmc.org'
+	}
+	maven {
+		url = 'https://maven.fallenbreath.me/jitpack'
+		content { includeGroupAndSubgroups('com.github') }
+	}
+	maven { url = "https://maven.bawnorton.com/releases" }
+	maven {url = 'https://maven.fallenbreath.me/releases'
+		content {includeGroupAndSubgroups("me.fallenbreath")}
+	}
+	maven {
+		url = 'https://www.cursemaven.com'
+		content { includeGroup('curse.maven') }
+	}
+	maven {url = 'https://maven.terraformersmc.com/releases/'
+		content { includeGroupAndSubgroups("com.terraformersmc")}
+	}
+	maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
+	maven { url = 'https://maven.nucleoid.xyz/' }
+	maven {url = "https://masa.dy.fi/maven/sakura-ryoko"
+		content {includeGroupAndSubgroups("fi.dy.masa")}
+	}
+	maven {
+		url = 'https://jitpack.io'
+	}
 }
 
 loom {
@@ -51,11 +87,10 @@ dependencies {
 	// To change the versions see the gradle.properties file
 
 	minecraft "com.mojang:minecraft:${stonecutter.current.project}"
-	mappings "net.fabricmc:yarn:${property("yarn_mappings")}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${property("loader_version")}"
-	modImplementation "maven.modrinth:carpet:${property("carpet_core_version")}"
+	implementation "net.fabricmc:fabric-loader:${property("loader_version")}"
+	implementation "carpet:fabric-carpet:${property("carpet_core_version")}"
 	implementation 'it.unimi.dsi:fastutil:8.5.18'
-
+	//mappings loom.officialMojangMappings()
 	annotationProcessor project(":processor")
 	compileOnly project(":processor")
 }
@@ -74,11 +109,11 @@ processResources {
 }
 
 java {
-
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
-
-
+	sourceCompatibility = JavaVersion.VERSION_26
+	targetCompatibility = JavaVersion.VERSION_26
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(26)
+	}
 }
 
 jar {

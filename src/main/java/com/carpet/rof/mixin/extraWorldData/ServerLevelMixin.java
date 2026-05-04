@@ -7,16 +7,16 @@ import com.carpet.rof.extraWorldData.ExtraWorldDatas;
 import com.carpet.rof.utils.ROFIO;
 import com.carpet.rof.utils.ROFTool;
 import com.carpet.rof.utils.singleTaskWorker.SingleTaskWorker;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.NbtSizeTracker;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.MutableWorldProperties;
-import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.nbt.NbtAccounter;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.storage.WritableLevelData;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -30,8 +30,8 @@ import java.util.function.BooleanSupplier;
 
 import static com.carpet.rof.rules.extraChunkDatas.ExceedChunkMarkerSetting.exceedChunkMarker;
 
-@Mixin(ServerWorld.class)
-public abstract class ServerWorldMixin implements IExtraChunkDataAccessor
+@Mixin(ServerLevel.class)
+public abstract class ServerLevelMixin implements IExtraChunkDataAccessor
 {
 
 
@@ -52,7 +52,7 @@ public abstract class ServerWorldMixin implements IExtraChunkDataAccessor
     void saveWorld(CallbackInfo ci)
     {
         if(exceedChunkMarker )
-       ROFTool.saveNBT2Data((ServerWorld) (Object)this,"extraWorldData.dat", ROFextraWorldDatas.toNbt());
+       ROFTool.saveNBT2Data((ServerLevel) (Object)this,"extraWorldData.dat", ROFextraWorldDatas.toNbt());
     }
 
     @Inject(method = "<init>",
@@ -61,15 +61,15 @@ public abstract class ServerWorldMixin implements IExtraChunkDataAccessor
     {
         ROFextraWorldDatas = new ExtraWorldDatas();
         try {
-            Path savaPath = ROFTool.getSavePath((ServerWorld) (Object) this).resolve("data").resolve("extraWorldData.dat");
-            NbtCompound nbtCompound;
+            Path savaPath = ROFTool.getSavePath((ServerLevel) (Object) this).resolve("data").resolve("extraWorldData.dat");
+            CompoundTag nbtCompound;
             if(ROFIO.isGzip(savaPath)){
-                nbtCompound= NbtIo.readCompressed(savaPath, NbtSizeTracker.of(104857600L));
+                nbtCompound= NbtIo.readCompressed(savaPath, NbtAccounter.create(104857600L));
             }else {
-                nbtCompound=NbtIo.read(savaPath);
+                nbtCompound= NbtIo.read(savaPath);
             }
             if(nbtCompound == null){
-                if(ROFTool.isNetherWorld((ServerWorld) (Object) this)){
+                if(ROFTool.isNetherWorld((ServerLevel) (Object) this)){
                     ROFextraWorldDatas.exceedChunkMarker.topY = 128;
                 }else {
                     ROFextraWorldDatas.exceedChunkMarker.topY = Integer.MAX_VALUE/2;
@@ -86,8 +86,8 @@ public abstract class ServerWorldMixin implements IExtraChunkDataAccessor
             at = @At(value = "HEAD"))
     void tick(BooleanSupplier shouldKeepTicking, CallbackInfo ci)
     {
-        if (((ServerWorld)(Object)this).getTickManager().shouldTick()&&exceedChunkMarker) {
-            this.ROFextraWorldDatas.exceedChunkMarker.update((ServerWorld) (Object) this);
+        if (((ServerLevel)(Object)this).tickRateManager().runsNormally()&&exceedChunkMarker) {
+            this.ROFextraWorldDatas.exceedChunkMarker.update((ServerLevel) (Object) this);
         }
     }
 }

@@ -2,13 +2,13 @@ package com.carpet.rof.mixin.rules.piglinRules;
 
 import com.carpet.rof.rules.piglinRules.PiglinEntityAccessor;
 import com.carpet.rof.utils.ROFTool;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.brain.MemoryQueryResult;
-import net.minecraft.entity.ai.brain.task.FindInteractionTargetTask;
-import net.minecraft.entity.ai.brain.task.TaskTriggerer;
-import net.minecraft.entity.mob.PiglinEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.behavior.declarative.MemoryAccessor;
+import net.minecraft.world.entity.ai.behavior.SetLookAndInteract;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
+import net.minecraft.world.entity.monster.piglin.Piglin;
+import net.minecraft.server.level.ServerLevel;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -17,15 +17,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import static com.carpet.rof.rules.piglinRules.PiglinRulesSettings.piglinStackingAISuppression;
 
 
-@Mixin(FindInteractionTargetTask.class)
-public abstract class FindInteractionTargetTaskMixin
+@Mixin(SetLookAndInteract.class)
+public abstract class SetLookAndInteractMixin
 {
     @Inject(method = "method_47085",
             at = @At(value = "HEAD"),
             cancellable = true)
-    private static void onFindInteractionTargetTask(TaskTriggerer.TaskContext taskContext, MemoryQueryResult memoryQueryResult, int i, EntityType entityType, MemoryQueryResult memoryQueryResult2, MemoryQueryResult memoryQueryResult3, ServerWorld world, LivingEntity entity, long time, CallbackInfoReturnable<Boolean> cir)
+    private static void onFindInteractionTargetTask(BehaviorBuilder.Instance taskContext, MemoryAccessor memoryQueryResult, int i, EntityType entityType, MemoryAccessor memoryQueryResult2, MemoryAccessor memoryQueryResult3, ServerLevel world, LivingEntity entity, long time, CallbackInfoReturnable<Boolean> cir)
     {
-        if (entity instanceof PiglinEntity piglin) {
+        if (entity instanceof Piglin piglin) {
             int count = ((PiglinEntityAccessor) piglin).getNearPiglinCount();
             if (!ROFTool.canLoadAi(entity.getId(), count, piglinStackingAISuppression)) {
                 cir.setReturnValue(false);

@@ -1,17 +1,17 @@
 package com.carpet.rof.utils;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.PacketType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.GameMode;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketType;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
 
 import java.util.Optional;
 
@@ -25,17 +25,17 @@ public class ROFWarp
         return (T) s;
     }
 
-    public static GameMode getGameMode(ServerPlayerEntity player)
+    public static GameType getGameMode(ServerPlayer player)
     {
         //? >1.21.4 {
-        return player.getGameMode();
+        return player.gameMode();
 
         //?} else {
             /*return player.interactionManager.getGameMode();
         *///?}
     }
 
-    public static HoverEvent showText(Text text)
+    public static HoverEvent showText(Component text)
     {
         //? >1.21.4 {
         return new HoverEvent.ShowText(text);
@@ -67,16 +67,16 @@ public class ROFWarp
     public static PacketType<?> getPacketType(Packet<?> packet)
     {
         //? >1.21.3 {
-        return packet.getPacketType();
+        return packet.type();
 
         //?} else {
         /*return packet.getPacketId();
         *///?}
     }
 
-    public static Iterable<BlockPos> getBlockPosIt(Box box)
+    public static Iterable<BlockPos> getBlockPosIt(AABB box)
     {
-        return BlockPos.iterate(
+        return BlockPos.betweenClosed(
                 (int) Math.floor(box.minX),
                 (int) Math.floor(box.minY),
                 (int) Math.floor(box.minZ),
@@ -84,18 +84,18 @@ public class ROFWarp
                 (int) Math.ceil(box.maxY),
                 (int) Math.ceil(box.maxZ));
     }
-    public static World getWorld_(Entity entity) {
+    public static Level getWorld_(Entity entity) {
         //? if >=1.21.9 {
-        /*return entity.getEntityWorld();
-         *///?} else {
-        return entity.getWorld();
-        //?}
+        return entity.level();
+         //?} else {
+        /*return entity.getWorld();
+        *///?}
     }
-    public static Vec3d getPos_(Entity entity) {
+    public static Vec3 getPos_(Entity entity) {
         //? if >=1.21.9 {
-        /*return entity.getEntityPos();
-         *///?} else {
-        return entity.getPos();
-        //?}
+        return entity.position();
+         //?} else {
+        /*return entity.getPos();
+        *///?}
     }
 }

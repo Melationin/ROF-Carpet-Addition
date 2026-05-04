@@ -14,12 +14,12 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.command.argument.DimensionArgumentType;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.commands.arguments.DimensionArgument;
 
 import static com.carpet.rof.rules.extraChunkDatas.ExceedChunkMarkerSetting.exceedChunkMarker;
 import static com.carpet.rof.utils.ROFTextTool.text;
@@ -30,45 +30,45 @@ public class ExceedChunkCommand
 {
 
 
-    public static Text[] display(ServerWorld world)
+    public static Component[] display(ServerLevel world)
     {
         var data = ExtraWorldDatas.fromWorld(world).exceedChunkMarker;
 
-        MutableText text1 = text("\n"+ROFTextTool.getWorldName(world.getDimensionEntry().getIdAsString())
-                +"&r&7("+world.getDimensionEntry().getIdAsString()+")"
+        MutableComponent text1 = text("\n"+ROFTextTool.getWorldName(world.dimensionTypeRegistration().getRegisteredName())
+                +"&r&7("+world.dimensionTypeRegistration().getRegisteredName()+")"
         );
-        MutableText text2 = text("&7-{&ftopY}: &r&n&e{" + data.topY + "}", style -> style.withHoverEvent(
+        MutableComponent text2 = text("&7-{&ftopY}: &r&n&e{" + data.topY + "}", style -> style.withHoverEvent(
                         ROFWarp.showText(text("设为极大值表示禁用，否则应为自然生成的最高运动阻挡方块+1"))),
                 style -> style.withHoverEvent(ROFWarp.showText(text("点击设置")))
-                        .withClickEvent(ROFWarp.suggestCommand("/exceedChunkMarker "+ world.getDimensionEntry().getIdAsString() +" setTopY "))
+                        .withClickEvent(ROFWarp.suggestCommand("/exceedChunkMarker "+ world.dimensionTypeRegistration().getRegisteredName() +" setTopY "))
 
         );
 
-        MutableText text3 = text("&7-{&fchunksSetSize}: &r&n&e{" + data.getSize() + "}",
+        MutableComponent text3 = text("&7-{&fchunksSetSize}: &r&n&e{" + data.getSize() + "}",
                 style -> style.withHoverEvent(ROFWarp.showText(text("exceedChunk的数量"))),
                 style -> style.withHoverEvent(ROFWarp.showText(text("点击以重载")))
-                        .withClickEvent(ROFWarp.suggestCommand("/exceedChunkMarker "+ world.getDimensionEntry().getIdAsString() +" loadFromWorld")));
+                        .withClickEvent(ROFWarp.suggestCommand("/exceedChunkMarker "+ world.dimensionTypeRegistration().getRegisteredName() +" loadFromWorld")));
 
-        return new Text[]{text1, text2, text3};
+        return new Component[]{text1, text2, text3};
     }
 
 
-    public static ServerWorld getWorldFromContext(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    public static ServerLevel getWorldFromContext(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         if (CommandHelper.hasArgument(ctx, "dimension")) {
-            return DimensionArgumentType.getDimensionArgument(ctx, "dimension");
+            return DimensionArgument.getDimension(ctx, "dimension");
         } else {
-            return ctx.getSource().getWorld();
+            return ctx.getSource().getLevel();
         }
     }
 
 
-    public static int loadFromWorld(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException
+    public static int loadFromWorld(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException
     {
         if(!exceedChunkMarker){
-            ctx.getSource().sendFeedback(textS("&c未开启exceedChunkMarker!"),false);
+            ctx.getSource().sendSuccess(textS("&c未开启exceedChunkMarker!"),false);
             return 0;
         }
-        ServerWorld world = getWorldFromContext(ctx);
+        ServerLevel world = getWorldFromContext(ctx);
         if(world == null) return 1;
         var data = ExtraWorldDatas.fromWorld(world).exceedChunkMarker;
         boolean forceInterrupted = false;
@@ -76,7 +76,7 @@ public class ExceedChunkCommand
             forceInterrupted = BoolArgumentType.getBool(ctx, "forceInterrupted");
         }catch (Exception ignored){}
         if (data.workerThread != null && data.workerThread .isAlive() && !forceInterrupted) {
-            ctx.getSource().sendFeedback(()->text("&c有未结束的任务！如果需要强行停止请让forceInterrupted = true"),false);
+            ctx.getSource().sendSuccess(()->text("&c有未结束的任务！如果需要强行停止请让forceInterrupted = true"),false);
             return 1;
         }
         if(data.workerThread != null &&data.workerThread.isAlive()) {
@@ -84,13 +84,13 @@ public class ExceedChunkCommand
         }
         AtomicDouble progress = new AtomicDouble(0.0);
         data.loadFromWorld(world, progress);
-        if(ctx.getSource().getPlayer() instanceof ServerPlayerEntity player) {
+        if(ctx.getSource().getPlayer() instanceof ServerPlayer player) {
             ROFEvents.ServerTickEndTasks.register((server -> {
 
-                if(player.isDisconnected()) return true;
-                player.sendMessage(ROFTextTool.processDisplay("[ECM]正在从文件中加载区块",progress.get()), true);
+                if(player.hasDisconnected()) return true;
+                player.sendSystemMessage  (ROFTextTool.processDisplay("[ECM]正在从文件中加载区块",progress.get()), true);
                 if(progress.get() >= 1) {
-                    player.sendMessage(text("&9[ECM]&r加载完成！ExceedChunk数量为"+ data.getSize()), false);
+                    player.sendSystemMessage(text("&9[ECM]&r加载完成！ExceedChunk数量为"+ data.getSize()), false);
                     return true;
                 }
                 return false;
@@ -101,40 +101,40 @@ public class ExceedChunkCommand
         return 0;
     }
 
-    public static int setTopY(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException
+    public static int setTopY(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException
     {
         if(!exceedChunkMarker){
-            ctx.getSource().sendFeedback(textS("&c未开启exceedChunkMarker!"),false);
+            ctx.getSource().sendSuccess(textS("&c未开启exceedChunkMarker!"),false);
             return 0;
         }
-        final ServerWorld world = getWorldFromContext(ctx);
+        final ServerLevel world = getWorldFromContext(ctx);
         if(world == null) return 1;
         var data = ExtraWorldDatas.fromWorld(world).exceedChunkMarker;
         data.topY = IntegerArgumentType.getInteger(ctx, "topY");
-        ctx.getSource().sendFeedback(()->text("[ECM]维度" + world.getDimensionEntry().getIdAsString() +" topY已设置为: " + data.topY),false);
+        ctx.getSource().sendSuccess(()->text("[ECM]维度" + world.dimensionTypeRegistration().getRegisteredName() +" topY已设置为: " + data.topY),false);
         return 0;
     }
-    public static int clear(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException
+    public static int clear(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException
     {
         if(!exceedChunkMarker){
-            ctx.getSource().sendFeedback(textS("&c未开启exceedChunkMarker!"),false);
+            ctx.getSource().sendSuccess(textS("&c未开启exceedChunkMarker!"),false);
             return 0;
         }
-        final ServerWorld world = getWorldFromContext(ctx);
+        final ServerLevel world = getWorldFromContext(ctx);
         if(world == null) return 1;
         var data = ExtraWorldDatas.fromWorld(world).exceedChunkMarker;
         data.clear();
-        ctx.getSource().sendFeedback(()->text("[ECM]维度" + world.getDimensionEntry().getIdAsString() +"已清除"),false);
+        ctx.getSource().sendSuccess(()->text("[ECM]维度" + world.dimensionTypeRegistration().getRegisteredName() +"已清除"),false);
         return 0;
     }
 
-    public static int save(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException
+    public static int save(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException
     {
         if(!exceedChunkMarker){
-            ctx.getSource().sendFeedback(textS("&c未开启exceedChunkMarker!"),false);
+            ctx.getSource().sendSuccess(textS("&c未开启exceedChunkMarker!"),false);
             return 0;
         }
-        ServerWorld world = getWorldFromContext(ctx);
+        ServerLevel world = getWorldFromContext(ctx);
         if(world == null) return 1;
         var data = ExtraWorldDatas.fromWorld(world);
         ROFTool.saveNBT2Data(world,"extraWorldData",data.toNbt());
@@ -142,30 +142,30 @@ public class ExceedChunkCommand
     }
 
 
-    public static void registerCommand(CommandNode<ServerCommandSource> commandNode){
-        CommandHelper<ServerCommandSource> helper = new CommandHelper<>(commandNode);
+    public static void registerCommand(CommandNode<CommandSourceStack> commandNode){
+        CommandHelper<CommandSourceStack> helper = new CommandHelper<>(commandNode);
         helper.registerCommand("exceedChunkMarker{r} [dimension]")
                 .rCarpet(()->ExtraChunkDatasCommand.commandExceedChunkMarker)
-                .arg(DimensionArgumentType.dimension())
+                .arg(DimensionArgument.dimension())
                 .command( ctx ->
                 {
 
                     if(!exceedChunkMarker){
-                        ctx.getSource().sendFeedback(textS("&c未开启exceedChunkMarker!"),false);
+                        ctx.getSource().sendSuccess(textS("&c未开启exceedChunkMarker!"),false);
                         return 0;
                     }
 
-                    ctx.getSource().sendFeedback(textS("----------ExceedChunkMarker----------"),false);
+                    ctx.getSource().sendSuccess(textS("----------ExceedChunkMarker----------"),false);
 
                     if(CommandHelper.hasArgument(ctx,"dimension")){
-                        ServerWorld world = DimensionArgumentType.getDimensionArgument(ctx,"dimension");
-                        for (Text text : display(world)) {
-                            ctx.getSource().sendFeedback(() -> text, false);
+                        ServerLevel world = DimensionArgument.getDimension(ctx,"dimension");
+                        for (Component text : display(world)) {
+                            ctx.getSource().sendSuccess(() -> text, false);
                         }
                     }else {
-                        for (ServerWorld world : ctx.getSource().getServer().getWorlds()) {
-                            for (Text text : display(world)) {
-                                ctx.getSource().sendFeedback(() -> text, false);
+                        for (ServerLevel world : ctx.getSource().getServer().getAllLevels()) {
+                            for (Component text : display(world)) {
+                                ctx.getSource().sendSuccess(() -> text, false);
                             }
                         }
                     }

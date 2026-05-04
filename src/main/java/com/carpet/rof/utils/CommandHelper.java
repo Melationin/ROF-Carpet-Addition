@@ -10,8 +10,8 @@ import com.mojang.brigadier.context.ParsedArgument;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.CommandNode;
-import net.minecraft.command.CommandSource;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.CommandSourceStack;
 import org.jetbrains.annotations.CheckReturnValue;
 
 import java.lang.reflect.Field;
@@ -25,7 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class CommandHelper<S extends CommandSource>
+public class CommandHelper<S extends SharedSuggestionProvider>
 {
 
     /*
@@ -178,8 +178,8 @@ public class CommandHelper<S extends CommandSource>
         return false;
     }
 
-    public static <S extends CommandSource> Predicate<S> carpetRequire(Supplier<String> ruleName) {
-        return source -> carpet.utils.CommandHelper.canUseCommand((ServerCommandSource) source, ruleName.get());
+    public static <S extends SharedSuggestionProvider> Predicate<S> carpetRequire(Supplier<String> ruleName) {
+        return source -> carpet.utils.CommandHelper.canUseCommand((CommandSourceStack) source, ruleName.get());
     }
 
     @FunctionalInterface
@@ -187,7 +187,7 @@ public class CommandHelper<S extends CommandSource>
         R apply(T t, U u) throws CommandSyntaxException;
     }
 
-    public static <S extends CommandSource, T> T getArgumentOrDefault(
+    public static <S extends SharedSuggestionProvider, T> T getArgumentOrDefault(
             CommandContext<S> ctx, String arg, T defaultValue,
             ThrowingBiFunction<CommandContext<S>, String, T> function)
     {
@@ -292,7 +292,7 @@ public class CommandHelper<S extends CommandSource>
 
         @CheckReturnValue
         public commandBuilder rCarpet(Supplier<String> ruleName){
-            return r(source -> carpet.utils.CommandHelper.canUseCommand((ServerCommandSource) source, ruleName.get()));
+            return r(source -> carpet.utils.CommandHelper.canUseCommand((CommandSourceStack) source, ruleName.get()));
         }
 
         @CheckReturnValue

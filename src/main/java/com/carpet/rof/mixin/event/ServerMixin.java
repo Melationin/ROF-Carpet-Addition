@@ -2,17 +2,17 @@ package com.carpet.rof.mixin.event;
 
 import com.carpet.rof.event.ROFEvents;
 import com.mojang.datafixers.DataFixer;
-import net.minecraft.resource.ResourcePackManager;
+import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.SaveLoader;
+import net.minecraft.server.WorldStem;
 //? <1.21.9 {
-import net.minecraft.server.WorldGenerationProgressListenerFactory;
-//?} else {
-/*import net.minecraft.world.chunk.ChunkLoadProgress;
-*///?}
-import net.minecraft.util.ApiServices;
+/*import net.minecraft.server.WorldGenerationProgressListenerFactory;
+*///?} else {
+import net.minecraft.server.level.progress.LevelLoadListener;
+//?}
+import net.minecraft.server.Services;
 
-import net.minecraft.world.level.storage.LevelStorage;
+import net.minecraft.world.level.storage.LevelStorageSource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -26,7 +26,7 @@ import java.util.function.BooleanSupplier;
 public class ServerMixin
 {
 
-    @Inject(method = "tick",
+    @Inject(method = "tickServer",
             at = @At(value = "TAIL"))
     private void tickEnd(BooleanSupplier shouldKeepTicking, CallbackInfo ci)
     {
@@ -34,14 +34,14 @@ public class ServerMixin
         ROFEvents.ServerTickEndTasks.run((MinecraftServer) (Object)this);
     }
 
-    @Inject(method = "tick",
+    @Inject(method = "tickServer",
             at = @At(value = "HEAD"))
     private void tickBegin(BooleanSupplier shouldKeepTicking, CallbackInfo ci)
     {
         ROFEvents.ServerTickBegin.run((MinecraftServer) (Object)this);
     }
 
-    @Inject(method = "save",
+    @Inject(method = "saveAllChunks",
             at = @At(value = "TAIL"))
     private void save(boolean suppressLogs, boolean flush, boolean force, CallbackInfoReturnable<Boolean> cir)
     {

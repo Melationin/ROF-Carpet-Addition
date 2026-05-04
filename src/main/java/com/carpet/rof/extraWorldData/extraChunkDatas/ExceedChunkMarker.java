@@ -10,13 +10,13 @@ import it.unimi.dsi.fastutil.longs.Long2IntMap;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -59,7 +59,7 @@ public class ExceedChunkMarker extends ExtraChunkData
     }
 
     public boolean isNotHighChunk(int x, int z) {
-        long hash = ChunkPos.toLong(x,z);
+        long hash = ChunkPos.pack(x,z);
         if(hash==chunkCache){
             return chunkCacheValue;
         }
@@ -100,9 +100,9 @@ public class ExceedChunkMarker extends ExtraChunkData
                 && isNotHighChunk(x>>4,z>>4);
     }
 
-    public static boolean mustBeAir(ServerWorld world, BlockPos pos)
+    public static boolean mustBeAir(ServerLevel world, BlockPos pos)
     {
-        if(world.isOutOfHeightLimit(pos)) return true;
+        if(world.isOutsideBuildHeight(pos)) return true;
         ExceedChunkMarker exceedChunkMarker = ExtraWorldDatas.fromWorld(world).exceedChunkMarker;
         return exceedChunkMarker.mustBeAir(pos.getX(),pos.getY(),pos.getZ());
     }
@@ -121,7 +121,7 @@ public class ExceedChunkMarker extends ExtraChunkData
         return chunks.size();
     }
 
-    public void update(ServerWorld  world) {
+    public void update(ServerLevel world) {
 
         if(!tempChunks.isEmpty()){
             chunks.addAll(tempChunks);
@@ -133,15 +133,15 @@ public class ExceedChunkMarker extends ExtraChunkData
         outerLoop:
         while (it.hasNext()){
             long l = it.nextLong();
-            if((world.getTime()+l)%400 == 0) {
-                ChunkPos chunkPos = new ChunkPos(l);
-                Chunk chunk = world.getChunkManager().getChunk(chunkPos.x, chunkPos.z, ChunkStatus.FULL, false);
+            if((world.getGameTime()+l)%400 == 0) {
+                ChunkPos chunkPos = ChunkPos.unpack(l);
+                ChunkAccess chunk = world.getChunkSource().getChunk(chunkPos.x(), chunkPos.z(), ChunkStatus.FULL, false);
                 if(chunk != null) {
-                    Heightmap hmp =  chunk.getHeightmap(Heightmap.Type.MOTION_BLOCKING);
-                    int maxPos = chunkHighestBlockPosMap.getOrDefault(chunkPos.toLong(),0);
-                    if(maxPos!=0 && (hmp.get(maxPos/16,maxPos%16) > topY)) continue;
+                    Heightmap hmp =  chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.MOTION_BLOCKING);
+                    int maxPos = chunkHighestBlockPosMap.getOrDefault(chunkPos.pack(),0);
+                    if(maxPos!=0 && (hmp.getFirstAvailable(maxPos/16,maxPos%16) > topY)) continue;
                     for(int i = 0;i<256;++i)
-                        if(hmp.get(i/16,i%16) > topY){
+                        if(hmp.getFirstAvailable(i/16,i%16) > topY){
                             chunkHighestBlockPosMap.put(l,i);
                             continue outerLoop;
                         }
@@ -153,13 +153,13 @@ public class ExceedChunkMarker extends ExtraChunkData
     }
 
     @Override
-    public void write(NbtCompound nbtCompound){
+    public void write(CompoundTag nbtCompound){
         nbtCompound.putLongArray("chunks", chunks.toLongArray());
         nbtCompound.putInt("topY", topY);
     }
 
     @Override
-    public void read(NbtCompound nbt)
+    public void read(CompoundTag nbt)
     {
         //? >1.21.4 {
         for(long chunk : nbt.getLongArray("chunks").orElse(new long[0])){
@@ -176,9 +176,9 @@ public class ExceedChunkMarker extends ExtraChunkData
     }
 
     @Override
-    public NbtCompound toNbt()
+    public CompoundTag toNbt()
     {
-        NbtCompound nbt = new NbtCompound();
+        CompoundTag nbt = new CompoundTag();
         write(nbt);
         return nbt;
     }
@@ -186,7 +186,7 @@ public class ExceedChunkMarker extends ExtraChunkData
 
 
 
-    public void loadFromWorld(ServerWorld world, AtomicDouble process){
+    public void loadFromWorld(ServerLevel world, AtomicDouble process){
 
         LongOpenHashSet tempChunks2 = new LongOpenHashSet();
         workerThread = new Thread(()->{
@@ -196,9 +196,10 @@ public class ExceedChunkMarker extends ExtraChunkData
                        AtomicBoolean isHighChunk = new AtomicBoolean(false);
                         //? if >1.21.4 {
 
-                        chunkData.getCompound("Heightmaps").flatMap(heightmaps -> heightmaps.getLongArray(Heightmap.Type.MOTION_BLOCKING.getId())).ifPresent(heightmap -> {
+                        chunkData.getCompound("Heightmaps").flatMap(heightmaps -> heightmaps.getLongArray(
+                                Heightmap.Types.MOTION_BLOCKING.getSerializationKey())).ifPresent(heightmap -> {
                             for (long l : heightmap) {
-                                if (getHighest(l) + world.getBottomY() > topY) {
+                                if (getHighest(l) + world.getMinY() > topY) {
                                     isHighChunk.set(true);
                                     break;
                                 }
@@ -220,7 +221,7 @@ public class ExceedChunkMarker extends ExtraChunkData
                     ,process);
                    for(var entry: future.join().entrySet()){
                        if(entry.getValue() == true){
-                           tempChunks2.add(entry.getKey().toLong());
+                           tempChunks2.add(entry.getKey().pack());
                        }
                    }
                    tempChunks = tempChunks2;

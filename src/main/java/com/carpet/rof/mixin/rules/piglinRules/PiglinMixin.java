@@ -2,34 +2,34 @@ package com.carpet.rof.mixin.rules.piglinRules;
 
 import com.carpet.rof.rules.piglinRules.PiglinEntityAccessor;
 import com.carpet.rof.utils.ROFWarp;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.mob.AbstractPiglinEntity;
-import net.minecraft.entity.mob.PiglinEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
+import net.minecraft.world.entity.monster.piglin.Piglin;
+import net.minecraft.server.level.ServerLevel;
 
-import net.minecraft.util.math.Box;
-import net.minecraft.world.World;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 //? >=1.21.6 {
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 //?} else {
 /*import net.minecraft.nbt.NbtCompound;
  *///?}
 
 import static com.carpet.rof.rules.piglinRules.PiglinRulesSettings.piglinStackingAISuppression;
 
-@Mixin(PiglinEntity.class)
-public abstract class PiglinEntityMixin extends AbstractPiglinEntity implements PiglinEntityAccessor
+@Mixin(Piglin.class)
+public abstract class PiglinMixin extends AbstractPiglin implements PiglinEntityAccessor
 {
 
     @Unique public int nearPiglinCount = 0;
 
-    public PiglinEntityMixin(EntityType<? extends AbstractPiglinEntity> entityType, World world)
+    public PiglinMixin(EntityType<? extends AbstractPiglin> entityType, Level world)
     {
         super(entityType, world);
     }
@@ -41,13 +41,13 @@ public abstract class PiglinEntityMixin extends AbstractPiglinEntity implements 
     }
 
 
-    @Inject(method = "mobTick", at = @At(value = "HEAD"))
+    @Inject(method = "customServerAiStep", at = @At(value = "HEAD"))
             //? >=1.21.5 {
-    private void piglinTick(ServerWorld world, CallbackInfo ci)
+    private void piglinTick(ServerLevel world, CallbackInfo ci)
     {
-        if ((this.age + this.getId() % 801) % 400 == 0) {
-            nearPiglinCount = world.getEntitiesByType(EntityType.PIGLIN,
-                    new Box(ROFWarp.getPos_(this).add(0.5, 0.5, 0.5),ROFWarp.getPos_(this).add(-0.5, -0.5, -0.5)),
+        if ((this.tickCount + this.getId() % 801) % 400 == 0) {
+            nearPiglinCount = world.getEntities(EntityType.PIGLIN,
+                    new AABB(ROFWarp.getPos_(this).add(0.5, 0.5, 0.5),ROFWarp.getPos_(this).add(-0.5, -0.5, -0.5)),
                     piglin -> true).size();
         }
     }
@@ -64,18 +64,18 @@ public abstract class PiglinEntityMixin extends AbstractPiglinEntity implements 
     *///?}
 
     //? >=1.21.6 {
-    @Inject(method = "writeCustomData", at = @At(value = "HEAD"))
-    private void writeCustomData(WriteView view, CallbackInfo ci)
+    @Inject(method = "addAdditionalSaveData", at = @At(value = "HEAD"))
+    private void writeCustomData(ValueOutput view, CallbackInfo ci)
     {
         if (nearPiglinCount > piglinStackingAISuppression) {
             view.putInt("nearPiglinCount", nearPiglinCount);
         }
     }
 
-    @Inject(method = "readCustomData", at = @At(value = "HEAD"))
-    private void readCustomData(ReadView view, CallbackInfo ci)
+    @Inject(method = "readAdditionalSaveData", at = @At(value = "HEAD"))
+    private void readCustomData(ValueInput view, CallbackInfo ci)
     {
-        view.getOptionalInt("nearPiglinCount").ifPresent(integer -> nearPiglinCount = integer);
+        view.getInt("nearPiglinCount").ifPresent(integer -> nearPiglinCount = integer);
     }
     //?} else {
 

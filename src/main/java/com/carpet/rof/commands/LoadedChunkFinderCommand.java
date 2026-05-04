@@ -13,10 +13,10 @@ import com.carpet.rof.utils.ROFWarp;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import net.minecraft.command.argument.DimensionArgumentType;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.MutableText;
+import net.minecraft.commands.arguments.DimensionArgument;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.network.chat.MutableComponent;
 
 import static carpet.api.settings.RuleCategory.COMMAND;
 import static com.carpet.rof.rules.BaseSetting.ROF;
@@ -37,17 +37,17 @@ public class LoadedChunkFinderCommand
                        )
     public static String commandLoadedChunkFinder = "ops";
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher)
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
     {
-        CommandHelper<ServerCommandSource> helper = new CommandHelper<>(dispatcher.getRoot());
+        CommandHelper<CommandSourceStack> helper = new CommandHelper<>(dispatcher.getRoot());
 
-        Command<ServerCommandSource> command = (ctx)->{
-            ServerWorld world = CommandHelper.getArgumentOrDefault(ctx,"dimension",
-                    ctx.getSource().getWorld(),
-                    DimensionArgumentType::getDimensionArgument
+        Command<CommandSourceStack> command = (ctx)->{
+            ServerLevel world = CommandHelper.getArgumentOrDefault(ctx,"dimension",
+                    ctx.getSource().getLevel(),
+                    DimensionArgument::getDimension
                     );
             if(world == null){
-                ctx.getSource().sendFeedback(()->text("&c未选择世界！"),false);
+                ctx.getSource().sendSuccess(()->text("&c未选择世界！"),false);
                 return 1;
             }
 
@@ -60,32 +60,32 @@ public class LoadedChunkFinderCommand
 
             manager.ChunkLoadedMap.clear();
             manager.needLog = true;
-            ctx.getSource().sendFeedback(textS("区块加载记录器已开启"),false);
+            ctx.getSource().sendSuccess(textS("区块加载记录器已开启"),false);
             ROFEvents.ServerTickEndTasks.register((server,tick)-> {
                 if(tick >= endTick){
                     manager.needLog = false;
                     int i =0;
                     var ret = manager.getConnectedChunks();
-                    ctx.getSource().sendFeedback(textS("----------LoadedChunkFinder----------"),false);
-                    ctx.getSource().sendFeedback(textS("已记录 "+tick +" tick\n"),false);
-                    MutableText text1 = text(ROFTextTool.getWorldName(world.getDimensionEntry().getIdAsString())
-                            +"&r&7("+world.getDimensionEntry().getIdAsString()+")"
+                    ctx.getSource().sendSuccess(textS("----------LoadedChunkFinder----------"),false);
+                    ctx.getSource().sendSuccess(textS("已记录 "+tick +" tick\n"),false);
+                    MutableComponent text1 = text(ROFTextTool.getWorldName(world.dimensionTypeRegistration().getRegisteredName())
+                            +"&r&7("+world.dimensionTypeRegistration().getRegisteredName()+")"
                     );
-                    ctx.getSource().sendFeedback(()->text1,false);
-                    ctx.getSource().sendFeedback(textS("如下联通区块被加载: "),false);
+                    ctx.getSource().sendSuccess(()->text1,false);
+                    ctx.getSource().sendSuccess(textS("如下联通区块被加载: "),false);
                     for(var data : ret){
                         int j = i;
-                        ctx.getSource().sendFeedback(()->text("&6#"+j+"&7->&a{" + data.getCenterChunk().toString() + "} &rsize: "+data.size(),
+                        ctx.getSource().sendSuccess(()->text("&6#"+j+"&7->&a{" + data.getCenterChunk().toString() + "} &rsize: "+data.size(),
                         style -> style
                                 .withHoverEvent(ROFWarp.showText(text("中心区块坐标(点击复制传送坐标)")))
                                 .withClickEvent(ROFWarp.copyToClipboard(
-                                        ROFTextTool.getStringToClip(data.getCenterChunk().getCenterAtY(
-                                                (int) ctx.getSource().getPosition().getY()))
+                                        ROFTextTool.getStringToClip(data.getCenterChunk().getMiddleBlockPosition(
+                                                (int) ctx.getSource().getPosition().y()))
                                         ))
                         ),false);
                        i++;
                     }
-                    ctx.getSource().sendFeedback(()->text("一共"+ret.size()+"个联通区域，共"+manager.ChunkLoadedMap.size()+"个区块"),false);
+                    ctx.getSource().sendSuccess(()->text("一共"+ret.size()+"个联通区域，共"+manager.ChunkLoadedMap.size()+"个区块"),false);
                     return true;
                 }
                 return false;
@@ -97,7 +97,7 @@ public class LoadedChunkFinderCommand
                 .rCarpet(()->commandLoadedChunkFinder)
                 .command(command);
         helper.registerCommand("loadedChunkFinder <dimension> [tick]")
-                .arg(DimensionArgumentType.dimension())
+                .arg(DimensionArgument.dimension())
                 .arg(IntegerArgumentType.integer(1))
                 .command(command);
     }

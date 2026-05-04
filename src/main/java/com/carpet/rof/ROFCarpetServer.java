@@ -10,10 +10,10 @@ import com.carpet.rof.utils.ROFCarpetTranslations;
 import com.carpet.rof.utils.singleTaskWorker.SingleTaskWorker;
 import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.util.WorldSavePath;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.world.level.storage.LevelResource;
 
 import java.util.Map;
 
@@ -72,7 +72,7 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
 
     public void initOnServer(MinecraftServer server){
         SingleTaskWorker.INSTANCE.start();
-        ROFConfig.INSTANCE = new ROFConfig(server.getSavePath(WorldSavePath.ROOT).resolve("carpet-rof-addition.json"));
+        ROFConfig.INSTANCE = new ROFConfig(server.getWorldPath(LevelResource.ROOT).resolve("carpet-rof-addition.json"));
         ROFConfig.INSTANCE.load();
         RequirementModifyCommand.initialization(server,ROFConfig.INSTANCE);
     }
@@ -96,7 +96,7 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
     }
 
     @Override
-    public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandBuildContext)
+    public void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandBuildContext)
     {
         ROFCommands.register(dispatcher);
     }

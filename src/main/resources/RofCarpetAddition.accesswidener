@@ -1,7 +1,7 @@
 accessWidener   v1  named
 
-accessible class net/minecraft/item/Item
+accessible class net/minecraft/world/item/Item
 
-accessible field net/minecraft/item/Item recipeRemainder Lnet/minecraft/item/Item;
-mutable field net/minecraft/item/Item recipeRemainder Lnet/minecraft/item/Item;
+accessible field net/minecraft/world/item/Item craftingRemainingItem Lnet/minecraft/world/item/Item;
+mutable field net/minecraft/world/item/Item craftingRemainingItem Lnet/minecraft/world/item/Item;
 

@@ -2,7 +2,7 @@ package com.carpet.rof.extraWorldData.extraChunkDatas;
 
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.level.ChunkPos;
 
 import java.util.*;
 
@@ -22,8 +22,8 @@ public class ChunkLoadedFinder
             double z = 0;
 
             for(var it : chunkConnected){
-                x += it.x;
-                z += it.z;
+                x += it.x();
+                z += it.z();
             }
             x/= chunkConnected.size();
             z/= chunkConnected.size();
@@ -38,7 +38,7 @@ public class ChunkLoadedFinder
         LongOpenHashSet  set = new LongOpenHashSet();
         List<ConnectedChunksData> retList = new ArrayList<>();
         for(ChunkPos c : this.ChunkLoadedMap){
-            set.add(c.toLong());
+            set.add(c.pack());
         }
         LongArrayList stack = new LongArrayList();
         while(!set.isEmpty()){
@@ -51,16 +51,16 @@ public class ChunkLoadedFinder
             while(!stack.isEmpty()){
                 long pos = stack.popLong();
 
-                retList.getLast().chunkConnected.add(new ChunkPos(pos));
+                retList.getLast().chunkConnected.add(ChunkPos.unpack(pos));
                 //set.remove(pos);
-                int x = ChunkPos.getPackedX(pos);
-                int z = ChunkPos.getPackedZ(pos);
+                int x = ChunkPos.getX(pos);
+                int z = ChunkPos.getZ(pos);
 
                 long[] neighbors = {
-                        ChunkPos.toLong(x + 1, z),
-                        ChunkPos.toLong(x - 1, z),
-                        ChunkPos.toLong(x, z + 1),
-                        ChunkPos.toLong(x, z - 1)
+                        ChunkPos.pack(x + 1, z),
+                        ChunkPos.pack(x - 1, z),
+                        ChunkPos.pack(x, z + 1),
+                        ChunkPos.pack(x, z - 1)
                 };
                 for(var i :neighbors){
                     if(set.remove(i)){

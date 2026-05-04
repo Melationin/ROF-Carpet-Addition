@@ -5,8 +5,8 @@ import com.carpet.rof.event.ROFEvents;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.util.WorldSavePath;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.world.level.storage.LevelResource;
 import org.slf4j.Logger;
 
 import java.io.*;

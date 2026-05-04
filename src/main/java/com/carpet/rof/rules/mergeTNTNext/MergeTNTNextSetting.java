@@ -4,7 +4,7 @@ import carpet.api.settings.Rule;
 import com.carpet.rof.annotation.QuickTranslations;
 import com.carpet.rof.rules.BaseSetting;
 import com.carpet.rof.annotation.ROFRule;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Objects;
 
@@ -44,10 +44,10 @@ public class MergeTNTNextSetting extends BaseSetting {
     public static boolean mergeTNTOnlyNether = false;
 
     public static class EntityPosAndVec{
-        final Vec3d pos;
-        final Vec3d vec;
+        final Vec3 pos;
+        final Vec3 vec;
         final int Fuse;
-        public EntityPosAndVec(Vec3d pos, Vec3d vec,int Fuse) {
+        public EntityPosAndVec(Vec3 pos, Vec3 vec, int Fuse) {
             this.pos = pos;
             this.vec = vec;
             this.Fuse = Fuse;

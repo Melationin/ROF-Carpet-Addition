@@ -1,39 +1,39 @@
 package com.carpet.rof.utils;
 import carpet.script.external.Vanilla;
 import com.mojang.logging.LogUtils;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.WorldSavePath;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.storage.LevelResource;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
-import static net.minecraft.world.dimension.DimensionTypes.THE_NETHER;
+import static net.minecraft.world.level.dimension.BuiltinDimensionTypes.NETHER;
 public class ROFTool
 {
     private static final org.slf4j.Logger LOGGER = LogUtils.getLogger();
     private static final boolean DEBUG = false;
-    public static boolean isNetherWorld(World world) {
-        return world.getDimensionEntry().matchesKey(THE_NETHER);
+    public static boolean isNetherWorld(Level world) {
+        return world.dimensionTypeRegistration().is(NETHER);
     }
-    public static Path getSavePath(ServerWorld world) {
-        return Vanilla.MinecraftServer_storageSource(world.getServer()).getWorldDirectory(world.getRegistryKey());
+    public static Path getSavePath(ServerLevel world) {
+        return Vanilla.MinecraftServer_storageSource(world.getServer()).getDimensionPath(world.dimension());
     }
 
     public static Path getPlayerPath(MinecraftServer server)
     {
-        return server.getSavePath(WorldSavePath.PLAYERDATA);
+        return server.getWorldPath(LevelResource.PLAYER_DATA_DIR);
     }
     public static int fastHash(int x) {
         x = ((x >> 8) ^ x) * 0x119de1f3;
@@ -46,11 +46,11 @@ public class ROFTool
         return new ChunkPos((int) (value & 0xFFFFFFFFL), (int) (value >>> 32));
     }
 
-    public static String toString_(Vec3d vec) {
+    public static String toString_(Vec3 vec) {
         return "x: %.4f, y: %.4f, z: %.4f".formatted(vec.x, vec.y, vec.z);
     }
 
-    public static String toString_short(Vec3d vec) {
+    public static String toString_short(Vec3 vec) {
         return "(%.3f, %.3f, %.3f)".formatted(vec.x, vec.y, vec.z);
     }
     public static boolean canLoadAi(int id, int count, int max) {
@@ -61,7 +61,7 @@ public class ROFTool
     }
 
 
-    public static void saveNBT2Data(ServerWorld world, String fileName, NbtCompound nbtCompound) {
+    public static void saveNBT2Data(ServerLevel world, String fileName, CompoundTag nbtCompound) {
         try {
             Path savePath = ROFTool.getSavePath(world).resolve("data").resolve(fileName);
             savePath.getParent().toFile().mkdirs();

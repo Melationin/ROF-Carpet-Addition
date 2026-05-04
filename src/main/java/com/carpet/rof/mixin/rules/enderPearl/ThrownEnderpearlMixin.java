@@ -6,21 +6,21 @@ import com.carpet.rof.extraWorldData.ExtraWorldDatas;
 import com.carpet.rof.extraWorldData.extraChunkDatas.ExceedChunkMarker;
 import com.carpet.rof.utils.ROFWarp;
 import com.carpet.rof.utils.ROFTool;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ProjectileUtil;
-import net.minecraft.entity.projectile.thrown.EnderPearlEntity;
-import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrowableItemProjectile;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.chunk.LevelChunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -34,8 +34,9 @@ import static com.carpet.rof.rules.extraChunkDatas.ExceedChunkMarkerSetting.opti
 // Java 标准库
 
 
-@Mixin(EnderPearlEntity.class)
-public abstract class EnderPearlEntityMixin extends ThrownItemEntity {
+@Mixin(ThrownEnderpearl.class)
+public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
+{
 
     @Unique
     final double MinSpeed = enderPearlForcedTickMinSpeed;
@@ -48,33 +49,33 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity {
     private int EPTicks = 1;
 
     // 必须定义的构造函数，调用父类
-    protected EnderPearlEntityMixin(EntityType<?extends ThrownItemEntity> entityType, World world) {
+    protected ThrownEnderpearlMixin(EntityType<?extends ThrowableItemProjectile> entityType, Level world) {
         super(entityType, world);
     }
     // 判断某区块是否是实体可运行的状态（ENTITY_TICKING）
 
     // 注入 tick() 方法的开头，覆盖默认逻辑
-    @Inject(method = "tick", at = @At(value = "HEAD"),cancellable = true)
+    @Inject(method = "tick", at = @At(value = "HEAD"), cancellable = true)
     private void EndPearlHead(CallbackInfo ci) {
 
-        World world = ROFWarp.getWorld_(this);
-        if (world instanceof ServerWorld serverWorld) {
+        Level world = ROFWarp.getWorld_(this);
+        if (world instanceof ServerLevel serverWorld) {
             var forcedEntitylist = ExtraWorldDatas.fromWorld(serverWorld ).forcedEntitylist;
             EPTicks++;
             if (syncMode) {
-                if ((MinSpeed > 0) && (Math.abs(this.getVelocity().x) > MinSpeed || Math.abs(this.getVelocity().z) > MinSpeed)) {//大于最高速度，切换加载逻辑
+                if ((MinSpeed > 0) && (Math.abs(this.getDeltaMovement().x) > MinSpeed || Math.abs(this.getDeltaMovement().z) > MinSpeed)) {//大于最高速度，切换加载逻辑
                     syncMode = false;
-                    forcedEntitylist.put(this.getUuid(), this);
+                    forcedEntitylist.put(this.getUUID(), this);
                 }
             }else {
 
                 //? >=1.21.2 {
 
-                if ((Math.abs(this.getVelocity().x) <= MinSpeed && Math.abs(this.getVelocity().z) <= MinSpeed)) {
-                    forcedEntitylist.put(this.getUuid(), null);
-                    ChunkPos chunkPos = getChunkPos();
-                    this.setPosition(ROFWarp.getPos_(this));
-                    ServerPlayerEntity.addEnderPearlTicket(serverWorld, getChunkPos());
+                if ((Math.abs(this.getDeltaMovement().x) <= MinSpeed && Math.abs(this.getDeltaMovement().z) <= MinSpeed)) {
+                    forcedEntitylist.put(this.getUUID(), null);
+                    ChunkPos chunkPos = chunkPosition();
+                    this.setPos(ROFWarp.getPos_(this));
+                    ServerPlayer.placeEnderPearlTicket(serverWorld, chunkPosition());
                     syncMode = true;
                     return;
                 }
@@ -82,7 +83,7 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity {
                 if(!optimizeForcedEnderPearlTick.equals("false")){
                     boolean  canSkip = true;
                     for (BlockPos blockPos : ROFWarp.getBlockPosIt(this.getBoundingBox())) {
-                        if(!ExceedChunkMarker.mustBeAir((ServerWorld)ROFWarp.getWorld_(this) ,blockPos)
+                        if(!ExceedChunkMarker.mustBeAir((ServerLevel)ROFWarp.getWorld_(this) ,blockPos)
                         ){
                             canSkip = false;
                             break;
@@ -105,20 +106,20 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity {
                     if(canSkip) {
                         if(over1_21_2) {
                             this.applyGravity();
-                            this.setVelocity(this.getVelocity().multiply(0.99));
-                            HitResult hitResult = ProjectileUtil.getCollision(this, this::canHit);
-                            Vec3d vec3d;
+                            this.setDeltaMovement(this.getDeltaMovement().scale(0.99));
+                            HitResult hitResult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
+                            Vec3 vec3d;
                             if (hitResult.getType() != HitResult.Type.MISS) {
-                                vec3d = hitResult.getPos();
+                                vec3d = hitResult.getLocation();
                             } else {
-                                vec3d = ROFWarp.getPos_(this).add(this.getVelocity());
+                                vec3d = ROFWarp.getPos_(this).add(this.getDeltaMovement());
                             }
 
-                            this.setPosition(vec3d);
+                            this.setPos(vec3d);
                             this.updateRotation();
 
                             if (hitResult.getType() != HitResult.Type.MISS && this.isAlive()) {
-                                this.hitOrDeflect(hitResult);
+                                this.hitTargetOrDeflectSelf(hitResult);
                             }
 
                             if (this.isRemoved()) {
@@ -126,19 +127,19 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity {
                             }
                             ci.cancel();
                         }else {
-                            HitResult hitResult = ProjectileUtil.getCollision(this, this::canHit);
+                            HitResult hitResult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
                             if (hitResult.getType() != HitResult.Type.MISS) {
-                                this.hitOrDeflect(hitResult);
+                                this.hitTargetOrDeflectSelf(hitResult);
                             }
-                            Vec3d vec3d = this.getVelocity();
+                            Vec3 vec3d = this.getDeltaMovement();
                             double d = this.getX() + vec3d.x;
                             double e = this.getY() + vec3d.y;
                             double f = this.getZ() + vec3d.z;
                             this.updateRotation();
                             float h= 0.99F;;
-                            this.setVelocity(vec3d.multiply((double)h));
+                            this.setDeltaMovement(vec3d.scale((double)h));
                             this.applyGravity();
-                            this.setPosition(d, e, f);
+                            this.setPos(d, e, f);
                             if (this.isRemoved()) {
                                 forcedEntitylist.remove(this);
                             }
@@ -151,7 +152,7 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity {
     }
 
     //? >= 1.21.4 {
-    @Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/thrown/ThrownItemEntity;tick()V", shift = At.Shift.AFTER),cancellable = true)
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/projectile/throwableitemprojectile/ThrowableItemProjectile;tick()V", shift = At.Shift.AFTER), cancellable = true)
     private void EndPearlBetterForce(CallbackInfo ci) {
         if(!syncMode) {
             ci.cancel();
@@ -166,13 +167,13 @@ public abstract class EnderPearlEntityMixin extends ThrownItemEntity {
     }
     *///?}
 
-    @Inject(method =  "tick",at = @At(value = "RETURN"))
+    @Inject(method = "tick", at = @At(value = "RETURN"))
     private void ChunkUnloadingEnd(CallbackInfo ci){
         if (this.isRemoved()) {
-            World world = ROFWarp.getWorld_(this);
-            if (world instanceof ServerWorld world1) {
+            Level world = ROFWarp.getWorld_(this);
+            if (world instanceof ServerLevel world1) {
                 var forcedEntitylist = ExtraWorldDatas.fromWorld(world1).forcedEntitylist;
-                forcedEntitylist.put(this.getUuid(),null);
+                forcedEntitylist.put(this.getUUID(),null);
             }
         }
     }
