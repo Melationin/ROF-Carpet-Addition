@@ -21,7 +21,7 @@ import static com.carpet.rof.rules.piglinRules.PiglinRulesSettings.piglinStackin
 @Mixin(SetEntityLookTarget.class)
 public abstract class SetEntityLookTargetMixin
 {
-    @Inject(method = "lambda$create$4",
+    @Inject(method = "lambda$create$5",
             at = @At(value = "HEAD"),
             cancellable = true)
     private static void method_47063(BehaviorBuilder.Instance taskContext, MemoryAccessor memoryQueryResult, Predicate predicate, float f, MemoryAccessor memoryQueryResult2, ServerLevel world, LivingEntity entity, long time, CallbackInfoReturnable<Boolean> cir)

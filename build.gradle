@@ -109,11 +109,8 @@ processResources {
 }
 
 java {
-	sourceCompatibility = JavaVersion.VERSION_26
-	targetCompatibility = JavaVersion.VERSION_26
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(26)
-	}
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
 }
 
 jar {

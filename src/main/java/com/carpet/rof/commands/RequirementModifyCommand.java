@@ -219,7 +219,7 @@ public class RequirementModifyCommand
 
         helper.registerCommand("requirementModify clearAll")
                 .command(ctx->{
-                    requirementModifyMap.replaceAll((key, value) -> new RequirementModify("false",2));
+                    requirementModifyMap.replaceAll((key, value2) -> new RequirementModify("false",2));
                     return 1;
                 });
 

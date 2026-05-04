@@ -20,7 +20,7 @@ import static com.carpet.rof.rules.piglinRules.PiglinRulesSettings.piglinStackin
 @Mixin(SetLookAndInteract.class)
 public abstract class SetLookAndInteractMixin
 {
-    @Inject(method = "method_47085",
+    @Inject(method = "lambda$create$2",
             at = @At(value = "HEAD"),
             cancellable = true)
     private static void onFindInteractionTargetTask(BehaviorBuilder.Instance taskContext, MemoryAccessor memoryQueryResult, int i, EntityType entityType, MemoryAccessor memoryQueryResult2, MemoryAccessor memoryQueryResult3, ServerLevel world, LivingEntity entity, long time, CallbackInfoReturnable<Boolean> cir)
