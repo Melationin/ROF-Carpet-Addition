@@ -23,6 +23,7 @@ public class ServerLevelMixin
         var forcedEntitylist = ExtraWorldDatas.fromWorld((ServerLevel)(Object)this).forcedEntitylist;
         forcedEntitylist.forEach((UUID,entity)->{
             if(result.size() >= limit) return;
+            if(entity == null) return;
             if(filter.tryCast(entity) !=null&& predicate.test(entity)) {
                 result.add(entity);
             }

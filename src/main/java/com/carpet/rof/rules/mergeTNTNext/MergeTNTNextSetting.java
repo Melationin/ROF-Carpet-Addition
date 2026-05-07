@@ -43,25 +43,12 @@ public class MergeTNTNextSetting extends BaseSetting {
     )
     public static boolean mergeTNTOnlyNether = false;
 
-    public static class EntityPosAndVec{
-        final Vec3 pos;
-        final Vec3 vec;
-        final int Fuse;
-        public EntityPosAndVec(Vec3 pos, Vec3 vec, int Fuse) {
-            this.pos = pos;
-            this.vec = vec;
-            this.Fuse = Fuse;
-        }
-        @Override
-        public boolean equals(Object o) {
-            if (o == null || getClass() != o.getClass()) return false;
-            EntityPosAndVec that = (EntityPosAndVec) o;
-            return Fuse == that.Fuse && Objects.equals(pos, that.pos) && Objects.equals(vec, that.vec);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(pos, vec, Fuse);
+    public record EntityPosAndVec(
+            double posX, double posY, double posZ,
+            double vecX, double vecY, double vecZ,
+            int fuse){
+        public EntityPosAndVec(Vec3 pos, Vec3 vec, int fuse){
+            this(pos.x,pos.y,pos.z,vec.x,vec.y,vec.z,fuse);
         }
     }
 }

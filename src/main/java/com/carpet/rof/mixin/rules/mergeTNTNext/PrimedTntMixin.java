@@ -64,16 +64,19 @@ public abstract class PrimedTntMixin extends Entity implements TntEntityAccessor
         &&(!mergeTNTOnlyNether || ROFTool.isNetherWorld(world))
         ) {
             MergeTNTNextSetting.EntityPosAndVec TntPosAndVec = new MergeTNTNextSetting.EntityPosAndVec(ROFWarp.getPos_(this), this.getDeltaMovement(), this.getFuse());
-            HashMap<MergeTNTNextSetting.EntityPosAndVec, PrimedTnt> TntMergeMap = ExtraWorldDatas.fromWorld(world).mergeTntMap;
-            if (TntMergeMap.containsKey(TntPosAndVec)) {
-                PrimedTnt mainTNT = TntMergeMap.get(TntPosAndVec);
-                ((TntEntityAccessor) mainTNT).ROF$addMergeCount(rof$mergedTNTNCount);
-                this.remove(RemovalReason.DISCARDED);
-                rof$mergedTNTNCount = 0;
-                ci.cancel();
-            } else {
-                TntMergeMap.put(TntPosAndVec, (PrimedTnt) (Object) this);
-            }
+            HashMap<MergeTNTNextSetting.EntityPosAndVec, PrimedTnt> tntMergeMap = ExtraWorldDatas.fromWorld(world).mergeTntMap;
+            tntMergeMap.compute(TntPosAndVec,(k,tnt)->{
+                if(tnt!=null){
+                    ((TntEntityAccessor) tnt).ROF$addMergeCount(rof$mergedTNTNCount);
+                    TntEntityAccessor thisAccessor = (TntEntityAccessor) this;
+                    thisAccessor.ROF$addMergeCount(rof$mergedTNTNCount);
+                    this.remove(RemovalReason.DISCARDED);
+                    ci.cancel();
+                    return tnt;
+                } else {
+                    return (PrimedTnt) (Object) this;
+                }
+            });
         }
     }
 
