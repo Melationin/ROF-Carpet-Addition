@@ -23,7 +23,8 @@ public class ServerWorldMixin
         var forcedEntitylist = ExtraWorldDatas.fromWorld((ServerWorld)(Object)this).forcedEntitylist;
         forcedEntitylist.forEach((UUID,entity)->{
             if(result.size() >= limit) return;
-            if(filter.downcast(entity) !=null&& predicate.test(entity)) {
+            if(entity == null) return;
+            if( filter.downcast(entity) !=null&& predicate.test(entity)) {
                 result.add(entity);
             }
         });
