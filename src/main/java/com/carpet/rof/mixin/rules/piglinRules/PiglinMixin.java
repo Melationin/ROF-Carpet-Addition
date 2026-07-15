@@ -2,7 +2,11 @@ package com.carpet.rof.mixin.rules.piglinRules;
 
 import com.carpet.rof.rules.piglinRules.PiglinEntityAccessor;
 import com.carpet.rof.utils.ROFWarp;
+
 import net.minecraft.world.entity.EntityType;
+//? >=26.2 {
+/*import net.minecraft.world.entity.EntityTypes;
+ *///?}
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.server.level.ServerLevel;
@@ -46,7 +50,12 @@ public abstract class PiglinMixin extends AbstractPiglin implements PiglinEntity
     private void piglinTick(ServerLevel world, CallbackInfo ci)
     {
         if ((this.tickCount + this.getId() % 801) % 400 == 0) {
-            nearPiglinCount = world.getEntities(EntityType.PIGLIN,
+            nearPiglinCount = world.getEntities(
+                    //? <26.2 {
+                    EntityType.PIGLIN,
+                    //?} else {
+                    /*EntityTypes.PIGLIN,
+                     *///?}
                     new AABB(ROFWarp.getPos_(this).add(0.5, 0.5, 0.5),ROFWarp.getPos_(this).add(-0.5, -0.5, -0.5)),
                     piglin -> true).size();
         }
