@@ -1,8 +1,8 @@
 package com.carpet.rof.event;
 
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Tuple;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -12,25 +12,25 @@ import java.util.function.Function;
 public class ROFEvents
 {
     /** 非热点数据，提供给事件回调使用，key 是一个字符串，value 是一个 Object，可以是任何类型的数据。事件回调可以通过这个 map 来存储和获取数据*/
-    private static final Map<Tuple<String,Object>,Object> data = new HashMap<>();
+    private static final Map<Pair<String,Object>,Object> data = new HashMap<>();
 
     /** 必须提供正确的类型！！！*/
     public static  <T> T getData(String key, Object owner, T defaultValue) {
-        if(data.get(new Tuple<>(key, owner)) != null){
-            return (T)data.get(new Tuple<>(key, owner));
+        if(data.get(new Pair<>(key, owner)) != null){
+            return (T)data.get(new Pair<>(key, owner));
         }
         return defaultValue;
     }
     /** 必须提供正确的类型！！！*/
     public static  <T> T getData(String key, Object owner) {
-        if(data.get(new Tuple<>(key, owner)) != null){
-            return (T)data.get(new Tuple<>(key, owner));
+        if(data.get(new Pair<>(key, owner)) != null){
+            return (T)data.get(new Pair<>(key, owner));
         }
         return null;
     }
 
     public static  <T> void putData(String key, Object owner,T value) {
-        data.put(new Tuple<>(key, owner), value);
+        data.put(new Pair<>(key, owner), value);
     }
     public static class Event<T>
     {

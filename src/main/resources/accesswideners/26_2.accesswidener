@@ -1,0 +1,16 @@
+accessWidener v2 official
+
+accessible field net/minecraft/world/entity/item/ItemEntity pickupDelay I
+accessible field net/minecraft/world/entity/item/ItemEntity age I
+accessible field net/minecraft/world/entity/item/ItemEntity target Ljava/util/UUID;
+accessible field net/minecraft/server/level/ServerLevel blockEvents Lit/unimi/dsi/fastutil/objects/ObjectLinkedOpenHashSet;
+
+
+accessible field net/minecraft/world/level/chunk/LevelChunk$RebindableTickingBlockEntityWrapper ticker Lnet/minecraft/world/level/block/entity/TickingBlockEntity;
+accessible class net/minecraft/server/level/ChunkMap$TrackedEntity
+accessible class net/minecraft/world/level/chunk/LevelChunk$BoundTickingBlockEntity
+accessible class net/minecraft/world/level/chunk/LevelChunk$RebindableTickingBlockEntityWrapper
+accessible field net/minecraft/world/level/chunk/LevelChunk$BoundTickingBlockEntity blockEntity Lnet/minecraft/world/level/block/entity/BlockEntity;
+accessible field net/minecraft/server/level/ServerChunkCache ticketStorage Lnet/minecraft/world/level/TicketStorage;
+
+accessible field net/minecraft/world/entity/Entity levelCallback Lnet/minecraft/world/level/entity/EntityInLevelCallback;

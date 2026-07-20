@@ -1,5 +1,5 @@
 package com.carpet.rof.commands;
-
+//? <26.2 {
 import carpet.api.settings.Rule;
 import carpet.api.settings.Validators;
 import carpet.utils.Messenger;
@@ -17,11 +17,14 @@ import net.minecraft.commands.CommandSourceStack;
 import static carpet.api.settings.RuleCategory.*;
 import static com.carpet.rof.rules.BaseSetting.ROF;
 import static com.carpet.rof.utils.ROFTextTool.textS;
-
+//?}
+//? <26.2 {
 @ROFRule
 @ROFCommand
+//?}
 public class ISECommand
 {
+    //? <26.2 {
     @Rule(
             categories = {ROF,FEATURE,CREATIVE,COMMAND},
             strict = false,
@@ -165,4 +168,5 @@ public class ISECommand
                 .command(ISECommand::SetEntityID);
 
     }
+    //?}
 }

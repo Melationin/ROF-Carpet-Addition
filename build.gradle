@@ -7,7 +7,7 @@ version = project.mod_version
 group = project.maven_group
 
 def minecraftVer = stonecutter.current.version
-def accesswidener = stonecutter.eval(minecraftVer, ">=1.21") ? "1_21_4.accesswidener"
+def accesswidener = stonecutter.eval(minecraftVer, ">=1.21") ? stonecutter.eval(minecraftVer, ">=26.2") ? "26_2.accesswidener" : "1_21_4.accesswidener"
 		: stonecutter.eval(minecraftVer, ">=1.20") ? "1.20.accesswidener"
 		: "1.19.accesswidener"
 
