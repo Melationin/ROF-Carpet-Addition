@@ -1,7 +1,7 @@
 {
   "required": true,
   "package": "com.carpet.rof.mixin",
-  "compatibilityLevel": "JAVA_21",
+  "compatibilityLevel": "JAVA_25",
   "mixins": [
     "event.ServerLevelMixin",
     "event.ServerMixin",
@@ -10,7 +10,6 @@
     "extraWorldData.ServerLevelMixin",
     "extraWorldData.forceEntity.ServerLevelMixin",
     "extraWorldData.raycast.BlockGetterMixin2",
-    "ISE.EntityMixin",
     "loadedChunkFinder.ServerLevelMixin",
     "logger.packetLogger.PacketEncoderMixin",
     "packetRules.EntityTrackerMixin",
@@ -21,6 +20,7 @@
     "rules.particlesPacketsRange.ServerLevelMixin",
     "rules.piglinRules.BrainMixin2",
     "rules.piglinRules.EntityMixin",
+    "rules.piglinRules.LivingEntityMixin",
     "rules.piglinRules.MobMixin",
     "rules.piglinRules.PiglinAiMixin2",
     "rules.piglinRules.PiglinMixin",

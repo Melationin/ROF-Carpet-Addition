@@ -1,7 +1,6 @@
 package com.carpet.rof.mixin.rules.piglinRules;
 
-import com.carpet.rof.rules.piglinRules.PiglinEntityAccessor;
-import com.carpet.rof.utils.ROFTool;
+import com.carpet.rof.rules.piglinRules.PiglinOptimization;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.behavior.declarative.MemoryAccessor;
@@ -14,9 +13,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static com.carpet.rof.rules.piglinRules.PiglinRulesSettings.piglinStackingAISuppression;
-
-
 @Mixin(SetLookAndInteract.class)
 public abstract class SetLookAndInteractMixin
 {
@@ -26,10 +22,8 @@ public abstract class SetLookAndInteractMixin
     private static void onFindInteractionTargetTask(BehaviorBuilder.Instance taskContext, MemoryAccessor memoryQueryResult, int i, EntityType entityType, MemoryAccessor memoryQueryResult2, MemoryAccessor memoryQueryResult3, ServerLevel world, LivingEntity entity, long time, CallbackInfoReturnable<Boolean> cir)
     {
         if (entity instanceof Piglin piglin) {
-            int count = ((PiglinEntityAccessor) piglin).getNearPiglinCount();
-            if (!ROFTool.canLoadAi(entity.getId(), count, piglinStackingAISuppression)) {
+            if (!PiglinOptimization.shouldRunRegularAi(piglin)) {
                 cir.setReturnValue(false);
-                cir.cancel();
             }
         }
     }

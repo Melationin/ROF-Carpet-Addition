@@ -11,9 +11,6 @@
   "carpet.rule.commandExceedChunkMarker.extra.2": "/exceedChunkMarker [dimension] setTopY <topY> - Set the ECM height of the selected dimension (dimension defaults to the player's current dimension)",
   "carpet.rule.commandExceedChunkMarker.extra.3": "/exceedChunkMarker [dimension] clear - Clear ECM data of the selected dimension (dimension defaults to the player's current dimension)",
   "carpet.rule.commandExceedChunkMarker.extra.4": "/exceedChunkMarker [dimension] loadFromWorld - Load ECM data from world data of the selected dimension (dimension defaults to the player's current dimension)",
-  "carpet.rule.commandEntityID.desc": "Command to view and control entity IDs",
-  "carpet.rule.commandEntityIDSet.desc": "Command to set entity IDs",
-  "carpet.rule.entityIDOverflowPeriod.desc": "Set to 0 to disable",
   "carpet.rule.commandLoadedChunkFinder.desc": "Records connected chunks that are active during a certain period, used to find forgotten chunk loaders.",
   "carpet.rule.commandLoadedChunkFinder.extra.0": "/loadedChunkFinder - Record chunk loading in the current dimension within 1 tick",
   "carpet.rule.commandLoadedChunkFinder.extra.1": "/loadedChunkFinder <dimension> [tick] - Record chunk loading in the specified dimension for a specified duration, tick defaults to 1",
@@ -58,9 +55,5 @@
   "carpet.rule.particlesPacketsRange.desc": "This distance only affects forced particle packets. But most particles are forced.",
   "carpet.rule.particlesPacketsRange.extra.0": "Vanilla default is 32",
   "carpet.rule.piglinLootItemDelay.desc": "Only items that have been present for a certain time will be picked up by piglins",
-  "carpet.rule.piglinStackingAISuppression.desc": "For piglins stacked to a certain amount, suppress AI of some of them.",
-  "carpet.rule.commandEntityID.extra.0": "/entityID - Show the next 5 entity IDs to be generated",
-  "carpet.rule.commandEntityID.extra.1": "/entityID show <count> - Show the specified number of entity IDs to be generated",
-  "carpet.rule.commandEntityID.extra.2": "/entityID show <beginID> <endID> - Show entity IDs within the specified range",
-  "carpet.rule.commandEntityIDSet.extra.0": "/entityID set <id> - Set the current entity ID to the specified value"
+  "carpet.rule.piglinStackingAISuppression.desc": "Caps full AI piglins per block while preserving bartering for the rest and sharing item sensing."
 }

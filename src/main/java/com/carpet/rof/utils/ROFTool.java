@@ -53,9 +53,6 @@ public class ROFTool
     public static String toString_short(Vec3 vec) {
         return "(%.3f, %.3f, %.3f)".formatted(vec.x, vec.y, vec.z);
     }
-    public static boolean canLoadAi(int id, int count, int max) {
-        return (fastHash(id) % (count + 1)) <= max;
-    }
     public static void rDEBUG(String message) {
         if (DEBUG) LOGGER.info("[ROF]{}", message);
     }

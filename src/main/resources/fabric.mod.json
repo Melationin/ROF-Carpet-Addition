@@ -27,9 +27,10 @@
 
   "depends": {
 
-    "minecraft": "${minecraftVer}",
-    "fabricloader": ">=0.4.0",
-    "carpet": "*"
+    "minecraft": "~${minecraftVer}",
+    "java": ">=25",
+    "fabricloader": ">=0.19.3",
+    "carpet": ">=26.2"
   },
   "suggests": {
     "flamingo": "*"

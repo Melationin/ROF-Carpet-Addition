@@ -1,28 +1,6 @@
 # Rules
 
 
-## commandEntityID
-
-&emsp;Command to view and control entity IDs
-
-&emsp;- type: `String`
-
-&emsp;- default: `false`
-
-&emsp;- categories: `ROF`, `feature`, `creative`, `command`
-
-
-## commandEntityIDSet
-
-&emsp;Command to set entity IDs
-
-&emsp;- type: `String`
-
-&emsp;- default: `false`
-
-&emsp;- categories: `ROF`, `feature`, `creative`, `command`
-
-
 ## commandExceedChunkMarker
 
 &emsp;Controls the permission level of ECM command. Invalid when ECM is not started.
@@ -104,17 +82,6 @@
 &emsp;- options: `16.0`, `-1.0`
 
 &emsp;- categories: `ROF`, `optimization`, `feature`
-
-
-## entityIDOverflowPeriod
-
-&emsp;Set to 0 to disable
-
-&emsp;- type: `int`
-
-&emsp;- default: `0`
-
-&emsp;- categories: `ROF`, `feature`, `creative`
 
 
 ## entitySpawnPacketLimitSeconds
@@ -250,13 +217,13 @@
 
 ## piglinStackingAISuppression
 
-&emsp;For piglins stacked to a certain amount, suppress AI of some of them.
+&emsp;Caps full AI piglins per block while preserving bartering for the rest and sharing item sensing.
 
 &emsp;- type: `int`
 
 &emsp;- default: `10000`
 
-&emsp;- options: `100`, `10000`
+&emsp;- options: `1`, `100`, `10000`
 
 &emsp;- categories: `ROF`, `optimization`, `feature`
 
@@ -272,5 +239,4 @@
 &emsp;- default: `false`
 
 &emsp;- categories: `ROF`, `optimization`, `packet`
-
 

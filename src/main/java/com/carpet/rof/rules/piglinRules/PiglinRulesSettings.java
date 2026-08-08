@@ -23,12 +23,12 @@ public class PiglinRulesSettings extends BaseSetting {
 
     @Rule(
             categories = {ROF,OPTIMIZATION,FEATURE},
-            options = { "100", "10000" },
+            options = { "1", "100", "10000" },
             strict = false
     )
     @QuickTranslations(
             name = "堆叠猪灵AI抑制",
-            description = "对于堆叠到一定量的猪灵，抑制其中部分猪灵的ai。"
+            description = "限制同方块堆叠猪灵的完整AI数量；其余猪灵仍可交易，并共享物品感知。"
     )
     public static int piglinStackingAISuppression = 10000;
 }
