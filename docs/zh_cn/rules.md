@@ -2,28 +2,6 @@
 
 **提示：可以使用`Ctrl+F`快速查找自己想要的规则**
 
-## 实体ID命令 (commandEntityID)
-
-&emsp;查看并控制实体id的命令
-
-&emsp;- 类型: `String`
-
-&emsp;- 默认值: `false`
-
-&emsp;- 分类: `ROF`, `feature`, `creative`, `command`
-
-
-## 实体ID设置命令 (commandEntityIDSet)
-
-&emsp;设置实体id的命令
-
-&emsp;- 类型: `String`
-
-&emsp;- 默认值: `false`
-
-&emsp;- 分类: `ROF`, `feature`, `creative`, `command`
-
-
 ## 超高度区块标记器(ECM)命令 (commandExceedChunkMarker)
 
 &emsp;控制ECM命令权限等级。在未开始ECM时无效
@@ -105,17 +83,6 @@
 &emsp;- 参考选项: `16.0`, `-1.0`
 
 &emsp;- 分类: `ROF`, `optimization`, `feature`
-
-
-## 实体ID溢出周期 (entityIDOverflowPeriod)
-
-&emsp;设置为0表示禁用
-
-&emsp;- 类型: `int`
-
-&emsp;- 默认值: `0`
-
-&emsp;- 分类: `ROF`, `feature`, `creative`
 
 
 ## 每秒实体生成发包限制 (entitySpawnPacketLimitSeconds)
@@ -251,13 +218,13 @@
 
 ## 堆叠猪灵AI抑制 (piglinStackingAISuppression)
 
-&emsp;对于堆叠到一定量的猪灵，抑制其中部分猪灵的ai。
+&emsp;限制同方块堆叠猪灵的完整AI数量；其余猪灵仍可交易，并共享物品感知。
 
 &emsp;- 类型: `int`
 
 &emsp;- 默认值: `10000`
 
-&emsp;- 参考选项: `100`, `10000`
+&emsp;- 参考选项: `1`, `100`, `10000`
 
 &emsp;- 分类: `ROF`, `optimization`, `feature`
 
@@ -273,5 +240,4 @@
 &emsp;- 默认值: `false`
 
 &emsp;- 分类: `ROF`, `optimization`, `packet`
-
 

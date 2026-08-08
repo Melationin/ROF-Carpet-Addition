@@ -2,24 +2,6 @@
 
 **提示：可以使用`Ctrl+F`快速查找自己想要的命令**
 
-## 实体ID命令 (commandEntityID)
-
-&emsp;查看并控制实体id的命令
-
-&emsp;&emsp;- `/entityID - 显示接下来5个即将生成的实体ID`
-
-&emsp;&emsp;- `/entityID show <count> - 显示指定数量的即将生成的实体ID`
-
-&emsp;&emsp;- `/entityID show <beginID> <endID> - 显示指定范围内的实体ID`
-
-
-## 实体ID设置命令 (commandEntityIDSet)
-
-&emsp;设置实体id的命令
-
-&emsp;&emsp;- `/entityID set <id> - 将当前实体ID设置为指定值`
-
-
 ## 超高度区块标记器(ECM)命令 (commandExceedChunkMarker)
 
 &emsp;控制ECM命令权限等级。在未开始ECM时无效
@@ -90,5 +72,4 @@
 &emsp;用于召唤无前缀假人
 
 &emsp;&emsp;- `/player <name> spawn original - 召唤一个无前缀假人`
-
 

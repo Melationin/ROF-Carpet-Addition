@@ -5,14 +5,13 @@
 
 | 名称          | 类型 | 链接                                                                                                                                                                       | 备注 |
 |-------------|----|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----|
-| Carpet      | 必须 | [MC百科](https://www.mcmod.cn/class/2361.html) &#124; [Modrinth](https://modrinth.com/mod/carpet) | -  |
-| Fabric API  | 必须 | [MC百科](https://www.mcmod.cn/class/3124.html) &#124; [官方](https://fabricmc.net/)                                                                                          | - |
+| Carpet      | 必须 | [MC百科](https://www.mcmod.cn/class/2361.html) &#124; [Modrinth](https://modrinth.com/mod/carpet) | 26.2 |
 
 ## 版本支持
 
 | MC版本   | 当前开发状态 | 最后支持版本 |  
 |--------|------|--------|
-| 1.21.* | 持续更新 | -      |
+| 26.2   | 持续更新 | -      |
 
 
 
@@ -25,4 +24,3 @@
 English(Using LLM Translation):
 - [Rules](docs/en_us/rules.md)
 - [Commands](docs/en_us/command.md)
-

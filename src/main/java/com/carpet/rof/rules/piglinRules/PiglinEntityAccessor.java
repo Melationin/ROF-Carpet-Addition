@@ -1,5 +1,9 @@
 package com.carpet.rof.rules.piglinRules;
 
 public interface PiglinEntityAccessor {
-    int getNearPiglinCount();
+    boolean rof$isRegularAiActive();
+
+    long rof$getNextGroupRefreshTick();
+
+    void rof$setOptimizationState(boolean regularAiActive, long nextGroupRefreshTick);
 }

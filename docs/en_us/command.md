@@ -1,24 +1,6 @@
 # Commands
 
 
-## commandEntityID
-
-&emsp;Command to view and control entity IDs
-
-&emsp;&emsp;- `/entityID - Show the next 5 entity IDs to be generated`
-
-&emsp;&emsp;- `/entityID show <count> - Show the specified number of entity IDs to be generated`
-
-&emsp;&emsp;- `/entityID show <beginID> <endID> - Show entity IDs within the specified range`
-
-
-## commandEntityIDSet
-
-&emsp;Command to set entity IDs
-
-&emsp;&emsp;- `/entityID set <id> - Set the current entity ID to the specified value`
-
-
 ## commandExceedChunkMarker
 
 &emsp;Controls the permission level of ECM command. Invalid when ECM is not started.
@@ -89,5 +71,4 @@
 &emsp;Used to summon fake players without prefix
 
 &emsp;&emsp;- `/player <name> spawn original - summon a fake player without prefix`
-
 

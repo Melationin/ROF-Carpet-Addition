@@ -1,7 +1,6 @@
 package com.carpet.rof.mixin.rules.piglinRules;
 
-import com.carpet.rof.rules.piglinRules.PiglinEntityAccessor;
-import com.carpet.rof.utils.ROFTool;
+import com.carpet.rof.rules.piglinRules.PiglinOptimization;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.phys.AABB;
@@ -16,17 +15,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 
-import static com.carpet.rof.rules.piglinRules.PiglinRulesSettings.piglinStackingAISuppression;
-
 @Mixin(Entity.class)
 public class EntityMixin
 {
     @Inject(method = "collideBoundingBox(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/AABB;Lnet/minecraft/world/level/Level;Ljava/util/List;)Lnet/minecraft/world/phys/Vec3;", at = @At(value = "HEAD"), cancellable = true)
     private static void adjustMovementCancel(@Nullable Entity entity, Vec3 movement, AABB entityBoundingBox, Level world, List<VoxelShape> collisions, CallbackInfoReturnable<Vec3> cir){
         if(entity instanceof Piglin piglin){
-            int count = ((PiglinEntityAccessor) piglin).getNearPiglinCount();
-            if (!ROFTool.canLoadAi(entity.getId(), count, piglinStackingAISuppression)) {
-                cir.cancel();
+            if (!PiglinOptimization.shouldUseVanillaMovement(piglin)) {
+                cir.setReturnValue(Vec3.ZERO);
             }
         }
     }
