@@ -5,7 +5,12 @@
   "mixins": [
     "event.ServerLevelMixin",
     "event.ServerMixin",
-    "extraLevelData.forceEntity.LevelMixin",
+    "async.ChunkMapMixin",
+    "async.LevelChunkMixin",
+    "async.NaturalSpawnerMixin",
+    "async.ServerChunkCacheMixin",
+    "async.ServerLevelMixin",
+    "extraWorldData.forceEntity.LevelMixin",
     "extraWorldData.HeightmapMixin",
     "extraWorldData.ServerLevelMixin",
     "extraWorldData.forceEntity.ServerLevelMixin",

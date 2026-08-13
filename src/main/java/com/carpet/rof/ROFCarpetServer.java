@@ -8,6 +8,7 @@ import com.carpet.rof.extraWorldData.ExtraWorldDatas;
 import com.carpet.rof.utils.ROFConfig;
 import com.carpet.rof.utils.ROFCarpetTranslations;
 import com.carpet.rof.utils.singleTaskWorker.SingleTaskWorker;
+import com.carpet.rof.utils.asyncWorldgen.AsyncExecutor;
 import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.commands.CommandBuildContext;
@@ -61,6 +62,7 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
 
     @Override
     public void onServerClosed(MinecraftServer server) {
+        AsyncExecutor.stop();
         SingleTaskWorker.INSTANCE.stop();
     }
     @Override
@@ -72,6 +74,7 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
 
     public void initOnServer(MinecraftServer server){
         SingleTaskWorker.INSTANCE.start();
+        AsyncExecutor.start();
         ROFConfig.INSTANCE = new ROFConfig(server.getWorldPath(LevelResource.ROOT).resolve("carpet-rof-addition.json"));
         ROFConfig.INSTANCE.load();
         RequirementModifyCommand.initialization(server,ROFConfig.INSTANCE);

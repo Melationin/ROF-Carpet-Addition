@@ -88,8 +88,12 @@ dependencies {
 
 	minecraft "com.mojang:minecraft:${stonecutter.current.project}"
 	implementation "net.fabricmc:fabric-loader:${property("loader_version")}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${property("fabric_api_version")}"
 	implementation "carpet:fabric-carpet:${property("carpet_core_version")}"
 	implementation 'it.unimi.dsi:fastutil:8.5.18'
+	// Async random-tick planning uses Lithium's published section indexes.  The
+	// mod is intentionally not bundled; servers enabling that rule must provide it.
+	implementation "maven.modrinth:lithium:${property("lithium_version")}"
 	//mappings loom.officialMojangMappings()
 	annotationProcessor project(":processor")
 	compileOnly project(":processor")

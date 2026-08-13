@@ -5,6 +5,7 @@ import com.carpet.rof.event.ROFEvents;
 import com.carpet.rof.extraWorldData.extraChunkDatas.ChunkEntitySpawnLogger;
 import com.carpet.rof.extraWorldData.extraChunkDatas.ChunkLoadedFinder;
 import com.carpet.rof.extraWorldData.extraChunkDatas.ExceedChunkMarker;
+import com.carpet.rof.extraWorldData.asyncWorldgen.AsyncWorldgenCacheData;
 import com.carpet.rof.rules.extraChunkDatas.ExceedChunkMarkerSetting;
 import com.carpet.rof.rules.mergeTNTNext.MergeTNTNextSetting;
 import com.carpet.rof.utils.NBTData;
@@ -31,6 +32,9 @@ public class ExtraWorldDatas implements NBTData
     public final Map<EntityType<?>,Integer> entitySpawnCountsPerTick = new HashMap<>();
 
     public final ChunkEntitySpawnLogger  chunkEntitySpawnLogger = new ChunkEntitySpawnLogger();
+
+    /** Runtime-only, per-dimension chunk-list caches. Never serialized to world data. */
+    public final AsyncWorldgenCacheData asyncWorldgenCache = new AsyncWorldgenCacheData();
 
     public static ExtraWorldDatas fromWorld(ServerLevel world){
         return  ((IExtraChunkDataAccessor)world).getExtraChunkDatas();

@@ -1,6 +1,7 @@
 package com.carpet.rof.utils;
 import carpet.script.external.Vanilla;
 import com.mojang.logging.LogUtils;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.nbt.CompoundTag;
@@ -23,7 +24,8 @@ import static net.minecraft.world.level.dimension.BuiltinDimensionTypes.NETHER;
 public class ROFTool
 {
     private static final org.slf4j.Logger LOGGER = LogUtils.getLogger();
-    private static final boolean DEBUG = false;
+    /** True only for Fabric Loader development launches (for example runServer). */
+    public static final boolean DEBUG = FabricLoader.getInstance().isDevelopmentEnvironment();
     public static boolean isNetherWorld(Level world) {
         return world.dimensionTypeRegistration().is(NETHER);
     }
@@ -57,7 +59,7 @@ public class ROFTool
         return (fastHash(id) % (count + 1)) <= max;
     }
     public static void rDEBUG(String message) {
-        if (DEBUG) LOGGER.info("[ROF]{}", message);
+        if (DEBUG) LOGGER.debug("[ROF]{}", message);
     }
 
 

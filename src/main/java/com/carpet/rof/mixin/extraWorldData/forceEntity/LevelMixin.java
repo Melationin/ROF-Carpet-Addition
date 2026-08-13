@@ -1,4 +1,4 @@
-package com.carpet.rof.mixin.extraLevelData.forceEntity;
+package com.carpet.rof.mixin.extraWorldData.forceEntity;
 
 import com.carpet.rof.extraWorldData.ExtraWorldDatas;
 import net.minecraft.world.entity.Entity;
