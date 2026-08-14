@@ -9,6 +9,7 @@ import com.carpet.rof.extraWorldData.asyncWorldgen.AsyncWorldgenCacheData;
 import com.carpet.rof.rules.extraChunkDatas.ExceedChunkMarkerSetting;
 import com.carpet.rof.rules.mergeTNTNext.MergeTNTNextSetting;
 import com.carpet.rof.utils.NBTData;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.PrimedTnt;
@@ -32,6 +33,9 @@ public class ExtraWorldDatas implements NBTData
     public final Map<EntityType<?>,Integer> entitySpawnCountsPerTick = new HashMap<>();
 
     public final ChunkEntitySpawnLogger  chunkEntitySpawnLogger = new ChunkEntitySpawnLogger();
+
+    public final LongOpenHashSet enderPearlForcedSyncChunks = new LongOpenHashSet();
+
 
     /** Runtime-only, per-dimension chunk-list caches. Never serialized to world data. */
     public final AsyncWorldgenCacheData asyncWorldgenCache = new AsyncWorldgenCacheData();

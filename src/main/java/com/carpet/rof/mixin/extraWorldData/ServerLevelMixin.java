@@ -13,10 +13,18 @@ import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.Holder;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.entity.EntityTickList;
+import net.minecraft.world.level.entity.PersistentEntitySectionManager;
+import net.minecraft.world.level.entity.Visibility;
 import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -37,6 +45,9 @@ public abstract class ServerLevelMixin implements IExtraChunkDataAccessor
 
     @Shadow public abstract String toString();
 
+    @Shadow
+    @Final
+    private MinecraftServer server;
     @Unique
     ExtraWorldDatas ROFextraWorldDatas;
 
@@ -53,6 +64,56 @@ public abstract class ServerLevelMixin implements IExtraChunkDataAccessor
     {
         if(exceedChunkMarker )
        ROFTool.saveNBT2Data((ServerLevel) (Object)this,"extraWorldData.dat", ROFextraWorldDatas.toNbt());
+    }
+
+
+    @Shadow  @Final
+    private ServerChunkCache chunkSource;
+
+    @Shadow @Final
+    private EntityTickList entityTickList;
+
+    @Shadow
+    @Final
+    private PersistentEntitySectionManager<Entity> entityManager;
+
+    @Shadow
+    public abstract void tickNonPassenger(Entity entity);
+
+    @Unique
+    private boolean shouldBeForceLoaded(Entity entity)
+    {
+        if (!entityTickList.contains(entity))
+            return true;
+        //? <=1.21.4 {
+        /*return !this.chunkManager.chunkLoadingManager.getTicketManager().shouldTickEntities(entity.getChunkPos().toLong());
+         *///?} else {
+        return !this.chunkSource.chunkMap.getDistanceManager().inEntityTickingRange(entity.chunkPosition().pack());
+        //?}
+    }
+
+
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/entity/EntityTickList;forEach(Ljava/util/function/Consumer;)V"))
+    void ForceLoadedEntity(BooleanSupplier shouldKeepTicking, CallbackInfo ci){
+
+        var tickChunkList = ExtraWorldDatas.fromWorld((ServerLevel) (Object)this).enderPearlForcedSyncChunks;
+
+        for(var chunkPos : tickChunkList){
+            entityManager.updateChunkStatus(ChunkPos.unpack(chunkPos), Visibility.TICKING);
+        }
+        tickChunkList.clear();
+
+        if(!this.server.tickRateManager().runsNormally()) return;
+        var forcedEntitylist = ExtraWorldDatas.fromWorld((ServerLevel)(Object)this).forcedEntitylist;
+        if(!forcedEntitylist.isEmpty()){
+            ROFTool.rDEBUG("size：" + forcedEntitylist.size());
+        }
+        forcedEntitylist.entrySet().removeIf(entry -> entry.getValue() == null||entry.getValue().isRemoved());
+        forcedEntitylist.forEach((uuid,entity) -> {
+            if(shouldBeForceLoaded(entity)){
+                if (!entity.isRemoved()) tickNonPassenger(entity);
+            }
+        });
     }
 
     @Inject(method = "<init>",

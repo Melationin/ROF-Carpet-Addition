@@ -20,7 +20,6 @@
     "logger.packetLogger.PacketEncoderMixin",
     "packetRules.EntityTrackerMixin",
     "packetRules.ServerEntityMixin",
-    "rules.enderPearl.ServerLevelMixin",
     "rules.enderPearl.ThrownEnderpearlMixin",
     "rules.mergeTNTNext.PrimedTntMixin",
     "rules.particlesPacketsRange.ServerLevelMixin",
@@ -30,7 +29,8 @@
     "rules.piglinRules.PiglinAiMixin2",
     "rules.piglinRules.PiglinMixin",
     "rules.piglinRules.SetEntityLookTargetMixin",
-    "rules.piglinRules.SetLookAndInteractMixin"
+    "rules.piglinRules.SetLookAndInteractMixin",
+    "debug.ThrownEnderpearlDebugMixin"
   ],
   "injectors": {
     "defaultRequire": 1

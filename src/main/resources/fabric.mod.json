@@ -29,8 +29,7 @@
 
     "minecraft": "${minecraftVer}",
     "fabricloader": ">=0.4.0",
-    "carpet": "*",
-    "lithium": "*"
+    "carpet": "*"
   },
   "suggests": {
     "flamingo": "*"

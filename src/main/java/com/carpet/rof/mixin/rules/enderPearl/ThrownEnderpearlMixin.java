@@ -14,6 +14,7 @@ import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrowableIt
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.entity.Visibility;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
@@ -28,7 +29,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static com.carpet.rof.rules.enderPearl.EnderPearlSettings.*;
-import static com.carpet.rof.rules.extraChunkDatas.ExceedChunkMarkerSetting.optimizeForcedEnderPearlTick;
+//import static com.carpet.rof.rules.extraChunkDatas.ExceedChunkMarkerSetting.optimizeForcedEnderPearlTick;
 
 
 // Java 标准库
@@ -166,6 +167,22 @@ public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
         }
     }
     *///?}
+
+    @Inject(method = "tick",
+            at = @At(value = "INVOKE",
+                     target = "Lnet/minecraft/server/level/ServerPlayer;registerAndUpdateEnderPearlTicket(Lnet/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl;)J",
+                     shift = At.Shift.AFTER))
+    private void EndPearlForcedSync(CallbackInfo ci)
+    {
+        if (enderPearlForcedSync && this.level() instanceof ServerLevel serverLevel) {
+            var chunkPos = this.chunkPosition();
+            serverLevel.getChunk(chunkPos.x(), chunkPos.z(), ChunkStatus.FULL, true);
+            ExtraWorldDatas.fromWorld(serverLevel)
+                    .enderPearlForcedSyncChunks
+                    .add(chunkPos.pack());
+            //serverLevel.entityManager.updateChunkStatus(chunkPos, Visibility.TICKING);
+        }
+    }
 
     @Inject(method = "tick", at = @At(value = "RETURN"))
     private void ChunkUnloadingEnd(CallbackInfo ci){

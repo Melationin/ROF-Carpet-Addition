@@ -5,11 +5,6 @@ import com.carpet.rof.utils.ROFTool;
 import com.carpet.rof.utils.asyncWorldgen.DebugStats;
 import com.carpet.rof.utils.asyncWorldgen.AsyncExecutor;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import net.caffeinemc.mods.lithium.common.block.BlockCountingSection;
-import net.caffeinemc.mods.lithium.common.block.BlockStateFlagHolder;
-import net.caffeinemc.mods.lithium.common.block.BlockStateFlags;
-import net.caffeinemc.mods.lithium.common.world.section.LithiumSectionData;
-import net.caffeinemc.mods.lithium.common.world.section.RandomTickingSectionDataHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -30,7 +25,6 @@ public final class AsyncRandomTick
     private static final ThreadLocal<RandomSource> WORKER_RANDOM = ThreadLocal.withInitial(
             RandomSource::createThreadLocalInstance);
     private static final RandomSource SERVER_RANDOM = RandomSource.createThreadLocalInstance();
-    private static volatile int currentEpoch = -1;
 
     private AsyncRandomTick()
     {
@@ -45,7 +39,6 @@ public final class AsyncRandomTick
     public static void submitBatch(MinecraftServer server)
     {
         int epoch = server.getTickCount() + 1;
-        currentEpoch = epoch;
         if (!AsyncSettings.asyncRandomTick || BATCH.isEmpty()) {
             BATCH.clear();
             return;
@@ -56,7 +49,8 @@ public final class AsyncRandomTick
         AsyncExecutor.submitRandomTick(() -> work.forEach(item -> compute(item.chunk(), epoch, item.speed(), stats)));
     }
 
-    //部分参考了锂的逻辑
+    //使用原版选区逻辑：对每个随机刻区块段随机抽取 speed 个坐标，命中可随机刻的方块或流体则记录，
+    //实际的 randomTick 执行仍在主线程 consume 中完成，与原版 tickChunk 的命中分布一致。
     private static void compute(LevelChunk chunk, int epoch, int speed, DebugStats.Recording stats)
     {
         try {
@@ -73,17 +67,22 @@ public final class AsyncRandomTick
                 LevelChunkSection section = sections[i];
                 if (section == null || !section.isRandomlyTicking())
                     continue;
-                int count = ((BlockCountingSection) section).lithium$getCount(BlockStateFlags.RANDOM_TICKING);
-                byte[] index = ((LithiumSectionData) section).lithium$getSectionData().getRandomTickableBlocksByY();
-                if (count <= 0 || index == null)
-                    continue;
+                int baseY = minY + (i << 4);
                 for (int attempt = 0; attempt < speed; attempt++) {
-                    int blockIndex = randomIndex(random);
-                    if (blockIndex >= count)
-                        continue;
-                    int packed = find(level, section, blockIndex, index, minX, minY + (i << 4), minZ);
-                    if (packed >= 0)
-                        positions.add(packed);
+                    //单次 nextInt 拆包出 x/y/z（各取 4 位）
+                    int value = random.nextInt();
+                    int x = value & 15;
+                    int y = value >>> 8 & 15;
+                    int z = value >>> 4 & 15;
+                    BlockState state = section.getBlockState(x, y, z);
+
+                    if (state.isRandomlyTicking() || state.getFluidState().isRandomlyTicking()) {
+                        if (state.getFluidState().getType().isSame(Fluids.LAVA)
+                                && !level.canSpreadFireAround(new BlockPos(minX + x, baseY + y, minZ + z))) {
+                            continue;
+                        }
+                        positions.add(((baseY + y) << 16) | (z << 8) | x);
+                    }
                 }
             }
             ((AsyncRandomTickChunk) chunk).rof$setAsyncRandomTickResult(
@@ -97,42 +96,11 @@ public final class AsyncRandomTick
         }
     }
 
-    private static int randomIndex(RandomSource random)
-    {
-        int value = random.nextInt();
-        return (value & 15) | (value >>> 8 & 0xf00) | (value >>> 4 & 0xf0);
-    }
-
-    //移植自锂
-    private static int find(ServerLevel level, LevelChunkSection section, int index, byte[] data, int minX, int baseY, int minZ)
-    {
-        int mini = 0;
-        for (; mini < data.length; mini++) {
-            int count = Byte.toUnsignedInt(data[mini]);
-            if (index < count)
-                break;
-            index -= count;
-        }
-        for (int packed = mini * RandomTickingSectionDataHelper.MINISECTION_SIZE; packed < 4096; packed++) {
-            int x = packed & 15, y = packed >> 8 & 15, z = packed >> 4 & 15;
-            BlockState state = section.getBlockState(x, y, z);
-            if ((((BlockStateFlagHolder) state).lithium$getAllFlags() & RandomTickingSectionDataHelper.RANDOM_TICKING_FLAG_MASK) == 0)
-                continue;
-            if (index-- != 0)
-                continue;
-            if (state.getFluidState().getType().isSame(Fluids.LAVA) && !level.canSpreadFireAround(
-                    new BlockPos(minX + x, baseY + y, minZ + z)))
-                return -1;
-            return ((baseY + y) << 16) | (z << 8) | x;
-        }
-        return -1;
-    }
-
-    //部分参考了锂的逻辑
+    //执行预计算出的随机刻：方块与流体分别判定并 tick，与原版 tickChunk 行为一致。
     public static boolean consume(ServerLevel level, LevelChunk chunk)
     {
         RandomTickResult result = ((AsyncRandomTickChunk) chunk).rof$getAsyncRandomTickResult();
-        boolean usedAsync = AsyncSettings.asyncRandomTick && result != null && result.epoch() == currentEpoch;
+        boolean usedAsync = AsyncSettings.asyncRandomTick && result != null && result.epoch() == level.getServer().getTickCount();
         if (ROFTool.DEBUG)
             DebugStats.recordRandomTickDecision(usedAsync);
         if (!usedAsync)

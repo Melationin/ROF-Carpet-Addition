@@ -24,8 +24,7 @@ public class AsyncSettings extends BaseSetting
 
     @Rule(categories = {ROF, OPTIMIZATION, EXPERIMENTAL})
     @QuickTranslations(name = "随机刻异步",
-                       description = "异步预计算下一游戏刻的随机刻候选；结果失效时自动回退原版。",
-                       extra = "需要 Lithium。")
+                       description = "异步预计算下一游戏刻的随机刻候选；结果失效时自动回退原版。")
     public static boolean asyncRandomTick = false;
 
     @Rule(categories = {ROF, OPTIMIZATION, EXPERIMENTAL})
