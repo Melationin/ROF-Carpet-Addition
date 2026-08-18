@@ -1,4 +1,8 @@
 {
   "carpet.category.ROF": "ROF",
-  "carpet.category.PACKET": "PACKET"
+  "carpet.category.PACKET": "PACKET",
+  "carpet.rule.optimizedFakePlayerTick.name": "假人tick精简",
+  "carpet.rule.optimizedFakePlayerTick.desc": "精简Carpet假人的客户端同步/进度/统计/Waypoint等每tick逻辑，保留主手物品tick与行为模拟",
+  "carpet.rule.optimizedFakePlayerTick.extra.0": "仅对Carpet假人(EntityPlayerMPFake)生效",
+  "carpet.rule.optimizedFakePlayerTick.extra.1": "可能影响假人的统计、进度、计分板自动同步与定位条显示"
 }

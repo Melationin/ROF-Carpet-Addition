@@ -40,3 +40,4 @@ replay_*.log
 *.jfr
 /version_info.txt
 /run1.bat
+/.guser/

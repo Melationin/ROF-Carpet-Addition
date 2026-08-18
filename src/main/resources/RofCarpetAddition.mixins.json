@@ -30,6 +30,10 @@
     "rules.piglinRules.PiglinMixin",
     "rules.piglinRules.SetEntityLookTargetMixin",
     "rules.piglinRules.SetLookAndInteractMixin",
+    "rules.fakePlayerTick.EntityPlayerMPFakeMixin",
+    "rules.fakePlayerTick.InventoryMixin",
+    "rules.fakePlayerTick.PlayerAiStepMixin",
+    "rules.fakePlayerTick.ServerPlayerTickMixin",
     "debug.ThrownEnderpearlDebugMixin"
   ],
   "injectors": {

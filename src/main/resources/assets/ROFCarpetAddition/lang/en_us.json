@@ -62,5 +62,9 @@
   "carpet.rule.commandEntityID.extra.0": "/entityID - Show the next 5 entity IDs to be generated",
   "carpet.rule.commandEntityID.extra.1": "/entityID show <count> - Show the specified number of entity IDs to be generated",
   "carpet.rule.commandEntityID.extra.2": "/entityID show <beginID> <endID> - Show entity IDs within the specified range",
-  "carpet.rule.commandEntityIDSet.extra.0": "/entityID set <id> - Set the current entity ID to the specified value"
+  "carpet.rule.commandEntityIDSet.extra.0": "/entityID set <id> - Set the current entity ID to the specified value",
+  "carpet.rule.optimizedFakePlayerTick.name": "Optimized Fake Player Tick",
+  "carpet.rule.optimizedFakePlayerTick.desc": "Trims client sync/advancement/stats/Waypoint per-tick logic for Carpet fake players, keeping main-hand item tick and behavior simulation",
+  "carpet.rule.optimizedFakePlayerTick.extra.0": "Only affects Carpet fake players (EntityPlayerMPFake)",
+  "carpet.rule.optimizedFakePlayerTick.extra.1": "May affect fake player stats, advancements, scoreboard auto-sync and locator bar display"
 }
