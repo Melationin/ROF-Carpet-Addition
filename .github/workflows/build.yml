@@ -23,6 +23,12 @@ jobs:
         run: chmod +x ./gradlew
       - name: build
         run: ./gradlew build
+      - name: Run Mixin Audit Check
+        timeout-minutes: 10
+        run: |
+          mkdir -p ./run
+          echo eula=true > ./run/eula.txt
+          ./gradlew --no-parallel runClientMixinAudit
       - name: capture build artifacts
         uses: actions/upload-artifact@v4
         with:

@@ -5,11 +5,6 @@ import com.mojang.datafixers.DataFixer;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.WorldStem;
-//? <1.21.9 {
-/*import net.minecraft.server.WorldGenerationProgressListenerFactory;
-*///?} else {
-import net.minecraft.server.level.progress.LevelLoadListener;
-//?}
 import net.minecraft.server.Services;
 
 import net.minecraft.world.level.storage.LevelStorageSource;

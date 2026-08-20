@@ -1,4 +1,6 @@
-accessWidener v2 official
+classTweaker v1 official
+
+
 
 accessible field net/minecraft/world/entity/item/ItemEntity pickupDelay I
 accessible field net/minecraft/world/entity/item/ItemEntity age I
@@ -6,6 +8,7 @@ accessible field net/minecraft/world/entity/item/ItemEntity target Ljava/util/UU
 accessible field net/minecraft/server/level/ServerLevel blockEvents Lit/unimi/dsi/fastutil/objects/ObjectLinkedOpenHashSet;
 
 
+accessible field net/minecraft/world/entity/Entity ENTITY_COUNTER Ljava/util/concurrent/atomic/AtomicInteger;
 accessible field net/minecraft/world/level/chunk/LevelChunk$RebindableTickingBlockEntityWrapper ticker Lnet/minecraft/world/level/block/entity/TickingBlockEntity;
 accessible class net/minecraft/server/level/ChunkMap$TrackedEntity
 accessible class net/minecraft/world/level/chunk/LevelChunk$BoundTickingBlockEntity
@@ -15,8 +18,7 @@ accessible field net/minecraft/server/level/ServerChunkCache ticketStorage Lnet/
 
 accessible field net/minecraft/world/entity/Entity levelCallback Lnet/minecraft/world/level/entity/EntityInLevelCallback;
 
-# Async natural-spawn planning: workers must only inspect ChunkMap's published
-# loaded view and the consumer keeps SpawnState accounting on the server thread.
+# Async natural-spawn planning; shared by the 26.1 build branch.
 accessible method net/minecraft/world/level/NaturalSpawner isRightDistanceToPlayerAndSpawnPoint (Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/chunk/ChunkAccess;Lnet/minecraft/core/BlockPos$MutableBlockPos;D)Z
 accessible method net/minecraft/world/level/NaturalSpawner isValidSpawnPostitionForType (Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/MobCategory;Lnet/minecraft/world/level/StructureManager;Lnet/minecraft/world/level/chunk/ChunkGenerator;Lnet/minecraft/world/level/biome/MobSpawnSettings$SpawnerData;Lnet/minecraft/core/BlockPos$MutableBlockPos;D)Z
 accessible method net/minecraft/world/level/NaturalSpawner getMobForSpawn (Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/EntityType;)Lnet/minecraft/world/entity/Mob;

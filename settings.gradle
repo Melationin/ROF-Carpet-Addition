@@ -14,9 +14,10 @@ pluginManagement {
 
 
 		maven { url = "https://api.modrinth.com/maven" }
-		maven{
-			name = "KikuGie Snapshots"
-			url = "https://maven.kikugie.dev/snapshots"}
+		maven {
+			name = 'KikuGie Releases'
+			url = 'https://maven.kikugie.dev/releases'
+		}
 		mavenCentral()
 		mavenLocal()
 		gradlePluginPortal()
@@ -24,19 +25,23 @@ pluginManagement {
 }
 
 plugins {
-	id("dev.kikugie.stonecutter") version "0.7.11"
+	id("dev.kikugie.stonecutter") version "0.9.7"
 }
 
+
+
+
 include("processor")
+
+
 
 stonecutter {
 	kotlinController = false
 	centralScript = "build.gradle"
 	create(getRootProject()) {
-		versions "26.1","26.2"
+		versions "1.21.8","1.21.9","1.21.10","1.21.11","26.1","26.2"
 		vcsVersion = "26.1"
 	}
-
 
 }
 

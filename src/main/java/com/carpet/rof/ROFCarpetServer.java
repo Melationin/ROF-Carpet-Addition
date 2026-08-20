@@ -5,6 +5,7 @@ import carpet.CarpetServer;
 import com.carpet.rof.commands.RequirementModifyCommand;
 import com.carpet.rof.event.ROFEvents;
 import com.carpet.rof.extraWorldData.ExtraWorldDatas;
+import com.carpet.rof.utils.AutoMixinAuditExecutor;
 import com.carpet.rof.utils.ROFConfig;
 import com.carpet.rof.utils.ROFCarpetTranslations;
 import com.carpet.rof.utils.singleTaskWorker.SingleTaskWorker;
@@ -37,6 +38,7 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
     public void onInitialize()
     {
         ROFCarpetServer.loadExtension();
+        AutoMixinAuditExecutor.run();
 
     }
 

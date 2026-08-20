@@ -1,15 +1,26 @@
+buildscript {
+	repositories {
+		maven { url 'https://maven.aliyun.com/repository/public' }
+		maven { name = 'Fabric'; url = 'https://maven.fabricmc.net/' }
+		mavenCentral()
+		gradlePluginPortal()
+	}
+	dependencies {
+		classpath "net.fabricmc:fabric-loom:1.15.5"
+	}
+}
+
 plugins {
-	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
 }
 
-version = project.mod_version
-group = project.maven_group
-
 def minecraftVer = stonecutter.current.version
-def accesswidener = stonecutter.eval(minecraftVer, ">=1.21") ? stonecutter.eval(minecraftVer, ">=26.2") ? "26_2.accesswidener" : "1_21_4.accesswidener"
-		: stonecutter.eval(minecraftVer, ">=1.20") ? "1.20.accesswidener"
-		: "1.19.accesswidener"
+
+if (stonecutter.eval(minecraftVer, ">=26.1")) {
+	apply plugin: 'net.fabricmc.fabric-loom'
+} else {
+	apply plugin: 'net.fabricmc.fabric-loom-remap'
+}
 
 
 base {
@@ -64,8 +75,30 @@ repositories {
 	}
 }
 
+
+stonecutter {
+	// Subproject configuration
+
+	replacements.string(current.parsed >= "26.1") {
+		replace(
+				"classTweaker v1 named",
+				"classTweaker v1 official"
+		)
+	}
+
+
+}
+
+def awFile = sc.process(
+		rootProject.file("src/main/resources/CarpetRofAddition.aw"),
+		".gradle/CarpetRofAddition.processed.aw"
+)
+
+println "AW for ${sc.current.version}: ${awFile}"
+println awFile.readLines().take(3)
+
 loom {
-	accessWidenerPath = rootProject.file("src/main/resources/accesswideners/${accesswidener}")
+	accessWidenerPath = awFile
 
 	splitEnvironmentSourceSets()
 
@@ -81,17 +114,41 @@ loom {
 		runDir "../../run" // Use a shared run folder and create separate worlds
 	}
 
+	def auditVmArgs = ['-Dcarpetrofaddition.mixin_audit=true']
+
+	runs {
+		serverMixinAudit {
+			server()
+			vmArgs auditVmArgs
+			ideConfigGenerated false
+		}
+		clientMixinAudit {
+			client()
+			vmArgs auditVmArgs
+			ideConfigGenerated false
+		}
+	}
+
 }
 
 dependencies {
 	// To change the versions see the gradle.properties file
 
 	minecraft "com.mojang:minecraft:${stonecutter.current.project}"
-	implementation "net.fabricmc:fabric-loader:${property("loader_version")}"
-	implementation "net.fabricmc.fabric-api:fabric-api:${property("fabric_api_version")}"
-	implementation "carpet:fabric-carpet:${property("carpet_core_version")}"
+	if (!stonecutter.eval(minecraftVer, ">=26.1")) {
+		mappings loom.officialMojangMappings()
+	}
+	if (stonecutter.eval(minecraftVer, ">=26.1")) {
+		implementation "net.fabricmc:fabric-loader:${property("loader_version")}"
+		implementation "net.fabricmc.fabric-api:fabric-api:${property("fabric_api_version")}"
+		implementation "carpet:fabric-carpet:${property("carpet_core_version")}"
+	} else {
+		modImplementation "net.fabricmc:fabric-loader:${property("loader_version")}"
+		modImplementation "net.fabricmc.fabric-api:fabric-api:${property("fabric_api_version")}"
+		modImplementation "carpet:fabric-carpet:${property("carpet_core_version")}"
+	}
 	implementation 'it.unimi.dsi:fastutil:8.5.18'
-	//mappings loom.officialMojangMappings()
+	implementation 'org.jspecify:jspecify:1.0.0'
 	annotationProcessor project(":processor")
 	compileOnly project(":processor")
 }
@@ -102,16 +159,17 @@ processResources {
 	filesMatching("fabric.mod.json") {
 		expand( [
 				"minecraftVer": project.findProperty("minecraft_ver") ?: stonecutter.current.version,
-				aw_file: accesswidener,
 				"modVer": mod_version
 				])
 
 	}
 }
 
+def javaVersion = stonecutter.eval(minecraftVer, ">=26.1") ? JavaVersion.VERSION_25 : JavaVersion.VERSION_21
+
 java {
-	sourceCompatibility = JavaVersion.VERSION_25
-	targetCompatibility = JavaVersion.VERSION_25
+	sourceCompatibility = javaVersion
+	targetCompatibility = javaVersion
 }
 
 jar {
@@ -137,9 +195,7 @@ publishing {
 	}
 }
 
-stonecutter {
-	// Subproject configuration
-}
+
 
 tasks.withType(JavaCompile).configureEach {
 	//exclude("**/Dosc.java")
