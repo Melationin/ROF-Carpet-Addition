@@ -33,19 +33,26 @@ public final class LithiumPushCollector {
 
         int intersecting = 0;
         int accepted = 0;
+        boolean metrics = OecMetrics.ENABLED;
         try (OecQueryFrame frame = OecQueryFrame.acquire()) {
             if (!grid.collectCandidateSlots(box, frame)) return false;
             BitSet candidates = frame.bits();
-            OecMetrics.GRID_QUERIES.increment();
-            OecMetrics.CANDIDATES.add(candidates.cardinality());
+            if (metrics) {
+                OecMetrics.GRID_QUERIES.increment();
+                OecMetrics.CANDIDATES.add(candidates.cardinality());
+            }
 
             for (int slot = candidates.nextSetBit(0); slot >= 0; slot = candidates.nextSetBit(slot + 1)) {
+                // Cheapest rejection first: the exact AABB test needs neither an entity dereference nor a Lithium hash lookup.
+                if (!grid.intersects(slot, box)) continue;
                 Entity entity = grid.entity(slot);
                 if (entity == null || (maskAccess != null && !maskAccess.rof$isVisible(entity))) continue;
-                if (!grid.intersects(slot, box) || entity.isSpectator() || entity == except || entity instanceof EnderDragon) continue;
+                if (entity.isSpectator() || entity == except || entity instanceof EnderDragon) continue;
                 intersecting++;
-                OecMetrics.EXACT_HITS.increment();
-                OecMetrics.PREDICATE_CALLS.increment();
+                if (metrics) {
+                    OecMetrics.EXACT_HITS.increment();
+                    OecMetrics.PREDICATE_CALLS.increment();
+                }
                 if (predicate.test(entity)) {
                     accepted++;
                     output.add(entity);

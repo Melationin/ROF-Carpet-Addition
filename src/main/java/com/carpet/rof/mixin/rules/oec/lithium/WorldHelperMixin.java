@@ -27,13 +27,13 @@ public abstract class WorldHelperMixin {
             ClimbingMobCachingSection section, net.minecraft.world.level.Level world, Entity except, AABB box,
             EntityPushablePredicate<? super Entity> predicate, ArrayList<Entity> output,
             Operation<AbortableIterationConsumer.Continuation> original) {
-        OecMetrics.QUERIES.increment();
+        if (OecMetrics.ENABLED) OecMetrics.QUERIES.increment();
         if (OecSettings.optimizedEntityCollection && world instanceof ServerLevel serverLevel
                 && serverLevel.getServer().isSameThread()
                 && LithiumPushCollector.tryCollect(section, world.getGameTime(), except, box, predicate, output)) {
             return AbortableIterationConsumer.Continuation.CONTINUE;
         }
-        OecMetrics.LITHIUM_FALLBACKS.increment();
+        if (OecMetrics.ENABLED) OecMetrics.LITHIUM_FALLBACKS.increment();
         return original.call(section, world, except, box, predicate, output);
     }
 }

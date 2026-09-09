@@ -87,12 +87,12 @@ public final class SectionEntityGrid {
             return;
         }
         if (sameBounds(slot, box)) return;
-        OecMetrics.BOUNDS_UPDATES.increment();
+        if (OecMetrics.ENABLED) OecMetrics.BOUNDS_UPDATES.increment();
         int oldRange = rangeOf(slot);
         writeBounds(slot, box);
         int newRange = computeCellRange(box);
         if (this.cells != null && oldRange != newRange) {
-            OecMetrics.RANGE_CHANGES.increment();
+            if (OecMetrics.ENABLED) OecMetrics.RANGE_CHANGES.increment();
             removeFromCells(slot, oldRange);
             addToCells(slot, newRange);
         }

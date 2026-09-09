@@ -1,8 +1,12 @@
 package com.carpet.rof.rules.oec;
 
+import com.carpet.rof.utils.ROFTool;
+
 import java.util.concurrent.atomic.LongAdder;
 
 public final class OecMetrics {
+    /** Counters are only maintained for the debug tooling; the JIT folds this constant away in production builds. */
+    public static final boolean ENABLED = ROFTool.DEBUG;
     public static final LongAdder QUERIES = new LongAdder(), GRID_QUERIES = new LongAdder(), LITHIUM_FALLBACKS = new LongAdder();
     public static final LongAdder CANDIDATES = new LongAdder(), EXACT_HITS = new LongAdder(), PREDICATE_CALLS = new LongAdder(), REBUILDS = new LongAdder();
     public static final LongAdder BOUNDS_UPDATES = new LongAdder(), RANGE_CHANGES = new LongAdder();
