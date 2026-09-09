@@ -51,11 +51,11 @@ public final class OecMixinAudit {
         grid.checkInvariants();
         try (OecQueryFrame frame = OecQueryFrame.acquire()) {
             AABB outsideOwner = new AABB(16.0, 1.0, 1.0, 16.2, 2.0, 2.0);
-            if (!grid.collectCandidateSlots(outsideOwner, frame) || !frame.bits().get(0) || !grid.intersects(0, outsideOwner)) {
+            if (!grid.collectCandidateSlots(outsideOwner, frame) || !containsSlot(frame, 0) || !grid.intersects(0, outsideOwner)) {
                 throw new IllegalStateException("OEC missed an entity extending outside its owner section");
             }
             AABB aroundPlane = new AABB(1.9, 1.0, 1.0, 2.1, 2.0, 2.0);
-            if (!grid.collectCandidateSlots(aroundPlane, frame) || !frame.bits().get(1) || !grid.intersects(1, aroundPlane)) {
+            if (!grid.collectCandidateSlots(aroundPlane, frame) || !containsSlot(frame, 1) || !grid.intersects(1, aroundPlane)) {
                 throw new IllegalStateException("OEC missed a zero-width AABB on a cell boundary");
             }
         }
@@ -64,13 +64,29 @@ public final class OecMixinAudit {
     }
 
     private static void verifyReentrantFrames() {
-        try (OecQueryFrame outer = OecQueryFrame.acquire()) {
-            outer.bits().set(7);
-            try (OecQueryFrame inner = OecQueryFrame.acquire()) {
-                inner.bits().set(3);
-            }
-            if (!outer.bits().get(7)) throw new IllegalStateException("Nested OEC query corrupted the outer query frame");
+        SectionEntityGrid grid = new SectionEntityGrid(0, 0, 0);
+        if (!grid.add(new DummyEntity(new AABB(1.0, 1.0, 1.0, 2.0, 2.0, 2.0)))) {
+            throw new IllegalStateException("Cannot build the OEC audit reentrancy grid");
         }
+        grid.enableFineGrid();
+        AABB query = new AABB(0.0, 0.0, 0.0, 8.0, 8.0, 8.0);
+        try (OecQueryFrame outer = OecQueryFrame.acquire()) {
+            if (!grid.collectCandidateSlots(query, outer)) throw new IllegalStateException("OEC outer query failed");
+            int outerWords = outer.wordCount();
+            boolean outerHasSlotZero = containsSlot(outer, 0);
+            try (OecQueryFrame inner = OecQueryFrame.acquire()) {
+                if (inner == outer) throw new IllegalStateException("Nested OEC query reused the outer query frame");
+                if (!grid.collectCandidateSlots(query, inner)) throw new IllegalStateException("OEC inner query failed");
+            }
+            if (outer.wordCount() != outerWords || containsSlot(outer, 0) != outerHasSlotZero) {
+                throw new IllegalStateException("Nested OEC query corrupted the outer query frame");
+            }
+        }
+    }
+
+    private static boolean containsSlot(OecQueryFrame frame, int slot) {
+        int word = slot >>> 6;
+        return word < frame.wordCount() && (frame.words()[word] & (1L << (slot & 63))) != 0L;
     }
 
     private static void verifyLithiumCollector() {
@@ -154,8 +170,15 @@ public final class OecMixinAudit {
             Set<Entity> actual = Collections.newSetFromMap(new IdentityHashMap<>());
             try (OecQueryFrame frame = OecQueryFrame.acquire()) {
                 if (!grid.collectCandidateSlots(query, frame)) throw new IllegalStateException("Randomized OEC query unexpectedly failed");
-                for (int slot = frame.bits().nextSetBit(0); slot >= 0; slot = frame.bits().nextSetBit(slot + 1)) {
-                    if (grid.intersects(slot, query)) actual.add(grid.entity(slot));
+                long[] words = frame.words();
+                int wordCount = frame.wordCount();
+                for (int w = 0; w < wordCount; w++) {
+                    long word = words[w];
+                    while (word != 0L) {
+                        int slot = (w << 6) + Long.numberOfTrailingZeros(word);
+                        word &= word - 1L;
+                        if (grid.intersects(slot, query)) actual.add(grid.entity(slot));
+                    }
                 }
             }
             if (!expected.equals(actual)) throw new IllegalStateException("Randomized OEC query differs from dense scan at step " + step);

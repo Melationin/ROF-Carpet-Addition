@@ -5,7 +5,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 
 import java.util.Arrays;
-import java.util.BitSet;
 
 /** A dense, section-local broad-phase index for Lithium push queries. */
 public final class SectionEntityGrid {
@@ -32,7 +31,9 @@ public final class SectionEntityGrid {
     private double[] bounds = new double[INITIAL_CAPACITY * STRIDE];
     /** Six unsigned bytes per slot, same order as {@link #bounds}. */
     private byte[] cellRanges = new byte[INITIAL_CAPACITY * STRIDE];
-    private BitSet[] cells;
+    /** Fine grid: one flat bit arena, wordsPerCell longs per cell. */
+    private long[] cellBits;
+    private int wordsPerCell;
     private int size;
     private boolean valid = true;
     private long modificationCount;
@@ -56,7 +57,7 @@ public final class SectionEntityGrid {
         writeBounds(slot, box);
         int range = computeCellRange(box);
         storeRange(slot, range);
-        if (this.cells != null) addToCells(slot, range);
+        if (this.cellBits != null) addToCells(slot, range);
         this.modificationCount++;
         return true;
     }
@@ -65,13 +66,13 @@ public final class SectionEntityGrid {
         int slot = this.entityToSlot.removeInt(entity);
         if (slot < 0) return false;
         int last = this.size - 1;
-        if (this.cells != null) removeFromCells(slot, rangeOf(slot));
+        if (this.cellBits != null) removeFromCells(slot, rangeOf(slot));
         if (slot != last) {
             int movedRange = rangeOf(last);
-            if (this.cells != null) removeFromCells(last, movedRange);
+            if (this.cellBits != null) removeFromCells(last, movedRange);
             copySlot(last, slot);
             this.entityToSlot.put(this.entities[slot], slot);
-            if (this.cells != null) addToCells(slot, movedRange);
+            if (this.cellBits != null) addToCells(slot, movedRange);
         }
         this.entities[last] = null;
         this.size--;
@@ -91,7 +92,7 @@ public final class SectionEntityGrid {
         int oldRange = rangeOf(slot);
         writeBounds(slot, box);
         int newRange = computeCellRange(box);
-        if (this.cells != null && oldRange != newRange) {
+        if (this.cellBits != null && oldRange != newRange) {
             if (OecMetrics.ENABLED) OecMetrics.RANGE_CHANGES.increment();
             removeFromCells(slot, oldRange);
             addToCells(slot, newRange);
@@ -101,28 +102,32 @@ public final class SectionEntityGrid {
     }
 
     public void enableFineGrid() {
-        if (this.cells != null || !this.valid) return;
-        this.cells = new BitSet[CELL_COUNT];
-        for (int i = 0; i < CELL_COUNT; i++) this.cells[i] = new BitSet(this.entities.length);
+        if (this.cellBits != null || !this.valid) return;
+        this.wordsPerCell = wordsFor(this.entities.length);
+        this.cellBits = new long[CELL_COUNT * this.wordsPerCell];
         for (int slot = 0; slot < this.size; slot++) addToCells(slot, rangeOf(slot));
     }
 
-    /** Populates frame with broad-phase slots. Returns false when Lithium must be used. */
+    /** Builds the broad-phase candidate bit set in frame (union of the overlapping cells). Returns false when Lithium must be used. */
     public boolean collectCandidateSlots(AABB box, OecQueryFrame frame) {
         if (!this.valid || !isFinite(box)) return false;
-        BitSet candidates = frame.bits();
-        candidates.clear();
-        if (this.cells == null) {
-            candidates.set(0, this.size);
+        if (this.cellBits == null) {
+            frame.fillAll(this.size);
             return true;
         }
+        long[] bits = this.cellBits;
+        int words = this.wordsPerCell;
+        long[] union = frame.resetWords(words);
         int range = computeCellRange(box);
         int minX = rangeMinX(range), maxX = rangeMaxX(range);
         int minZ = rangeMinZ(range), maxZ = rangeMaxZ(range);
         for (int y = rangeMinY(range); y <= rangeMaxY(range); y++) {
             for (int z = minZ; z <= maxZ; z++) {
-                int base = cellIndex(minX, y, z);
-                for (int x = minX; x <= maxX; x++) candidates.or(this.cells[base + x - minX]);
+                int cellBase = cellIndex(minX, y, z) * words;
+                for (int x = minX; x <= maxX; x++) {
+                    int base = cellBase + (x - minX) * words;
+                    for (int w = 0; w < words; w++) union[w] |= bits[base + w];
+                }
             }
         }
         return true;
@@ -144,7 +149,8 @@ public final class SectionEntityGrid {
     public void release() {
         Arrays.fill(this.entities, 0, this.size, null);
         this.entityToSlot.clear();
-        this.cells = null;
+        this.cellBits = null;
+        this.wordsPerCell = 0;
         this.size = 0;
         this.valid = false;
         this.modificationCount++;
@@ -156,12 +162,12 @@ public final class SectionEntityGrid {
         for (int slot = 0; slot < this.size; slot++) {
             Entity entity = this.entities[slot];
             if (entity == null || this.entityToSlot.getInt(entity) != slot) throw new IllegalStateException("Invalid dense slot " + slot);
-            if (this.cells != null) {
+            if (this.cellBits != null) {
                 int range = rangeOf(slot);
                 int minX = rangeMinX(range), maxX = rangeMaxX(range), minY = rangeMinY(range), maxY = rangeMaxY(range), minZ = rangeMinZ(range), maxZ = rangeMaxZ(range);
                 for (int y = 0; y < CELLS_PER_AXIS; y++) for (int z = 0; z < CELLS_PER_AXIS; z++) for (int x = 0; x < CELLS_PER_AXIS; x++) {
                     boolean expected = x >= minX && x <= maxX && y >= minY && y <= maxY && z >= minZ && z <= maxZ;
-                    if (this.cells[cellIndex(x, y, z)].get(slot) != expected) throw new IllegalStateException("Invalid membership for slot " + slot);
+                    if (getCellBit(cellIndex(x, y, z), slot) != expected) throw new IllegalStateException("Invalid membership for slot " + slot);
                 }
             }
         }
@@ -205,7 +211,7 @@ public final class SectionEntityGrid {
         int minZ = rangeMinZ(range), maxZ = rangeMaxZ(range);
         for (int y = rangeMinY(range); y <= rangeMaxY(range); y++) for (int z = minZ; z <= maxZ; z++) {
             int base = cellIndex(minX, y, z);
-            for (int x = minX; x <= maxX; x++) this.cells[base + x - minX].set(slot);
+            for (int x = minX; x <= maxX; x++) setCellBit(base + x - minX, slot);
         }
     }
     private void removeFromCells(int slot, int range) {
@@ -213,9 +219,13 @@ public final class SectionEntityGrid {
         int minZ = rangeMinZ(range), maxZ = rangeMaxZ(range);
         for (int y = rangeMinY(range); y <= rangeMaxY(range); y++) for (int z = minZ; z <= maxZ; z++) {
             int base = cellIndex(minX, y, z);
-            for (int x = minX; x <= maxX; x++) this.cells[base + x - minX].clear(slot);
+            for (int x = minX; x <= maxX; x++) clearCellBit(base + x - minX, slot);
         }
     }
+    private void setCellBit(int cell, int slot) { this.cellBits[cell * this.wordsPerCell + (slot >>> 6)] |= 1L << (slot & 63); }
+    private void clearCellBit(int cell, int slot) { this.cellBits[cell * this.wordsPerCell + (slot >>> 6)] &= ~(1L << (slot & 63)); }
+    private boolean getCellBit(int cell, int slot) { return (this.cellBits[cell * this.wordsPerCell + (slot >>> 6)] & (1L << (slot & 63))) != 0L; }
+    private static int wordsFor(int capacity) { return (capacity + 63) >>> 6; }
     private int rangeOf(int slot) {
         int base = slot * STRIDE;
         return packRange(Byte.toUnsignedInt(this.cellRanges[base + MIN_X]), Byte.toUnsignedInt(this.cellRanges[base + MIN_Y]), Byte.toUnsignedInt(this.cellRanges[base + MIN_Z]),
@@ -240,5 +250,16 @@ public final class SectionEntityGrid {
         this.entities = Arrays.copyOf(this.entities, capacity);
         this.bounds = Arrays.copyOf(this.bounds, capacity * STRIDE);
         this.cellRanges = Arrays.copyOf(this.cellRanges, capacity * STRIDE);
+        if (this.cellBits != null) growCellBits(capacity);
+    }
+    private void growCellBits(int capacity) {
+        int newWords = wordsFor(capacity);
+        if (newWords == this.wordsPerCell) return;
+        long[] grown = new long[CELL_COUNT * newWords];
+        for (int cell = 0; cell < CELL_COUNT; cell++) {
+            System.arraycopy(this.cellBits, cell * this.wordsPerCell, grown, cell * newWords, this.wordsPerCell);
+        }
+        this.cellBits = grown;
+        this.wordsPerCell = newWords;
     }
 }

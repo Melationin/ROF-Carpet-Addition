@@ -11,7 +11,6 @@ import com.carpet.rof.rules.oec.OecSectionAccess;
 import com.carpet.rof.rules.oec.SectionEntityGrid;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 
 public final class LithiumPushCollector {
     private LithiumPushCollector() {}
@@ -36,26 +35,33 @@ public final class LithiumPushCollector {
         boolean metrics = OecMetrics.ENABLED;
         try (OecQueryFrame frame = OecQueryFrame.acquire()) {
             if (!grid.collectCandidateSlots(box, frame)) return false;
-            BitSet candidates = frame.bits();
+            long[] words = frame.words();
+            int wordCount = frame.wordCount();
             if (metrics) {
                 OecMetrics.GRID_QUERIES.increment();
-                OecMetrics.CANDIDATES.add(candidates.cardinality());
+                OecMetrics.CANDIDATES.add(frame.cardinality());
             }
 
-            for (int slot = candidates.nextSetBit(0); slot >= 0; slot = candidates.nextSetBit(slot + 1)) {
-                // Cheapest rejection first: the exact AABB test needs neither an entity dereference nor a Lithium hash lookup.
-                if (!grid.intersects(slot, box)) continue;
-                Entity entity = grid.entity(slot);
-                if (entity == null || (maskAccess != null && !maskAccess.rof$isVisible(entity))) continue;
-                if (entity.isSpectator() || entity == except || entity instanceof EnderDragon) continue;
-                intersecting++;
-                if (metrics) {
-                    OecMetrics.EXACT_HITS.increment();
-                    OecMetrics.PREDICATE_CALLS.increment();
-                }
-                if (predicate.test(entity)) {
-                    accepted++;
-                    output.add(entity);
+            // Inline word walk: one pass over the candidate words, no per-candidate call into BitSet.nextSetBit.
+            for (int w = 0; w < wordCount; w++) {
+                long word = words[w];
+                while (word != 0L) {
+                    int slot = (w << 6) + Long.numberOfTrailingZeros(word);
+                    word &= word - 1L;
+                    // Cheapest rejection first: the exact AABB test needs neither an entity dereference nor a Lithium hash lookup.
+                    if (!grid.intersects(slot, box)) continue;
+                    Entity entity = grid.entity(slot);
+                    if (entity == null || (maskAccess != null && !maskAccess.rof$isVisible(entity))) continue;
+                    if (entity.isSpectator() || entity == except || entity instanceof EnderDragon) continue;
+                    intersecting++;
+                    if (metrics) {
+                        OecMetrics.EXACT_HITS.increment();
+                        OecMetrics.PREDICATE_CALLS.increment();
+                    }
+                    if (predicate.test(entity)) {
+                        accepted++;
+                        output.add(entity);
+                    }
                 }
             }
         }
