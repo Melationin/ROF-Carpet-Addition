@@ -1,4 +1,4 @@
-package com.carpet.rof.rules.mergeTNTNext;
+package com.carpet.rof.rules.merge;
 
 import carpet.api.settings.Rule;
 import com.carpet.rof.annotation.QuickTranslations;
@@ -6,12 +6,10 @@ import com.carpet.rof.rules.BaseSetting;
 import com.carpet.rof.annotation.ROFRule;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.Objects;
-
 import static carpet.api.settings.RuleCategory.*;
 
 @ROFRule
-public class MergeTNTNextSetting extends BaseSetting {
+public class MergeSetting extends BaseSetting {
 
 
     public static class OnlySGU implements Rule.Condition{
@@ -32,6 +30,15 @@ public class MergeTNTNextSetting extends BaseSetting {
     )
     public static boolean mergeTNTNext = false;
 
+
+    @Rule(
+            categories = {ROF,OPTIMIZATION,FEATURE}
+    )
+    @QuickTranslations(
+            name = "合并下落方块",
+            description = "尝试合并下落的方块"
+    )
+    public static boolean mergeFallingBlock = false;
 
     @Rule(
             categories = {ROF,OPTIMIZATION,TNT,FEATURE},

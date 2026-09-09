@@ -94,8 +94,6 @@ def awFile = sc.process(
 		".gradle/CarpetRofAddition.processed.aw"
 )
 
-println "AW for ${sc.current.version}: ${awFile}"
-println awFile.readLines().take(3)
 
 loom {
 	accessWidenerPath = awFile
@@ -142,10 +140,12 @@ dependencies {
 		implementation "net.fabricmc:fabric-loader:${property("loader_version")}"
 		implementation "net.fabricmc.fabric-api:fabric-api:${property("fabric_api_version")}"
 		implementation "carpet:fabric-carpet:${property("carpet_core_version")}"
+		implementation "maven.modrinth:lithium:${property("lithium_version")}"
 	} else {
 		modImplementation "net.fabricmc:fabric-loader:${property("loader_version")}"
 		modImplementation "net.fabricmc.fabric-api:fabric-api:${property("fabric_api_version")}"
 		modImplementation "carpet:fabric-carpet:${property("carpet_core_version")}"
+		modImplementation "maven.modrinth:lithium:${property("lithium_version")}"
 	}
 	implementation 'it.unimi.dsi:fastutil:8.5.18'
 	implementation 'org.jspecify:jspecify:1.0.0'

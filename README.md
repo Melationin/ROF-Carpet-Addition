@@ -7,6 +7,7 @@
 |-------------|----|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----|
 | Carpet      | 必须 | [MC百科](https://www.mcmod.cn/class/2361.html) &#124; [Modrinth](https://modrinth.com/mod/carpet) | -  |
 | Fabric API  | 必须 | [MC百科](https://www.mcmod.cn/class/3124.html) &#124; [官方](https://fabricmc.net/)                                                                                          | - |
+| Lithium     | 必须 | [Modrinth](https://modrinth.com/mod/lithium) | - |
 
 ## 版本支持
 

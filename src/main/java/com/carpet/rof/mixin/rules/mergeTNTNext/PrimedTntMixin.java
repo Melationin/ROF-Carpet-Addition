@@ -2,12 +2,11 @@ package com.carpet.rof.mixin.rules.mergeTNTNext;
 
 
 import com.carpet.rof.extraWorldData.ExtraWorldDatas;
-import com.carpet.rof.rules.mergeTNTNext.MergeTNTNextSetting;
-import com.carpet.rof.rules.mergeTNTNext.TntEntityAccessor;
+import com.carpet.rof.rules.merge.MergeSetting;
+import com.carpet.rof.rules.merge.MergedEntityAccessor;
 import com.carpet.rof.utils.ROFTool;
 import com.carpet.rof.utils.ROFWarp;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.PrimedTnt;
 
@@ -28,11 +27,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.HashMap;
 
-import static com.carpet.rof.rules.mergeTNTNext.MergeTNTNextSetting.mergeTNTNext;
-import static com.carpet.rof.rules.mergeTNTNext.MergeTNTNextSetting.mergeTNTOnlyNether;
+import static com.carpet.rof.rules.merge.MergeSetting.mergeTNTNext;
+import static com.carpet.rof.rules.merge.MergeSetting.mergeTNTOnlyNether;
 
 @Mixin(PrimedTnt.class)
-public abstract class PrimedTntMixin extends Entity implements TntEntityAccessor {
+public abstract class PrimedTntMixin extends Entity implements MergedEntityAccessor
+{
 
 
 
@@ -63,12 +63,12 @@ public abstract class PrimedTntMixin extends Entity implements TntEntityAccessor
                 && !this.isRemoved() && getFuse() > 2
         &&(!mergeTNTOnlyNether || ROFTool.isNetherWorld(world))
         ) {
-            MergeTNTNextSetting.EntityPosAndVec TntPosAndVec = new MergeTNTNextSetting.EntityPosAndVec(ROFWarp.getPos_(this), this.getDeltaMovement(), this.getFuse());
-            HashMap<MergeTNTNextSetting.EntityPosAndVec, PrimedTnt> tntMergeMap = ExtraWorldDatas.fromWorld(world).mergeTntMap;
+            MergeSetting.EntityPosAndVec TntPosAndVec = new MergeSetting.EntityPosAndVec(ROFWarp.getPos_(this), this.getDeltaMovement(), this.getFuse());
+            HashMap<MergeSetting.EntityPosAndVec, PrimedTnt> tntMergeMap = ExtraWorldDatas.fromWorld(world).mergeTntMap;
             tntMergeMap.compute(TntPosAndVec,(k,tnt)->{
                 if(tnt!=null){
-                    ((TntEntityAccessor) tnt).ROF$addMergeCount(rof$mergedTNTNCount);
-                    TntEntityAccessor thisAccessor = (TntEntityAccessor) this;
+                    ((MergedEntityAccessor) tnt).ROF$addMergeCount(rof$mergedTNTNCount);
+                    MergedEntityAccessor thisAccessor = (MergedEntityAccessor) this;
                     thisAccessor.ROF$addMergeCount(rof$mergedTNTNCount);
                     this.remove(RemovalReason.DISCARDED);
                     ci.cancel();

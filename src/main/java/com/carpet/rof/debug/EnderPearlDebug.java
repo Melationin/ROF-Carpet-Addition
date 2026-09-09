@@ -15,6 +15,8 @@ import org.slf4j.Logger;
 import java.util.Locale;
 
 /**
+ * <p>本功能完全由LLM生成</p>
+ *
  * 珍珠调试工具（调试专用，与正式功能完全分离，独立包 com.carpet.rof.debug）。
  *
  * <p>触发方式：给珍珠一个调试名（实体 CustomName 或物品自定义名），名称以 {@link #NAME_PREFIX} 开头。

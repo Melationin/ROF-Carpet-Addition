@@ -1,13 +1,12 @@
 package com.carpet.rof.extraWorldData;
 
 import com.carpet.rof.accessor.IExtraChunkDataAccessor;
-import com.carpet.rof.event.ROFEvents;
 import com.carpet.rof.extraWorldData.extraChunkDatas.ChunkEntitySpawnLogger;
 import com.carpet.rof.extraWorldData.extraChunkDatas.ChunkLoadedFinder;
 import com.carpet.rof.extraWorldData.extraChunkDatas.ExceedChunkMarker;
 import com.carpet.rof.extraWorldData.asyncWorldgen.AsyncWorldgenCacheData;
 import com.carpet.rof.rules.extraChunkDatas.ExceedChunkMarkerSetting;
-import com.carpet.rof.rules.mergeTNTNext.MergeTNTNextSetting;
+import com.carpet.rof.rules.merge.MergeSetting;
 import com.carpet.rof.utils.NBTData;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.world.entity.Entity;
@@ -28,7 +27,7 @@ public class ExtraWorldDatas implements NBTData
 
     public final Map<UUID, Entity> forcedEntitylist = new HashMap<>();
 
-    public final HashMap<MergeTNTNextSetting.EntityPosAndVec, PrimedTnt> mergeTntMap =  new HashMap<>();
+    public final HashMap<MergeSetting.EntityPosAndVec, PrimedTnt> mergeTntMap =  new HashMap<>();
 
     public final Map<EntityType<?>,Integer> entitySpawnCountsPerTick = new HashMap<>();
 
