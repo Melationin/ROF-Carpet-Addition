@@ -12,6 +12,16 @@
 
 &emsp;- 分类: `ROF`, `optimization`
 
+## 可攀爬方块标签判断缓存 (optimizedClimbableTagCheck)
+
+&emsp;缓存 Lithium 实体推挤判断中的 `CLIMBABLE` 方块标签查询，减少 `LivingEntity.onClimbable` 的重复标签查找。数据包重载后自动失效缓存。
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `optimization`
+
 ## 实体ID命令 (commandEntityID)
 
 &emsp;查看并控制实体id的命令

@@ -2,9 +2,8 @@
 
   "carpet.category.ROF": "ROF",
   "carpet.category.PACKET": "PACKET",
-  "carpet.rule.optimizedEntityCollection.name": "High-density entity push collection optimization",
   "carpet.rule.optimizedEntityCollection.desc": "Uses a section-local spatial index to optimize Lithium push candidate collection. Entity iteration order may change.",
-
+  "carpet.rule.optimizedClimbableTagCheck.desc": "Caches the CLIMBABLE block-tag lookup used by Lithium entity pushability checks, reducing repeated tag lookups in LivingEntity.onClimbable. The cache is invalidated after data-pack reloads.",
   "carpet.rule.commandSpawnWhitedListedPlayer.desc": "Used to summon fake players without prefix",
   "carpet.rule.commandSpawnWhitedListedPlayer.extra.0": "/player <name> spawn original - summon a fake player without prefix",
   "carpet.rule.commandExceedChunkMarker.desc": "Controls the permission level of ECM command. Invalid when ECM is not started.",

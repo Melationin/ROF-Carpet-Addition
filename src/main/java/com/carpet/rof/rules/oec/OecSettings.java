@@ -13,7 +13,7 @@ import net.minecraft.commands.CommandSourceStack;
 @ROFRule
 public class OecSettings extends BaseSetting {
     @Rule(categories = {ROF, OPTIMIZATION}, validators = ToggleValidator.class)
-    @QuickTranslations(name = "高密度实体推挤收集优化", description = "使用分区空间索引优化 Lithium 的高密度实体推挤候选收集。可能改变实体遍历顺序。")
+    @QuickTranslations(name = "实体推挤收集优化", description = "使用分区空间索引优化 Lithium 的高密度实体推挤候选收集。可能改变实体遍历顺序。")
     public static boolean optimizedEntityCollection = false;
 
     public static final class ToggleValidator extends Validator<Boolean> {

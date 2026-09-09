@@ -24,6 +24,8 @@
     "rules.oec.EntityMixin",
     "rules.oec.EntitySectionMixin",
     "rules.oec.EntitySectionStorageMixin",
+    "rules.oec.lithium.BlockStateBaseMixin",
+    "rules.oec.lithium.LivingEntityClimbableMixin",
     "rules.oec.lithium.ReferenceMaskedListMixin",
     "rules.oec.lithium.WorldHelperMixin",
     "rules.enderPearl.ThrownEnderpearlMixin",

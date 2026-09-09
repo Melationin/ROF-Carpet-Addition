@@ -10,6 +10,16 @@
 
 &emsp;- Categories: `ROF`, `optimization`
 
+## Climbable block tag check cache (optimizedClimbableTagCheck)
+
+&emsp;Caches the `CLIMBABLE` block-tag lookup used by Lithium entity pushability checks, reducing repeated tag lookups in `LivingEntity.onClimbable`. The cache is invalidated after data-pack reloads.
+
+&emsp;- Type: `boolean`
+
+&emsp;- Default: `false`
+
+&emsp;- Categories: `ROF`, `optimization`
+
 
 ## commandEntityID
 
