@@ -13,6 +13,14 @@ public final class SectionEntityGrid {
     private static final int CELLS_PER_AXIS = 8;
     private static final int CELL_COUNT = 512;
     private static final int INITIAL_CAPACITY = 16;
+    private static final int STRIDE = 6;
+    private static final int MIN_X = 0;
+    private static final int MIN_Y = 1;
+    private static final int MIN_Z = 2;
+    private static final int MAX_X = 3;
+    private static final int MAX_Y = 4;
+    private static final int MAX_Z = 5;
+    private static final int RANGE_MASK = 7;
 
     private final double originX;
     private final double originY;
@@ -20,18 +28,10 @@ public final class SectionEntityGrid {
     private final Reference2IntOpenHashMap<Entity> entityToSlot = new Reference2IntOpenHashMap<>();
 
     private Entity[] entities = new Entity[INITIAL_CAPACITY];
-    private double[] minX = new double[INITIAL_CAPACITY];
-    private double[] minY = new double[INITIAL_CAPACITY];
-    private double[] minZ = new double[INITIAL_CAPACITY];
-    private double[] maxX = new double[INITIAL_CAPACITY];
-    private double[] maxY = new double[INITIAL_CAPACITY];
-    private double[] maxZ = new double[INITIAL_CAPACITY];
-    private byte[] cellMinX = new byte[INITIAL_CAPACITY];
-    private byte[] cellMinY = new byte[INITIAL_CAPACITY];
-    private byte[] cellMinZ = new byte[INITIAL_CAPACITY];
-    private byte[] cellMaxX = new byte[INITIAL_CAPACITY];
-    private byte[] cellMaxY = new byte[INITIAL_CAPACITY];
-    private byte[] cellMaxZ = new byte[INITIAL_CAPACITY];
+    /** Six doubles per slot: minX, minY, minZ, maxX, maxY, maxZ. */
+    private double[] bounds = new double[INITIAL_CAPACITY * STRIDE];
+    /** Six unsigned bytes per slot, same order as {@link #bounds}. */
+    private byte[] cellRanges = new byte[INITIAL_CAPACITY * STRIDE];
     private BitSet[] cells;
     private int size;
     private boolean valid = true;
@@ -54,7 +54,7 @@ public final class SectionEntityGrid {
         this.entities[slot] = entity;
         this.entityToSlot.put(entity, slot);
         writeBounds(slot, box);
-        CellRange range = computeCellRange(box);
+        int range = computeCellRange(box);
         storeRange(slot, range);
         if (this.cells != null) addToCells(slot, range);
         this.modificationCount++;
@@ -67,7 +67,7 @@ public final class SectionEntityGrid {
         int last = this.size - 1;
         if (this.cells != null) removeFromCells(slot, rangeOf(slot));
         if (slot != last) {
-            CellRange movedRange = rangeOf(last);
+            int movedRange = rangeOf(last);
             if (this.cells != null) removeFromCells(last, movedRange);
             copySlot(last, slot);
             this.entityToSlot.put(this.entities[slot], slot);
@@ -88,10 +88,10 @@ public final class SectionEntityGrid {
         }
         if (sameBounds(slot, box)) return;
         OecMetrics.BOUNDS_UPDATES.increment();
-        CellRange oldRange = rangeOf(slot);
+        int oldRange = rangeOf(slot);
         writeBounds(slot, box);
-        CellRange newRange = computeCellRange(box);
-        if (this.cells != null && !oldRange.equals(newRange)) {
+        int newRange = computeCellRange(box);
+        if (this.cells != null && oldRange != newRange) {
             OecMetrics.RANGE_CHANGES.increment();
             removeFromCells(slot, oldRange);
             addToCells(slot, newRange);
@@ -116,21 +116,24 @@ public final class SectionEntityGrid {
             candidates.set(0, this.size);
             return true;
         }
-        CellRange range = computeCellRange(box);
-        for (int y = range.minY; y <= range.maxY; y++) {
-            for (int z = range.minZ; z <= range.maxZ; z++) {
-                int base = cellIndex(range.minX, y, z);
-                for (int x = range.minX; x <= range.maxX; x++) candidates.or(this.cells[base + x - range.minX]);
+        int range = computeCellRange(box);
+        int minX = rangeMinX(range), maxX = rangeMaxX(range);
+        int minZ = rangeMinZ(range), maxZ = rangeMaxZ(range);
+        for (int y = rangeMinY(range); y <= rangeMaxY(range); y++) {
+            for (int z = minZ; z <= maxZ; z++) {
+                int base = cellIndex(minX, y, z);
+                for (int x = minX; x <= maxX; x++) candidates.or(this.cells[base + x - minX]);
             }
         }
         return true;
     }
 
     public boolean intersects(int slot, AABB box) {
-        return slot >= 0 && slot < this.size
-                && this.maxX[slot] > box.minX && this.minX[slot] < box.maxX
-                && this.maxY[slot] > box.minY && this.minY[slot] < box.maxY
-                && this.maxZ[slot] > box.minZ && this.minZ[slot] < box.maxZ;
+        if (slot < 0 || slot >= this.size) return false;
+        int base = slot * STRIDE;
+        return this.bounds[base + MAX_X] > box.minX && this.bounds[base + MIN_X] < box.maxX
+                && this.bounds[base + MAX_Y] > box.minY && this.bounds[base + MIN_Y] < box.maxY
+                && this.bounds[base + MAX_Z] > box.minZ && this.bounds[base + MIN_Z] < box.maxZ;
     }
 
     public Entity entity(int slot) { return slot >= 0 && slot < this.size ? this.entities[slot] : null; }
@@ -154,9 +157,10 @@ public final class SectionEntityGrid {
             Entity entity = this.entities[slot];
             if (entity == null || this.entityToSlot.getInt(entity) != slot) throw new IllegalStateException("Invalid dense slot " + slot);
             if (this.cells != null) {
-                CellRange range = rangeOf(slot);
+                int range = rangeOf(slot);
+                int minX = rangeMinX(range), maxX = rangeMaxX(range), minY = rangeMinY(range), maxY = rangeMaxY(range), minZ = rangeMinZ(range), maxZ = rangeMaxZ(range);
                 for (int y = 0; y < CELLS_PER_AXIS; y++) for (int z = 0; z < CELLS_PER_AXIS; z++) for (int x = 0; x < CELLS_PER_AXIS; x++) {
-                    boolean expected = x >= range.minX && x <= range.maxX && y >= range.minY && y <= range.maxY && z >= range.minZ && z <= range.maxZ;
+                    boolean expected = x >= minX && x <= maxX && y >= minY && y <= maxY && z >= minZ && z <= maxZ;
                     if (this.cells[cellIndex(x, y, z)].get(slot) != expected) throw new IllegalStateException("Invalid membership for slot " + slot);
                 }
             }
@@ -165,61 +169,76 @@ public final class SectionEntityGrid {
 
     private boolean invalidate() { this.valid = false; this.modificationCount++; return false; }
     private void writeBounds(int slot, AABB box) {
-        this.minX[slot] = box.minX; this.minY[slot] = box.minY; this.minZ[slot] = box.minZ;
-        this.maxX[slot] = box.maxX; this.maxY[slot] = box.maxY; this.maxZ[slot] = box.maxZ;
+        int base = slot * STRIDE;
+        this.bounds[base + MIN_X] = box.minX; this.bounds[base + MIN_Y] = box.minY; this.bounds[base + MIN_Z] = box.minZ;
+        this.bounds[base + MAX_X] = box.maxX; this.bounds[base + MAX_Y] = box.maxY; this.bounds[base + MAX_Z] = box.maxZ;
     }
     private boolean sameBounds(int slot, AABB box) {
-        return this.minX[slot] == box.minX && this.minY[slot] == box.minY && this.minZ[slot] == box.minZ
-                && this.maxX[slot] == box.maxX && this.maxY[slot] == box.maxY && this.maxZ[slot] == box.maxZ;
+        int base = slot * STRIDE;
+        return this.bounds[base + MIN_X] == box.minX && this.bounds[base + MIN_Y] == box.minY && this.bounds[base + MIN_Z] == box.minZ
+                && this.bounds[base + MAX_X] == box.maxX && this.bounds[base + MAX_Y] == box.maxY && this.bounds[base + MAX_Z] == box.maxZ;
     }
     private static boolean isFinite(AABB box) {
         return Double.isFinite(box.minX) && Double.isFinite(box.minY) && Double.isFinite(box.minZ)
                 && Double.isFinite(box.maxX) && Double.isFinite(box.maxY) && Double.isFinite(box.maxZ);
     }
-    private CellRange computeCellRange(AABB box) {
-        return new CellRange(toCell(box.minX, this.originX), toCell(box.minY, this.originY), toCell(box.minZ, this.originZ),
+    private int computeCellRange(AABB box) {
+        return packRange(toCell(box.minX, this.originX), toCell(box.minY, this.originY), toCell(box.minZ, this.originZ),
                 toCell(box.maxX, this.originX), toCell(box.maxY, this.originY), toCell(box.maxZ, this.originZ));
     }
+    /** Packs six 3-bit cell coordinates (0..7) into one int, so queries and updates allocate nothing. */
+    private static int packRange(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+        return minX | (minY << 3) | (minZ << 6) | (maxX << 9) | (maxY << 12) | (maxZ << 15);
+    }
+    private static int rangeMinX(int range) { return range & RANGE_MASK; }
+    private static int rangeMinY(int range) { return (range >>> 3) & RANGE_MASK; }
+    private static int rangeMinZ(int range) { return (range >>> 6) & RANGE_MASK; }
+    private static int rangeMaxX(int range) { return (range >>> 9) & RANGE_MASK; }
+    private static int rangeMaxY(int range) { return (range >>> 12) & RANGE_MASK; }
+    private static int rangeMaxZ(int range) { return (range >>> 15) & RANGE_MASK; }
     private static int toCell(double coordinate, double origin) {
         return Math.max(0, Math.min(CELLS_PER_AXIS - 1, (int) Math.floor((coordinate - origin) / CELL_SIZE)));
     }
     private static int cellIndex(int x, int y, int z) { return x | (z << 3) | (y << 6); }
-    private void addToCells(int slot, CellRange range) {
-        for (int y = range.minY; y <= range.maxY; y++) for (int z = range.minZ; z <= range.maxZ; z++) {
-            int base = cellIndex(range.minX, y, z);
-            for (int x = range.minX; x <= range.maxX; x++) this.cells[base + x - range.minX].set(slot);
+    private void addToCells(int slot, int range) {
+        int minX = rangeMinX(range), maxX = rangeMaxX(range);
+        int minZ = rangeMinZ(range), maxZ = rangeMaxZ(range);
+        for (int y = rangeMinY(range); y <= rangeMaxY(range); y++) for (int z = minZ; z <= maxZ; z++) {
+            int base = cellIndex(minX, y, z);
+            for (int x = minX; x <= maxX; x++) this.cells[base + x - minX].set(slot);
         }
     }
-    private void removeFromCells(int slot, CellRange range) {
-        for (int y = range.minY; y <= range.maxY; y++) for (int z = range.minZ; z <= range.maxZ; z++) {
-            int base = cellIndex(range.minX, y, z);
-            for (int x = range.minX; x <= range.maxX; x++) this.cells[base + x - range.minX].clear(slot);
+    private void removeFromCells(int slot, int range) {
+        int minX = rangeMinX(range), maxX = rangeMaxX(range);
+        int minZ = rangeMinZ(range), maxZ = rangeMaxZ(range);
+        for (int y = rangeMinY(range); y <= rangeMaxY(range); y++) for (int z = minZ; z <= maxZ; z++) {
+            int base = cellIndex(minX, y, z);
+            for (int x = minX; x <= maxX; x++) this.cells[base + x - minX].clear(slot);
         }
     }
-    private CellRange rangeOf(int slot) {
-        return new CellRange(Byte.toUnsignedInt(this.cellMinX[slot]), Byte.toUnsignedInt(this.cellMinY[slot]), Byte.toUnsignedInt(this.cellMinZ[slot]),
-                Byte.toUnsignedInt(this.cellMaxX[slot]), Byte.toUnsignedInt(this.cellMaxY[slot]), Byte.toUnsignedInt(this.cellMaxZ[slot]));
+    private int rangeOf(int slot) {
+        int base = slot * STRIDE;
+        return packRange(Byte.toUnsignedInt(this.cellRanges[base + MIN_X]), Byte.toUnsignedInt(this.cellRanges[base + MIN_Y]), Byte.toUnsignedInt(this.cellRanges[base + MIN_Z]),
+                Byte.toUnsignedInt(this.cellRanges[base + MAX_X]), Byte.toUnsignedInt(this.cellRanges[base + MAX_Y]), Byte.toUnsignedInt(this.cellRanges[base + MAX_Z]));
     }
-    private void storeRange(int slot, CellRange range) {
-        this.cellMinX[slot] = (byte) range.minX; this.cellMinY[slot] = (byte) range.minY; this.cellMinZ[slot] = (byte) range.minZ;
-        this.cellMaxX[slot] = (byte) range.maxX; this.cellMaxY[slot] = (byte) range.maxY; this.cellMaxZ[slot] = (byte) range.maxZ;
+    private void storeRange(int slot, int range) {
+        int base = slot * STRIDE;
+        this.cellRanges[base + MIN_X] = (byte) rangeMinX(range); this.cellRanges[base + MIN_Y] = (byte) rangeMinY(range); this.cellRanges[base + MIN_Z] = (byte) rangeMinZ(range);
+        this.cellRanges[base + MAX_X] = (byte) rangeMaxX(range); this.cellRanges[base + MAX_Y] = (byte) rangeMaxY(range); this.cellRanges[base + MAX_Z] = (byte) rangeMaxZ(range);
     }
     private void copySlot(int source, int target) {
         this.entities[target] = this.entities[source];
-        this.minX[target] = this.minX[source]; this.minY[target] = this.minY[source]; this.minZ[target] = this.minZ[source];
-        this.maxX[target] = this.maxX[source]; this.maxY[target] = this.maxY[source]; this.maxZ[target] = this.maxZ[source];
-        this.cellMinX[target] = this.cellMinX[source]; this.cellMinY[target] = this.cellMinY[source]; this.cellMinZ[target] = this.cellMinZ[source];
-        this.cellMaxX[target] = this.cellMaxX[source]; this.cellMaxY[target] = this.cellMaxY[source]; this.cellMaxZ[target] = this.cellMaxZ[source];
+        int sourceBase = source * STRIDE;
+        int targetBase = target * STRIDE;
+        System.arraycopy(this.bounds, sourceBase, this.bounds, targetBase, STRIDE);
+        System.arraycopy(this.cellRanges, sourceBase, this.cellRanges, targetBase, STRIDE);
     }
     private void ensureCapacity(int required) {
         if (required <= this.entities.length) return;
         int capacity = this.entities.length;
         while (capacity < required) capacity <<= 1;
         this.entities = Arrays.copyOf(this.entities, capacity);
-        this.minX = Arrays.copyOf(this.minX, capacity); this.minY = Arrays.copyOf(this.minY, capacity); this.minZ = Arrays.copyOf(this.minZ, capacity);
-        this.maxX = Arrays.copyOf(this.maxX, capacity); this.maxY = Arrays.copyOf(this.maxY, capacity); this.maxZ = Arrays.copyOf(this.maxZ, capacity);
-        this.cellMinX = Arrays.copyOf(this.cellMinX, capacity); this.cellMinY = Arrays.copyOf(this.cellMinY, capacity); this.cellMinZ = Arrays.copyOf(this.cellMinZ, capacity);
-        this.cellMaxX = Arrays.copyOf(this.cellMaxX, capacity); this.cellMaxY = Arrays.copyOf(this.cellMaxY, capacity); this.cellMaxZ = Arrays.copyOf(this.cellMaxZ, capacity);
+        this.bounds = Arrays.copyOf(this.bounds, capacity * STRIDE);
+        this.cellRanges = Arrays.copyOf(this.cellRanges, capacity * STRIDE);
     }
-    private record CellRange(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {}
 }
