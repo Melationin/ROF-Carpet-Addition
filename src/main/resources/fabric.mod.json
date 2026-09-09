@@ -30,7 +30,7 @@
     "minecraft": "${minecraftVer}",
     "fabricloader": ">=0.4.0",
     "carpet": "*",
-    "lithium": "*"
+    "lithium": "0.24.7+mc26.1.2"
   },
   "suggests": {
     "flamingo": "*"

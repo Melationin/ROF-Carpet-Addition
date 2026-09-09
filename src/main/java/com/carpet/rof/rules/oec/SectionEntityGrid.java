@@ -1,758 +1,225 @@
 package com.carpet.rof.rules.oec;
+
+import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.IdentityHashMap;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 
-/**
- * 单个 16x16x16 EntitySection 的实体空间索引。
- *
- * cellSize:
- *   16 -> 1x1x1，等价于无细分
- *    8 -> 2x2x2
- *    4 -> 4x4x4
- *    2 -> 8x8x8
- *    1 -> 16x16x16
- *
- * 无论是否细分：
- * - Entity[]
- * - position xyz
- * - AABB min/max
- *
- * 始终使用连续 dense storage。
- */
+/** A dense, section-local broad-phase index for Lithium push queries. */
 public final class SectionEntityGrid {
+    public static final int CELL_SIZE = 2;
+    private static final int CELLS_PER_AXIS = 8;
+    private static final int CELL_COUNT = 512;
+    private static final int INITIAL_CAPACITY = 16;
 
-    private static final int SECTION_SIZE = 16;
-    private static final int INITIAL_CAPACITY = 64;
-
-    /* Section world-space origin */
     private final double originX;
     private final double originY;
     private final double originZ;
+    private final Reference2IntOpenHashMap<Entity> entityToSlot = new Reference2IntOpenHashMap<>();
 
-    /*
-     * cellSize = 16 => 无细分
-     * cellSize = 2  => 8^3 个 cell
-     */
-    private final int cellSize;
-    private final int cellsPerAxis;
-    private final int cellShift;
-
-    /*
-     * 每个 cell 是一个 dense-slot bitset。
-     *
-     * entity slot i 属于 cell c:
-     * cells[c].get(i) == true
-     */
-    private final BitSet[] cells;
-
-    /*
-     * -------------------------
-     * Dense entity storage
-     * -------------------------
-     */
-
-    private Entity[] entities;
-
-    private double[] posX;
-    private double[] posY;
-    private double[] posZ;
-
-    private double[] minX;
-    private double[] minY;
-    private double[] minZ;
-
-    private double[] maxX;
-    private double[] maxY;
-    private double[] maxZ;
-
-    /*
-     * 当前实体占据的 cell range。
-     *
-     * 这样 update/remove 时不用重新根据旧 AABB 计算。
-     */
-    private byte[] cellMinX;
-    private byte[] cellMinY;
-    private byte[] cellMinZ;
-
-    private byte[] cellMaxX;
-    private byte[] cellMaxY;
-    private byte[] cellMaxZ;
-
-    /*
-     * Entity -> dense slot
-     */
-    private final IdentityHashMap<Entity, Integer> entityToIndex =
-            new IdentityHashMap<>();
-
+    private Entity[] entities = new Entity[INITIAL_CAPACITY];
+    private double[] minX = new double[INITIAL_CAPACITY];
+    private double[] minY = new double[INITIAL_CAPACITY];
+    private double[] minZ = new double[INITIAL_CAPACITY];
+    private double[] maxX = new double[INITIAL_CAPACITY];
+    private double[] maxY = new double[INITIAL_CAPACITY];
+    private double[] maxZ = new double[INITIAL_CAPACITY];
+    private byte[] cellMinX = new byte[INITIAL_CAPACITY];
+    private byte[] cellMinY = new byte[INITIAL_CAPACITY];
+    private byte[] cellMinZ = new byte[INITIAL_CAPACITY];
+    private byte[] cellMaxX = new byte[INITIAL_CAPACITY];
+    private byte[] cellMaxY = new byte[INITIAL_CAPACITY];
+    private byte[] cellMaxZ = new byte[INITIAL_CAPACITY];
+    private BitSet[] cells;
     private int size;
+    private boolean valid = true;
+    private long modificationCount;
 
-    /*
-     * 查询 scratch。
-     *
-     * Minecraft server thread 单线程查询的话可以直接复用。
-     * 如果未来并发，需要 ThreadLocal。
-     */
-    private final BitSet queryBits = new BitSet();
-
-
-    public SectionEntityGrid(
-            int sectionX,
-            int sectionY,
-            int sectionZ,
-            int cellSize
-    ) {
-        if (cellSize <= 0
-                || cellSize > SECTION_SIZE
-                || (cellSize & (cellSize - 1)) != 0
-                || SECTION_SIZE % cellSize != 0) {
-            throw new IllegalArgumentException(
-                    "cellSize must be one of 1, 2, 4, 8, 16"
-            );
-        }
-
+    public SectionEntityGrid(int sectionX, int sectionY, int sectionZ) {
         this.originX = sectionX * 16.0;
         this.originY = sectionY * 16.0;
         this.originZ = sectionZ * 16.0;
-
-        this.cellSize = cellSize;
-        this.cellsPerAxis = SECTION_SIZE / cellSize;
-
-        /*
-         * cellsPerAxis 一定为 2 的幂。
-         */
-        this.cellShift =
-                Integer.numberOfTrailingZeros(cellsPerAxis);
-
-        int cellCount =
-                cellsPerAxis
-                        * cellsPerAxis
-                        * cellsPerAxis;
-
-        this.cells = new BitSet[cellCount];
-
-        for (int i = 0; i < cellCount; i++) {
-            this.cells[i] = new BitSet();
-        }
-
-        allocateArrays(INITIAL_CAPACITY);
+        this.entityToSlot.defaultReturnValue(-1);
     }
 
-
-    // ========================================================================
-    // Add
-    // ========================================================================
-
-    public void add(Entity entity) {
-        if (entityToIndex.containsKey(entity)) {
-            return;
-        }
-
-        ensureCapacity(size + 1);
-
-        int index = size++;
-
-        entities[index] = entity;
-        entityToIndex.put(entity, index);
-
-        readEntity(index, entity);
-
-        CellRange range = computeCellRange(
-                minX[index],
-                minY[index],
-                minZ[index],
-                maxX[index],
-                maxY[index],
-                maxZ[index]
-        );
-
-        storeRange(index, range);
-        addToCells(index, range);
-    }
-
-
-    // ========================================================================
-    // Remove
-    // ========================================================================
-
-    public void remove(Entity entity) {
-        Integer boxedIndex = entityToIndex.remove(entity);
-
-        if (boxedIndex == null) {
-            return;
-        }
-
-        int index = boxedIndex;
-        int last = size - 1;
-
-        /*
-         * 先移除被删除实体原来的 cell membership。
-         */
-        removeFromCells(index, rangeOf(index));
-
-        if (index != last) {
-            /*
-             * last entity 将移动到 index。
-             *
-             * 先修改 grid：
-             *
-             * old:
-             *     bit[last] = 1
-             *
-             * new:
-             *     bit[index] = 1
-             */
-            CellRange movedRange = rangeOf(last);
-
-            moveCellBits(last, index, movedRange);
-
-            /*
-             * 然后复制 dense data。
-             */
-            copySlot(last, index);
-
-            Entity moved = entities[index];
-            entityToIndex.put(moved, index);
-        }
-
-        clearSlot(last);
-
-        size--;
-    }
-
-
-    // ========================================================================
-    // Update
-    // ========================================================================
-
-    /**
-     * 实体移动 / AABB 改变后调用。
-     *
-     * position 与 AABB 无论 cellSize 是否为 16 都始终更新。
-     */
-    public void update(Entity entity) {
-        Integer boxedIndex = entityToIndex.get(entity);
-
-        if (boxedIndex == null) {
-            return;
-        }
-
-        int index = boxedIndex;
-
-        CellRange oldRange = rangeOf(index);
-
-        readEntity(index, entity);
-
-        CellRange newRange = computeCellRange(
-                minX[index],
-                minY[index],
-                minZ[index],
-                maxX[index],
-                maxY[index],
-                maxZ[index]
-        );
-
-        if (!oldRange.equals(newRange)) {
-            /*
-             * 普通实体一般只跨很少几个 cell，
-             * 所以简单 clear old + set new 即可。
-             */
-            removeFromCells(index, oldRange);
-            addToCells(index, newRange);
-
-            storeRange(index, newRange);
-        }
-    }
-
-
-    // ========================================================================
-    // Query
-    // ========================================================================
-
-    public void collect(
-            AABB query,
-            Predicate<? super Entity> predicate,
-            Consumer<? super Entity> output
-    ) {
-        CellRange range = computeCellRange(
-                query.minX,
-                query.minY,
-                query.minZ,
-                query.maxX,
-                query.maxY,
-                query.maxZ
-        );
-
-        if (range.empty()) {
-            return;
-        }
-
-        /*
-         * cellSize == 16 时：
-         *
-         * cells.length == 1
-         *
-         * 所以这里自然退化为扫描所有实体，
-         * 不需要任何特殊分支。
-         */
-        queryBits.clear();
-
-        for (int y = range.minY; y <= range.maxY; y++) {
-            for (int z = range.minZ; z <= range.maxZ; z++) {
-
-                int base = cellIndex(
-                        range.minX,
-                        y,
-                        z
-                );
-
-                for (int x = range.minX; x <= range.maxX; x++) {
-                    queryBits.or(
-                            cells[base + x - range.minX]
-                    );
-                }
-            }
-        }
-
-        /*
-         * 多 cell 实体会自动被 BitSet 去重。
-         */
-        for (
-                int i = queryBits.nextSetBit(0);
-                i >= 0;
-                i = queryBits.nextSetBit(i + 1)
-        ) {
-            /*
-             * 先用 dense AABB，
-             * 不访问 Entity#getBoundingBox()。
-             */
-            if (!intersects(i, query)) {
-                continue;
-            }
-
-            Entity entity = entities[i];
-
-            if (!predicate.test(entity)) {
-                continue;
-            }
-
-            output.accept(entity);
-        }
-    }
-
-
-    /**
-     * 不需要 predicate 的版本。
-     */
-    public void collect(
-            AABB query,
-            Consumer<? super Entity> output
-    ) {
-        collect(query, e -> true, output);
-    }
-
-
-    // ========================================================================
-    // Dense data
-    // ========================================================================
-
-    private void readEntity(int i, Entity entity) {
-        posX[i] = entity.getX();
-        posY[i] = entity.getY();
-        posZ[i] = entity.getZ();
-
+    public boolean add(Entity entity) {
+        if (!this.valid) return false;
+        if (this.entityToSlot.getInt(entity) >= 0) return true;
         AABB box = entity.getBoundingBox();
-
-        minX[i] = box.minX;
-        minY[i] = box.minY;
-        minZ[i] = box.minZ;
-
-        maxX[i] = box.maxX;
-        maxY[i] = box.maxY;
-        maxZ[i] = box.maxZ;
+        if (!isFinite(box)) return invalidate();
+        ensureCapacity(this.size + 1);
+        int slot = this.size++;
+        this.entities[slot] = entity;
+        this.entityToSlot.put(entity, slot);
+        writeBounds(slot, box);
+        CellRange range = computeCellRange(box);
+        storeRange(slot, range);
+        if (this.cells != null) addToCells(slot, range);
+        this.modificationCount++;
+        return true;
     }
 
-
-    private boolean intersects(int i, AABB box) {
-        /*
-         * 等价于 AABB.intersects，
-         * 但直接读连续 primitive array。
-         */
-        return maxX[i] > box.minX
-                && minX[i] < box.maxX
-                && maxY[i] > box.minY
-                && minY[i] < box.maxY
-                && maxZ[i] > box.minZ
-                && minZ[i] < box.maxZ;
-    }
-
-
-    // ========================================================================
-    // Cell range
-    // ========================================================================
-
-    private CellRange computeCellRange(
-            double boxMinX,
-            double boxMinY,
-            double boxMinZ,
-            double boxMaxX,
-            double boxMaxY,
-            double boxMaxZ
-    ) {
-        /*
-         * 完全不与这个 EntitySection 相交。
-         */
-        if (boxMaxX <= originX
-                || boxMinX >= originX + 16.0
-                || boxMaxY <= originY
-                || boxMinY >= originY + 16.0
-                || boxMaxZ <= originZ
-                || boxMinZ >= originZ + 16.0) {
-
-            return CellRange.EMPTY;
+    public boolean remove(Entity entity) {
+        int slot = this.entityToSlot.removeInt(entity);
+        if (slot < 0) return false;
+        int last = this.size - 1;
+        if (this.cells != null) removeFromCells(slot, rangeOf(slot));
+        if (slot != last) {
+            CellRange movedRange = rangeOf(last);
+            if (this.cells != null) removeFromCells(last, movedRange);
+            copySlot(last, slot);
+            this.entityToSlot.put(this.entities[slot], slot);
+            if (this.cells != null) addToCells(slot, movedRange);
         }
-
-        int minCX = toCellMin(boxMinX, originX);
-        int minCY = toCellMin(boxMinY, originY);
-        int minCZ = toCellMin(boxMinZ, originZ);
-
-        int maxCX = toCellMax(boxMaxX, originX);
-        int maxCY = toCellMax(boxMaxY, originY);
-        int maxCZ = toCellMax(boxMaxZ, originZ);
-
-        return new CellRange(
-                minCX,
-                minCY,
-                minCZ,
-                maxCX,
-                maxCY,
-                maxCZ
-        );
+        this.entities[last] = null;
+        this.size--;
+        this.modificationCount++;
+        return true;
     }
 
-
-    private int toCellMin(double p, double origin) {
-        int cell = (int) Math.floor(
-                (p - origin) / cellSize
-        );
-
-        return clampCell(cell);
-    }
-
-
-    private int toCellMax(double p, double origin) {
-        /*
-         * max 边界视为 exclusive。
-         */
-        int cell = (int) Math.floor(
-                (Math.nextDown(p) - origin) / cellSize
-        );
-
-        return clampCell(cell);
-    }
-
-
-    private int clampCell(int cell) {
-        if (cell < 0) {
-            return 0;
-        }
-
-        if (cell >= cellsPerAxis) {
-            return cellsPerAxis - 1;
-        }
-
-        return cell;
-    }
-
-
-    private int cellIndex(int x, int y, int z) {
-        /*
-         * X contiguous:
-         *
-         * index =
-         *     x
-         *   + z * N
-         *   + y * N*N
-         */
-        return x
-                | (z << cellShift)
-                | (y << (cellShift << 1));
-    }
-
-
-    // ========================================================================
-    // Cell membership
-    // ========================================================================
-
-    private void addToCells(int entityIndex, CellRange range) {
-        if (range.empty()) {
+    public void updateBounds(Entity entity, AABB box) {
+        int slot = this.entityToSlot.getInt(entity);
+        if (slot < 0 || !this.valid) return;
+        if (!isFinite(box)) {
+            invalidate();
             return;
         }
+        if (sameBounds(slot, box)) return;
+        OecMetrics.BOUNDS_UPDATES.increment();
+        CellRange oldRange = rangeOf(slot);
+        writeBounds(slot, box);
+        CellRange newRange = computeCellRange(box);
+        if (this.cells != null && !oldRange.equals(newRange)) {
+            OecMetrics.RANGE_CHANGES.increment();
+            removeFromCells(slot, oldRange);
+            addToCells(slot, newRange);
+        }
+        storeRange(slot, newRange);
+        this.modificationCount++;
+    }
 
+    public void enableFineGrid() {
+        if (this.cells != null || !this.valid) return;
+        this.cells = new BitSet[CELL_COUNT];
+        for (int i = 0; i < CELL_COUNT; i++) this.cells[i] = new BitSet(this.entities.length);
+        for (int slot = 0; slot < this.size; slot++) addToCells(slot, rangeOf(slot));
+    }
+
+    /** Populates frame with broad-phase slots. Returns false when Lithium must be used. */
+    public boolean collectCandidateSlots(AABB box, OecQueryFrame frame) {
+        if (!this.valid || !isFinite(box)) return false;
+        BitSet candidates = frame.bits();
+        candidates.clear();
+        if (this.cells == null) {
+            candidates.set(0, this.size);
+            return true;
+        }
+        CellRange range = computeCellRange(box);
         for (int y = range.minY; y <= range.maxY; y++) {
             for (int z = range.minZ; z <= range.maxZ; z++) {
-                int base = cellIndex(
-                        range.minX,
-                        y,
-                        z
-                );
+                int base = cellIndex(range.minX, y, z);
+                for (int x = range.minX; x <= range.maxX; x++) candidates.or(this.cells[base + x - range.minX]);
+            }
+        }
+        return true;
+    }
 
-                for (int x = range.minX; x <= range.maxX; x++) {
-                    cells[base + x - range.minX]
-                            .set(entityIndex);
+    public boolean intersects(int slot, AABB box) {
+        return slot >= 0 && slot < this.size
+                && this.maxX[slot] > box.minX && this.minX[slot] < box.maxX
+                && this.maxY[slot] > box.minY && this.minY[slot] < box.maxY
+                && this.maxZ[slot] > box.minZ && this.minZ[slot] < box.maxZ;
+    }
+
+    public Entity entity(int slot) { return slot >= 0 && slot < this.size ? this.entities[slot] : null; }
+    public int size() { return this.size; }
+    public boolean isValid() { return this.valid; }
+    public long modificationCount() { return this.modificationCount; }
+
+    public void release() {
+        Arrays.fill(this.entities, 0, this.size, null);
+        this.entityToSlot.clear();
+        this.cells = null;
+        this.size = 0;
+        this.valid = false;
+        this.modificationCount++;
+    }
+
+    public void checkInvariants() {
+        if (!this.valid) throw new IllegalStateException("Entity grid is invalid");
+        if (this.entityToSlot.size() != this.size) throw new IllegalStateException("Entity map size mismatch");
+        for (int slot = 0; slot < this.size; slot++) {
+            Entity entity = this.entities[slot];
+            if (entity == null || this.entityToSlot.getInt(entity) != slot) throw new IllegalStateException("Invalid dense slot " + slot);
+            if (this.cells != null) {
+                CellRange range = rangeOf(slot);
+                for (int y = 0; y < CELLS_PER_AXIS; y++) for (int z = 0; z < CELLS_PER_AXIS; z++) for (int x = 0; x < CELLS_PER_AXIS; x++) {
+                    boolean expected = x >= range.minX && x <= range.maxX && y >= range.minY && y <= range.maxY && z >= range.minZ && z <= range.maxZ;
+                    if (this.cells[cellIndex(x, y, z)].get(slot) != expected) throw new IllegalStateException("Invalid membership for slot " + slot);
                 }
             }
         }
     }
 
-
-    private void removeFromCells(int entityIndex, CellRange range) {
-        if (range.empty()) {
-            return;
-        }
-
-        for (int y = range.minY; y <= range.maxY; y++) {
-            for (int z = range.minZ; z <= range.maxZ; z++) {
-                int base = cellIndex(
-                        range.minX,
-                        y,
-                        z
-                );
-
-                for (int x = range.minX; x <= range.maxX; x++) {
-                    cells[base + x - range.minX]
-                            .clear(entityIndex);
-                }
-            }
-        }
+    private boolean invalidate() { this.valid = false; this.modificationCount++; return false; }
+    private void writeBounds(int slot, AABB box) {
+        this.minX[slot] = box.minX; this.minY[slot] = box.minY; this.minZ[slot] = box.minZ;
+        this.maxX[slot] = box.maxX; this.maxY[slot] = box.maxY; this.maxZ[slot] = box.maxZ;
     }
-
-
-    private void moveCellBits(
-            int oldIndex,
-            int newIndex,
-            CellRange range
-    ) {
-        if (range.empty()) {
-            return;
-        }
-
-        for (int y = range.minY; y <= range.maxY; y++) {
-            for (int z = range.minZ; z <= range.maxZ; z++) {
-                int base = cellIndex(
-                        range.minX,
-                        y,
-                        z
-                );
-
-                for (int x = range.minX; x <= range.maxX; x++) {
-                    BitSet bits =
-                            cells[base + x - range.minX];
-
-                    bits.clear(oldIndex);
-                    bits.set(newIndex);
-                }
-            }
+    private boolean sameBounds(int slot, AABB box) {
+        return this.minX[slot] == box.minX && this.minY[slot] == box.minY && this.minZ[slot] == box.minZ
+                && this.maxX[slot] == box.maxX && this.maxY[slot] == box.maxY && this.maxZ[slot] == box.maxZ;
+    }
+    private static boolean isFinite(AABB box) {
+        return Double.isFinite(box.minX) && Double.isFinite(box.minY) && Double.isFinite(box.minZ)
+                && Double.isFinite(box.maxX) && Double.isFinite(box.maxY) && Double.isFinite(box.maxZ);
+    }
+    private CellRange computeCellRange(AABB box) {
+        return new CellRange(toCell(box.minX, this.originX), toCell(box.minY, this.originY), toCell(box.minZ, this.originZ),
+                toCell(box.maxX, this.originX), toCell(box.maxY, this.originY), toCell(box.maxZ, this.originZ));
+    }
+    private static int toCell(double coordinate, double origin) {
+        return Math.max(0, Math.min(CELLS_PER_AXIS - 1, (int) Math.floor((coordinate - origin) / CELL_SIZE)));
+    }
+    private static int cellIndex(int x, int y, int z) { return x | (z << 3) | (y << 6); }
+    private void addToCells(int slot, CellRange range) {
+        for (int y = range.minY; y <= range.maxY; y++) for (int z = range.minZ; z <= range.maxZ; z++) {
+            int base = cellIndex(range.minX, y, z);
+            for (int x = range.minX; x <= range.maxX; x++) this.cells[base + x - range.minX].set(slot);
         }
     }
-
-
-    // ========================================================================
-    // Stored cell range
-    // ========================================================================
-
-    private CellRange rangeOf(int i) {
-        return new CellRange(
-                Byte.toUnsignedInt(cellMinX[i]),
-                Byte.toUnsignedInt(cellMinY[i]),
-                Byte.toUnsignedInt(cellMinZ[i]),
-
-                Byte.toUnsignedInt(cellMaxX[i]),
-                Byte.toUnsignedInt(cellMaxY[i]),
-                Byte.toUnsignedInt(cellMaxZ[i])
-        );
-    }
-
-
-    private void storeRange(int i, CellRange range) {
-        if (range.empty()) {
-            /*
-             * 如果你保证加入这个 index 的实体一定与 section 相交，
-             * 这里理论上不会发生。
-             */
-            cellMinX[i] = 0;
-            cellMinY[i] = 0;
-            cellMinZ[i] = 0;
-
-            cellMaxX[i] = 0;
-            cellMaxY[i] = 0;
-            cellMaxZ[i] = 0;
-            return;
+    private void removeFromCells(int slot, CellRange range) {
+        for (int y = range.minY; y <= range.maxY; y++) for (int z = range.minZ; z <= range.maxZ; z++) {
+            int base = cellIndex(range.minX, y, z);
+            for (int x = range.minX; x <= range.maxX; x++) this.cells[base + x - range.minX].clear(slot);
         }
-
-        cellMinX[i] = (byte) range.minX;
-        cellMinY[i] = (byte) range.minY;
-        cellMinZ[i] = (byte) range.minZ;
-
-        cellMaxX[i] = (byte) range.maxX;
-        cellMaxY[i] = (byte) range.maxY;
-        cellMaxZ[i] = (byte) range.maxZ;
     }
-
-
-    // ========================================================================
-    // Dense remove
-    // ========================================================================
-
-    private void copySlot(int src, int dst) {
-        entities[dst] = entities[src];
-
-        posX[dst] = posX[src];
-        posY[dst] = posY[src];
-        posZ[dst] = posZ[src];
-
-        minX[dst] = minX[src];
-        minY[dst] = minY[src];
-        minZ[dst] = minZ[src];
-
-        maxX[dst] = maxX[src];
-        maxY[dst] = maxY[src];
-        maxZ[dst] = maxZ[src];
-
-        cellMinX[dst] = cellMinX[src];
-        cellMinY[dst] = cellMinY[src];
-        cellMinZ[dst] = cellMinZ[src];
-
-        cellMaxX[dst] = cellMaxX[src];
-        cellMaxY[dst] = cellMaxY[src];
-        cellMaxZ[dst] = cellMaxZ[src];
+    private CellRange rangeOf(int slot) {
+        return new CellRange(Byte.toUnsignedInt(this.cellMinX[slot]), Byte.toUnsignedInt(this.cellMinY[slot]), Byte.toUnsignedInt(this.cellMinZ[slot]),
+                Byte.toUnsignedInt(this.cellMaxX[slot]), Byte.toUnsignedInt(this.cellMaxY[slot]), Byte.toUnsignedInt(this.cellMaxZ[slot]));
     }
-
-
-    private void clearSlot(int i) {
-        entities[i] = null;
+    private void storeRange(int slot, CellRange range) {
+        this.cellMinX[slot] = (byte) range.minX; this.cellMinY[slot] = (byte) range.minY; this.cellMinZ[slot] = (byte) range.minZ;
+        this.cellMaxX[slot] = (byte) range.maxX; this.cellMaxY[slot] = (byte) range.maxY; this.cellMaxZ[slot] = (byte) range.maxZ;
     }
-
-
-    // ========================================================================
-    // Capacity
-    // ========================================================================
-
+    private void copySlot(int source, int target) {
+        this.entities[target] = this.entities[source];
+        this.minX[target] = this.minX[source]; this.minY[target] = this.minY[source]; this.minZ[target] = this.minZ[source];
+        this.maxX[target] = this.maxX[source]; this.maxY[target] = this.maxY[source]; this.maxZ[target] = this.maxZ[source];
+        this.cellMinX[target] = this.cellMinX[source]; this.cellMinY[target] = this.cellMinY[source]; this.cellMinZ[target] = this.cellMinZ[source];
+        this.cellMaxX[target] = this.cellMaxX[source]; this.cellMaxY[target] = this.cellMaxY[source]; this.cellMaxZ[target] = this.cellMaxZ[source];
+    }
     private void ensureCapacity(int required) {
-        if (required <= entities.length) {
-            return;
-        }
-
-        int capacity = entities.length;
-
-        while (capacity < required) {
-            capacity <<= 1;
-        }
-
-        entities = Arrays.copyOf(entities, capacity);
-
-        posX = Arrays.copyOf(posX, capacity);
-        posY = Arrays.copyOf(posY, capacity);
-        posZ = Arrays.copyOf(posZ, capacity);
-
-        minX = Arrays.copyOf(minX, capacity);
-        minY = Arrays.copyOf(minY, capacity);
-        minZ = Arrays.copyOf(minZ, capacity);
-
-        maxX = Arrays.copyOf(maxX, capacity);
-        maxY = Arrays.copyOf(maxY, capacity);
-        maxZ = Arrays.copyOf(maxZ, capacity);
-
-        cellMinX = Arrays.copyOf(cellMinX, capacity);
-        cellMinY = Arrays.copyOf(cellMinY, capacity);
-        cellMinZ = Arrays.copyOf(cellMinZ, capacity);
-
-        cellMaxX = Arrays.copyOf(cellMaxX, capacity);
-        cellMaxY = Arrays.copyOf(cellMaxY, capacity);
-        cellMaxZ = Arrays.copyOf(cellMaxZ, capacity);
+        if (required <= this.entities.length) return;
+        int capacity = this.entities.length;
+        while (capacity < required) capacity <<= 1;
+        this.entities = Arrays.copyOf(this.entities, capacity);
+        this.minX = Arrays.copyOf(this.minX, capacity); this.minY = Arrays.copyOf(this.minY, capacity); this.minZ = Arrays.copyOf(this.minZ, capacity);
+        this.maxX = Arrays.copyOf(this.maxX, capacity); this.maxY = Arrays.copyOf(this.maxY, capacity); this.maxZ = Arrays.copyOf(this.maxZ, capacity);
+        this.cellMinX = Arrays.copyOf(this.cellMinX, capacity); this.cellMinY = Arrays.copyOf(this.cellMinY, capacity); this.cellMinZ = Arrays.copyOf(this.cellMinZ, capacity);
+        this.cellMaxX = Arrays.copyOf(this.cellMaxX, capacity); this.cellMaxY = Arrays.copyOf(this.cellMaxY, capacity); this.cellMaxZ = Arrays.copyOf(this.cellMaxZ, capacity);
     }
-
-
-    private void allocateArrays(int capacity) {
-        entities = new Entity[capacity];
-
-        posX = new double[capacity];
-        posY = new double[capacity];
-        posZ = new double[capacity];
-
-        minX = new double[capacity];
-        minY = new double[capacity];
-        minZ = new double[capacity];
-
-        maxX = new double[capacity];
-        maxY = new double[capacity];
-        maxZ = new double[capacity];
-
-        cellMinX = new byte[capacity];
-        cellMinY = new byte[capacity];
-        cellMinZ = new byte[capacity];
-
-        cellMaxX = new byte[capacity];
-        cellMaxY = new byte[capacity];
-        cellMaxZ = new byte[capacity];
-    }
-
-
-    // ========================================================================
-    // Accessors
-    // ========================================================================
-
-    public int size() {
-        return size;
-    }
-
-    public int cellSize() {
-        return cellSize;
-    }
-
-    public int cellsPerAxis() {
-        return cellsPerAxis;
-    }
-
-    public Entity entity(int index) {
-        return entities[index];
-    }
-
-    public double x(int index) {
-        return posX[index];
-    }
-
-    public double y(int index) {
-        return posY[index];
-    }
-
-    public double z(int index) {
-        return posZ[index];
-    }
-
-
-    // ========================================================================
-
-    private record CellRange(
-            int minX,
-            int minY,
-            int minZ,
-            int maxX,
-            int maxY,
-            int maxZ
-    ) {
-        static final CellRange EMPTY =
-                new CellRange(0, 0, 0, -1, -1, -1);
-
-        boolean empty() {
-            return maxX < minX
-                    || maxY < minY
-                    || maxZ < minZ;
-        }
-    }
+    private record CellRange(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {}
 }

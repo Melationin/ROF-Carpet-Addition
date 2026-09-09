@@ -1,5 +1,15 @@
 # Rules
 
+## High-density entity push collection optimization (optimizedEntityCollection)
+
+&emsp;Uses a section-local spatial index to optimize Lithium push candidate collection. Entity iteration order may change.
+
+&emsp;- Type: `boolean`
+
+&emsp;- Default: `false`
+
+&emsp;- Categories: `ROF`, `optimization`
+
 
 ## commandEntityID
 

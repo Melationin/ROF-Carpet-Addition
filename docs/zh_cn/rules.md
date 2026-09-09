@@ -2,6 +2,16 @@
 
 **提示：可以使用`Ctrl+F`快速查找自己想要的规则**
 
+## 高密度实体推挤收集优化 (optimizedEntityCollection)
+
+&emsp;使用区段内空间索引优化 Lithium 的高密度实体推挤候选收集。可能改变实体遍历顺序。
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `optimization`
+
 ## 实体ID命令 (commandEntityID)
 
 &emsp;查看并控制实体id的命令
