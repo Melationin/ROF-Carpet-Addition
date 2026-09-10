@@ -12,12 +12,12 @@ import net.minecraft.commands.CommandSourceStack;
 import static carpet.api.settings.RuleCategory.OPTIMIZATION;
 
 @ROFRule
-public class MobAiSettings extends BaseSetting {
-    /** 实体 NBT 键：剩余关闭时间（负数表示「已判定且不关闭 AI」）。 */
+public class MobAiSettings extends BaseSetting
+{
     public static final String NBT_KEY = "MobAi";
-    /** 尚未判定；白名单未命中的实体保持这个状态且不写入 NBT。 */
+    // 未命中列表时保持此值，不写入 NBT。
     public static final int UNDECIDED = Integer.MIN_VALUE;
-    /** 已判定：不关闭 AI（负数写入 NBT，避免重载后重新掷骰）。 */
+    // 保存该值，避免重载后重新判定。
     public static final int KEEP_AI = -1;
 
     @Rule(categories = {ROF, OPTIMIZATION}, options = {"0", "0.1"}, strict = false, validators = Validators.Probablity.class)
@@ -56,23 +56,24 @@ public class MobAiSettings extends BaseSetting {
             })
     public static int mobAiRestoreTicks = 50;
 
-    /** 派生字段：由 {@link MobAiEntityListValidator} 解析后写入。 */
     public static MobAiFilter mobAiFilter = MobAiFilter.EMPTY;
 
-    /** 规则总开关：概率为 0 或列表为空时整个功能不生效（热路径只读概率与过滤器）。 */
-    public static boolean enabled() {
+    public static boolean enabled()
+    {
         return mobAiChance > 0.0D && !mobAiFilter.isEmpty();
     }
 
-    /** 恢复时间必须是正数。 */
-    public static final class RestoreTicksValidator extends Validator<Integer> {
+    public static final class RestoreTicksValidator extends Validator<Integer>
+    {
         @Override
-        public Integer validate(CommandSourceStack source, CarpetRule<Integer> rule, Integer newValue, String userInput) {
+        public Integer validate(CommandSourceStack source, CarpetRule<Integer> rule, Integer newValue, String userInput)
+        {
             return newValue != null && newValue > 0 ? newValue : null;
         }
 
         @Override
-        public String description() {
+        public String description()
+        {
             return "必须是正数（tick）";
         }
     }

@@ -42,13 +42,11 @@ public final class LithiumPushCollector {
                 OecMetrics.CANDIDATES.add(frame.cardinality());
             }
 
-            // Inline word walk: one pass over the candidate words, no per-candidate call into BitSet.nextSetBit.
             for (int w = 0; w < wordCount; w++) {
                 long word = words[w];
                 while (word != 0L) {
                     int slot = (w << 6) + Long.numberOfTrailingZeros(word);
                     word &= word - 1L;
-                    // Cheapest rejection first: the exact AABB test needs neither an entity dereference nor a Lithium hash lookup.
                     if (!grid.intersects(slot, box)) continue;
                     Entity entity = grid.entity(slot);
                     if (entity == null || (maskAccess != null && !maskAccess.rof$isVisible(entity))) continue;

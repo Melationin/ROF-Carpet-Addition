@@ -27,11 +27,11 @@ public final class SectionEntityGrid {
     private final Reference2IntOpenHashMap<Entity> entityToSlot = new Reference2IntOpenHashMap<>();
 
     private Entity[] entities = new Entity[INITIAL_CAPACITY];
-    /** Six doubles per slot: minX, minY, minZ, maxX, maxY, maxZ. */
+    // 每个槽位依次存储 minX、minY、minZ、maxX、maxY、maxZ。
     private double[] bounds = new double[INITIAL_CAPACITY * STRIDE];
-    /** Six unsigned bytes per slot, same order as {@link #bounds}. */
+    // 坐标按无符号字节存储，顺序与 bounds 相同。
     private byte[] cellRanges = new byte[INITIAL_CAPACITY * STRIDE];
-    /** Fine grid: one flat bit arena, wordsPerCell longs per cell. */
+    // 每个 cell 占用 wordsPerCell 个 long。
     private long[] cellBits;
     private int wordsPerCell;
     private int size;
@@ -108,7 +108,7 @@ public final class SectionEntityGrid {
         for (int slot = 0; slot < this.size; slot++) addToCells(slot, rangeOf(slot));
     }
 
-    /** Builds the broad-phase candidate bit set in frame (union of the overlapping cells). Returns false when Lithium must be used. */
+    // 返回 false 时调用方必须回退 Lithium。
     public boolean collectCandidateSlots(AABB box, OecQueryFrame frame) {
         if (!this.valid || !isFinite(box)) return false;
         if (this.cellBits == null) {
@@ -164,7 +164,9 @@ public final class SectionEntityGrid {
             if (entity == null || this.entityToSlot.getInt(entity) != slot) throw new IllegalStateException("Invalid dense slot " + slot);
             if (this.cellBits != null) {
                 int range = rangeOf(slot);
-                int minX = rangeMinX(range), maxX = rangeMaxX(range), minY = rangeMinY(range), maxY = rangeMaxY(range), minZ = rangeMinZ(range), maxZ = rangeMaxZ(range);
+                int minX = rangeMinX(range), maxX = rangeMaxX(range),
+                    minY = rangeMinY(range), maxY = rangeMaxY(range),
+                    minZ = rangeMinZ(range), maxZ = rangeMaxZ(range);
                 for (int y = 0; y < CELLS_PER_AXIS; y++) for (int z = 0; z < CELLS_PER_AXIS; z++) for (int x = 0; x < CELLS_PER_AXIS; x++) {
                     boolean expected = x >= minX && x <= maxX && y >= minY && y <= maxY && z >= minZ && z <= maxZ;
                     if (getCellBit(cellIndex(x, y, z), slot) != expected) throw new IllegalStateException("Invalid membership for slot " + slot);
@@ -176,35 +178,63 @@ public final class SectionEntityGrid {
     private boolean invalidate() { this.valid = false; this.modificationCount++; return false; }
     private void writeBounds(int slot, AABB box) {
         int base = slot * STRIDE;
-        this.bounds[base + MIN_X] = box.minX; this.bounds[base + MIN_Y] = box.minY; this.bounds[base + MIN_Z] = box.minZ;
-        this.bounds[base + MAX_X] = box.maxX; this.bounds[base + MAX_Y] = box.maxY; this.bounds[base + MAX_Z] = box.maxZ;
+        this.bounds[base + MIN_X] = box.minX;
+        this.bounds[base + MIN_Y] = box.minY;
+        this.bounds[base + MIN_Z] = box.minZ;
+        this.bounds[base + MAX_X] = box.maxX;
+        this.bounds[base + MAX_Y] = box.maxY;
+        this.bounds[base + MAX_Z] = box.maxZ;
     }
+
     private boolean sameBounds(int slot, AABB box) {
         int base = slot * STRIDE;
         return this.bounds[base + MIN_X] == box.minX && this.bounds[base + MIN_Y] == box.minY && this.bounds[base + MIN_Z] == box.minZ
                 && this.bounds[base + MAX_X] == box.maxX && this.bounds[base + MAX_Y] == box.maxY && this.bounds[base + MAX_Z] == box.maxZ;
     }
+
     private static boolean isFinite(AABB box) {
         return Double.isFinite(box.minX) && Double.isFinite(box.minY) && Double.isFinite(box.minZ)
                 && Double.isFinite(box.maxX) && Double.isFinite(box.maxY) && Double.isFinite(box.maxZ);
     }
+
     private int computeCellRange(AABB box) {
         return packRange(toCell(box.minX, this.originX), toCell(box.minY, this.originY), toCell(box.minZ, this.originZ),
                 toCell(box.maxX, this.originX), toCell(box.maxY, this.originY), toCell(box.maxZ, this.originZ));
     }
-    /** Packs six 3-bit cell coordinates (0..7) into one int, so queries and updates allocate nothing. */
+
+    // 六个 0..7 的坐标各占 3 bit。
     private static int packRange(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
         return minX | (minY << 3) | (minZ << 6) | (maxX << 9) | (maxY << 12) | (maxZ << 15);
     }
-    private static int rangeMinX(int range) { return range & RANGE_MASK; }
-    private static int rangeMinY(int range) { return (range >>> 3) & RANGE_MASK; }
-    private static int rangeMinZ(int range) { return (range >>> 6) & RANGE_MASK; }
-    private static int rangeMaxX(int range) { return (range >>> 9) & RANGE_MASK; }
-    private static int rangeMaxY(int range) { return (range >>> 12) & RANGE_MASK; }
-    private static int rangeMaxZ(int range) { return (range >>> 15) & RANGE_MASK; }
+
+    private static int rangeMinX(int range) {
+        return range & RANGE_MASK;
+    }
+
+    private static int rangeMinY(int range) {
+        return (range >>> 3) & RANGE_MASK;
+    }
+
+    private static int rangeMinZ(int range) {
+        return (range >>> 6) & RANGE_MASK;
+    }
+
+    private static int rangeMaxX(int range) {
+        return (range >>> 9) & RANGE_MASK;
+    }
+
+    private static int rangeMaxY(int range) {
+        return (range >>> 12) & RANGE_MASK;
+    }
+
+    private static int rangeMaxZ(int range) {
+        return (range >>> 15) & RANGE_MASK;
+    }
+
     private static int toCell(double coordinate, double origin) {
         return Math.max(0, Math.min(CELLS_PER_AXIS - 1, (int) Math.floor((coordinate - origin) / CELL_SIZE)));
     }
+
     private static int cellIndex(int x, int y, int z) { return x | (z << 3) | (y << 6); }
     private void addToCells(int slot, int range) {
         int minX = rangeMinX(range), maxX = rangeMaxX(range);
@@ -214,6 +244,7 @@ public final class SectionEntityGrid {
             for (int x = minX; x <= maxX; x++) setCellBit(base + x - minX, slot);
         }
     }
+
     private void removeFromCells(int slot, int range) {
         int minX = rangeMinX(range), maxX = rangeMaxX(range);
         int minZ = rangeMinZ(range), maxZ = rangeMaxZ(range);
@@ -222,20 +253,39 @@ public final class SectionEntityGrid {
             for (int x = minX; x <= maxX; x++) clearCellBit(base + x - minX, slot);
         }
     }
-    private void setCellBit(int cell, int slot) { this.cellBits[cell * this.wordsPerCell + (slot >>> 6)] |= 1L << (slot & 63); }
-    private void clearCellBit(int cell, int slot) { this.cellBits[cell * this.wordsPerCell + (slot >>> 6)] &= ~(1L << (slot & 63)); }
-    private boolean getCellBit(int cell, int slot) { return (this.cellBits[cell * this.wordsPerCell + (slot >>> 6)] & (1L << (slot & 63))) != 0L; }
-    private static int wordsFor(int capacity) { return (capacity + 63) >>> 6; }
+
+    private void setCellBit(int cell, int slot) {
+        this.cellBits[cell * this.wordsPerCell + (slot >>> 6)] |= 1L << (slot & 63);
+    }
+
+    private void clearCellBit(int cell, int slot) {
+        this.cellBits[cell * this.wordsPerCell + (slot >>> 6)] &= ~(1L << (slot & 63));
+    }
+
+    private boolean getCellBit(int cell, int slot) {
+        return (this.cellBits[cell * this.wordsPerCell + (slot >>> 6)] & (1L << (slot & 63))) != 0L;
+    }
+
+    private static int wordsFor(int capacity) {
+        return (capacity + 63) >>> 6;
+    }
+
     private int rangeOf(int slot) {
         int base = slot * STRIDE;
         return packRange(Byte.toUnsignedInt(this.cellRanges[base + MIN_X]), Byte.toUnsignedInt(this.cellRanges[base + MIN_Y]), Byte.toUnsignedInt(this.cellRanges[base + MIN_Z]),
                 Byte.toUnsignedInt(this.cellRanges[base + MAX_X]), Byte.toUnsignedInt(this.cellRanges[base + MAX_Y]), Byte.toUnsignedInt(this.cellRanges[base + MAX_Z]));
     }
+
     private void storeRange(int slot, int range) {
         int base = slot * STRIDE;
-        this.cellRanges[base + MIN_X] = (byte) rangeMinX(range); this.cellRanges[base + MIN_Y] = (byte) rangeMinY(range); this.cellRanges[base + MIN_Z] = (byte) rangeMinZ(range);
-        this.cellRanges[base + MAX_X] = (byte) rangeMaxX(range); this.cellRanges[base + MAX_Y] = (byte) rangeMaxY(range); this.cellRanges[base + MAX_Z] = (byte) rangeMaxZ(range);
+        this.cellRanges[base + MIN_X] = (byte) rangeMinX(range);
+        this.cellRanges[base + MIN_Y] = (byte) rangeMinY(range);
+        this.cellRanges[base + MIN_Z] = (byte) rangeMinZ(range);
+        this.cellRanges[base + MAX_X] = (byte) rangeMaxX(range);
+        this.cellRanges[base + MAX_Y] = (byte) rangeMaxY(range);
+        this.cellRanges[base + MAX_Z] = (byte) rangeMaxZ(range);
     }
+
     private void copySlot(int source, int target) {
         this.entities[target] = this.entities[source];
         int sourceBase = source * STRIDE;
@@ -243,6 +293,7 @@ public final class SectionEntityGrid {
         System.arraycopy(this.bounds, sourceBase, this.bounds, targetBase, STRIDE);
         System.arraycopy(this.cellRanges, sourceBase, this.cellRanges, targetBase, STRIDE);
     }
+
     private void ensureCapacity(int required) {
         if (required <= this.entities.length) return;
         int capacity = this.entities.length;
@@ -252,6 +303,7 @@ public final class SectionEntityGrid {
         this.cellRanges = Arrays.copyOf(this.cellRanges, capacity * STRIDE);
         if (this.cellBits != null) growCellBits(capacity);
     }
+
     private void growCellBits(int capacity) {
         int newWords = wordsFor(capacity);
         if (newWords == this.wordsPerCell) return;

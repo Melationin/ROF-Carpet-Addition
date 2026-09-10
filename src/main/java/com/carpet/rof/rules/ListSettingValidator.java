@@ -7,9 +7,8 @@ import net.minecraft.commands.CommandSourceStack;
 import java.util.ArrayList;
 import java.util.List;
 
-
-public abstract class ListSettingValidator<E> extends Validator<String> {
-
+public abstract class ListSettingValidator<E> extends Validator<String>
+{
     public static final String SEPARATOR = ",";
 
     public static final char NEGATE_PREFIX = '!';
@@ -21,7 +20,8 @@ public abstract class ListSettingValidator<E> extends Validator<String> {
     protected abstract String entryDescription();
 
     @Override
-    public String validate(CommandSourceStack source, CarpetRule<String> rule, String newValue, String userInput) {
+    public String validate(CommandSourceStack source, CarpetRule<String> rule, String newValue, String userInput)
+    {
         List<E> allowed = new ArrayList<>();
         List<E> denied = new ArrayList<>();
         String value = newValue == null ? "" : newValue;
@@ -46,7 +46,8 @@ public abstract class ListSettingValidator<E> extends Validator<String> {
     }
 
     @Override
-    public String description() {
+    public String description()
+    {
         return "逗号分隔的条目列表，条目为" + this.entryDescription() + "；前缀 " + NEGATE_PREFIX + " 表示排除该项。";
     }
 }

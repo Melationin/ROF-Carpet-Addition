@@ -6,7 +6,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(BlockBehaviour.BlockStateBase.class)
-public abstract class BlockStateBaseMixin implements ClimbableStateCacheAccess {
+public abstract class BlockStateBaseMixin implements ClimbableStateCacheAccess
+{
     @Unique
     private int rof$climbableCacheEpoch;
 
@@ -14,17 +15,20 @@ public abstract class BlockStateBaseMixin implements ClimbableStateCacheAccess {
     private boolean rof$climbableCacheValue;
 
     @Override
-    public int rof$getClimbableCacheEpoch() {
+    public int rof$getClimbableCacheEpoch()
+    {
         return this.rof$climbableCacheEpoch;
     }
 
     @Override
-    public boolean rof$getClimbableCacheValue() {
+    public boolean rof$getClimbableCacheValue()
+    {
         return this.rof$climbableCacheValue;
     }
 
     @Override
-    public void rof$setClimbableCache(int epoch, boolean value) {
+    public void rof$setClimbableCache(int epoch, boolean value)
+    {
         this.rof$climbableCacheValue = value;
         this.rof$climbableCacheEpoch = epoch;
     }

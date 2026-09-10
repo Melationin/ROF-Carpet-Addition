@@ -8,7 +8,8 @@ import com.carpet.rof.rules.BaseSetting;
 import static carpet.api.settings.RuleCategory.FEATURE;
 
 @ROFRule
-public class BetterNoAiSettings extends BaseSetting {
+public class BetterNoAiSettings extends BaseSetting
+{
     @Rule(categories = {ROF, FEATURE})
     @QuickTranslations(
             name = "更好的NoAI NBT",

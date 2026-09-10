@@ -8,7 +8,8 @@ import com.carpet.rof.rules.BaseSetting;
 import static carpet.api.settings.RuleCategory.OPTIMIZATION;
 
 @ROFRule
-public class ClimbableTagCacheSettings extends BaseSetting {
+public class ClimbableTagCacheSettings extends BaseSetting
+{
     @Rule(categories = {ROF, OPTIMIZATION})
     @QuickTranslations(
             name = "可攀爬方块标签判断缓存",

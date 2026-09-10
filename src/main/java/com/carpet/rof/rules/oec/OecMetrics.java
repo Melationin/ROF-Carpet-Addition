@@ -5,7 +5,6 @@ import com.carpet.rof.utils.ROFTool;
 import java.util.concurrent.atomic.LongAdder;
 
 public final class OecMetrics {
-    /** Counters are only maintained for the debug tooling; the JIT folds this constant away in production builds. */
     public static final boolean ENABLED = ROFTool.DEBUG;
     public static final LongAdder QUERIES = new LongAdder(), GRID_QUERIES = new LongAdder(), LITHIUM_FALLBACKS = new LongAdder();
     public static final LongAdder CANDIDATES = new LongAdder(), EXACT_HITS = new LongAdder(), PREDICATE_CALLS = new LongAdder(), REBUILDS = new LongAdder();
@@ -25,6 +24,9 @@ public final class OecMetrics {
     public static void reset() {
         QUERIES.reset(); GRID_QUERIES.reset(); LITHIUM_FALLBACKS.reset(); CANDIDATES.reset();
         EXACT_HITS.reset(); PREDICATE_CALLS.reset(); REBUILDS.reset(); BOUNDS_UPDATES.reset(); RANGE_CHANGES.reset();
-        SPAN_HITS.reset(); SPAN_MISSES.reset(); SPAN_INVALIDATED.reset(); SPAN_SKIPPED.reset();
+        SPAN_HITS.reset();
+        SPAN_MISSES.reset();
+        SPAN_INVALIDATED.reset();
+        SPAN_SKIPPED.reset();
     }
 }

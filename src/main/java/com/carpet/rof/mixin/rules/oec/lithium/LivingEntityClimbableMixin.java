@@ -14,7 +14,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityClimbableMixin {
+public abstract class LivingEntityClimbableMixin
+{
     @WrapOperation(
             method = "onClimbable()Z",
             at = @At(
@@ -23,7 +24,8 @@ public abstract class LivingEntityClimbableMixin {
                     ordinal = 1
             )
     )
-    private boolean rof$cacheClimbableTag(BlockState state, TagKey<Block> tag, Operation<Boolean> original) {
+    private boolean rof$cacheClimbableTag(BlockState state, TagKey<Block> tag, Operation<Boolean> original)
+    {
         if (!ClimbableTagCacheSettings.optimizedClimbableTagCheck || tag != BlockTags.CLIMBABLE
                 || !(state instanceof ClimbableStateCacheAccess cache)) {
             return original.call(state, tag);

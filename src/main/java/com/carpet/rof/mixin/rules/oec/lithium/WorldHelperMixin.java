@@ -40,10 +40,6 @@ public abstract class WorldHelperMixin {
         return original.call(section, world, except, box, predicate, output);
     }
 
-    /**
-     * Replaces the section enumeration of {@code WorldHelper.getPushableEntities} with the per-storage span cache.
-     * The consumer is still Lithium's per-section lambda, so it keeps running through {@link #rof$collectPushableEntities}.
-     */
     @WrapOperation(
             method = "getPushableEntities",
             at = @At(

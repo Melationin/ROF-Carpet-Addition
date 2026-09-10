@@ -18,12 +18,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(EntitySectionStorage.class)
-public abstract class EntitySectionStorageMixin<T extends EntityAccess> implements OecSectionStorageAccess {
+public abstract class EntitySectionStorageMixin<T extends EntityAccess> implements OecSectionStorageAccess
+{
     @Shadow public abstract @Nullable EntitySection<T> getSection(long key);
-    @Shadow @Final private LongSortedSet sectionIds;
-    @Unique private OecSectionSpanCache rof$spanCache;
 
-    @Override public LongSortedSet rof$sectionIds() { return this.sectionIds; }
+    @Shadow
+    @Final
+    private LongSortedSet sectionIds;
+
+    @Unique
+    private OecSectionSpanCache rof$spanCache;
+
+    @Override
+    public LongSortedSet rof$sectionIds() {
+        return this.sectionIds;
+    }
 
     @Override
     public OecSectionSpanCache rof$spanCache() {
@@ -35,7 +44,6 @@ public abstract class EntitySectionStorageMixin<T extends EntityAccess> implemen
     @Inject(method = "createSection(J)Lnet/minecraft/world/level/entity/EntitySection;", at = @At("RETURN"))
     private void rof$rememberSectionKey(long sectionKey, CallbackInfoReturnable<EntitySection<T>> cir) {
         ((OecSectionAccess) cir.getReturnValue()).rof$setSectionKey(sectionKey);
-        // A section created inside a cached span makes that snapshot incomplete; a removed one never does.
         this.rof$spanCache().invalidateIfContains(sectionKey);
     }
 

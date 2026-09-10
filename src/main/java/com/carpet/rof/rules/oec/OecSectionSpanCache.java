@@ -7,19 +7,11 @@ import net.minecraft.world.phys.AABB;
 
 import java.util.Arrays;
 
-/**
- * Caches the section enumeration that {@code EntitySectionStorage#forEachAccessibleNonEmptySection} performs for a
- * query box: the keys of the sections inside that box's (already inflated) section span.
- * <p>
- * Four fixed slots. A miss refills an invalidated slot, or - when all four are live - overwrites the oldest entry
- * (FIFO ring). Entries are only invalidated when a section is <em>created</em> inside a cached span: a removed
- * section cannot make a cached span wrong, because the consumer re-checks {@code getSection(key) != null} for
- * every key before using it.
- */
-public final class OecSectionSpanCache {
+// 仅新增 section 时失效；消费缓存时仍检查 section 是否存在。
+public final class OecSectionSpanCache
+{
     private static final int SLOTS = 4;
     private static final int DIMENSIONS = 6;
-    /** Spans larger than this are never cached, they would cost more than they save. */
     private static final int MAX_KEYS = 64;
     private static final long[] EMPTY = new long[0];
 
@@ -28,11 +20,9 @@ public final class OecSectionSpanCache {
     private long[] scratch = new long[8];
     private int next;
 
-    /**
-     * @return the section keys of {@code box}'s span, or {@code null} when the caller must run the vanilla loop
-     *         (non-finite box, or a span too large to be worth caching). An empty array is a valid hit.
-     */
-    public long[] get(OecSectionStorageAccess storage, AABB box) {
+    // null 表示回退原版枚举，空数组表示有效的空结果。
+    public long[] get(OecSectionStorageAccess storage, AABB box)
+    {
         if (!isFinite(box)) return null;
         int xMin = SectionPos.posToSectionCoord(box.minX - 2.0);
         int xMax = SectionPos.posToSectionCoord(box.maxX + 2.0);
@@ -82,8 +72,8 @@ public final class OecSectionSpanCache {
         return built;
     }
 
-    /** Called on section creation: only entries whose span contains that key became incomplete. */
-    public void invalidateIfContains(long sectionKey) {
+    public void invalidateIfContains(long sectionKey)
+    {
         int x = SectionPos.x(sectionKey);
         int y = SectionPos.y(sectionKey);
         int z = SectionPos.z(sectionKey);
@@ -99,8 +89,8 @@ public final class OecSectionSpanCache {
         }
     }
 
-    /** Mirrors the vanilla enumeration shape; only the key set has to match, not the order. */
-    private long[] build(OecSectionStorageAccess storage, int xMin, int xMax, int yMin, int yMax, int zMin, int zMax) {
+    private long[] build(OecSectionStorageAccess storage, int xMin, int xMax, int yMin, int yMax, int zMin, int zMax)
+    {
         LongSortedSet ids = storage.rof$sectionIds();
         long[] buffer = this.scratch;
         int count = 0;
@@ -121,7 +111,8 @@ public final class OecSectionSpanCache {
         return count == 0 ? EMPTY : Arrays.copyOf(buffer, count);
     }
 
-    private static boolean isFinite(AABB box) {
+    private static boolean isFinite(AABB box)
+    {
         return Double.isFinite(box.minX) && Double.isFinite(box.minY) && Double.isFinite(box.minZ)
                 && Double.isFinite(box.maxX) && Double.isFinite(box.maxY) && Double.isFinite(box.maxZ);
     }
