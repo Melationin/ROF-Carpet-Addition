@@ -1,6 +1,7 @@
 package com.carpet.rof.mixin.rules.oec.lithium;
 
 import com.carpet.rof.rules.oec.OecMetrics;
+import com.carpet.rof.rules.oec.OecSectionStorageAccess;
 import com.carpet.rof.rules.oec.OecSettings;
 import com.carpet.rof.rules.oec.lithium.LithiumPushCollector;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -11,6 +12,8 @@ import net.caffeinemc.mods.lithium.common.world.WorldHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.entity.EntitySection;
+import net.minecraft.world.level.entity.EntitySectionStorage;
 import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -35,5 +38,36 @@ public abstract class WorldHelperMixin {
         }
         if (OecMetrics.ENABLED) OecMetrics.LITHIUM_FALLBACKS.increment();
         return original.call(section, world, except, box, predicate, output);
+    }
+
+    /**
+     * Replaces the section enumeration of {@code WorldHelper.getPushableEntities} with the per-storage span cache.
+     * The consumer is still Lithium's per-section lambda, so it keeps running through {@link #rof$collectPushableEntities}.
+     */
+    @WrapOperation(
+            method = "getPushableEntities",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/entity/EntitySectionStorage;forEachAccessibleNonEmptySection(Lnet/minecraft/world/phys/AABB;Lnet/minecraft/util/AbortableIterationConsumer;)V",
+                    remap = false)
+    )
+    private static void rof$forEachAccessibleNonEmptySection(
+            EntitySectionStorage<Entity> storage, AABB box,
+            AbortableIterationConsumer<EntitySection<Entity>> consumer, Operation<Void> original) {
+        long[] keys = null;
+        if (OecSettings.optimizedEntityCollection && storage instanceof OecSectionStorageAccess access) {
+            keys = access.rof$spanCache().get(access, box);
+        }
+        if (keys == null) {
+            original.call(storage, box, consumer);
+            return;
+        }
+        for (int i = 0; i < keys.length; i++) {
+            EntitySection<Entity> section = storage.getSection(keys[i]);
+            if (section != null && !section.isEmpty() && section.getStatus().isAccessible()
+                    && consumer.accept(section).shouldAbort()) {
+                return;
+            }
+        }
     }
 }
