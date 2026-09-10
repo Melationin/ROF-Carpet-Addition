@@ -18,12 +18,12 @@ public final class LithiumPushCollector {
     /** Returns false only when the caller must invoke Lithium's original collector. */
     public static boolean tryCollect(Object section, long gameTime, Entity except, AABB box,
                                      EntityPushablePredicate<? super Entity> predicate, ArrayList<Entity> output) {
-        if (!(section instanceof OecSectionAccess sectionAccess) || !LithiumSectionBridge.isAvailable(section)) return false;
+        if (!(section instanceof OecSectionAccess sectionAccess)
+                || !(section instanceof OecLithiumSectionAccess lithiumAccess)) return false;
         SectionEntityGrid grid = sectionAccess.rof$prepareGrid(gameTime);
         if (grid == null || !grid.isValid()) return false;
 
-        ReferenceMaskedList<Object> masked = LithiumSectionBridge.getPushableEntities(section);
-        if (!LithiumSectionBridge.isAvailable(section)) return false;
+        ReferenceMaskedList<Entity> masked = lithiumAccess.rof$lithiumPushableEntities();
         LithiumMaskedListAccess maskAccess = null;
         if (masked != null) {
             if (!(masked instanceof LithiumMaskedListAccess access)) return false;
@@ -67,8 +67,8 @@ public final class LithiumPushCollector {
         }
 
         if (masked == null && intersecting >= 25 && intersecting >= accepted * 2
-                && LithiumSectionBridge.getPushableEntities(section) == null) {
-            LithiumSectionBridge.startFiltering(section);
+                && lithiumAccess.rof$lithiumPushableEntities() == null) {
+            lithiumAccess.rof$lithiumStartFilteringPushableEntities();
         }
         return true;
     }

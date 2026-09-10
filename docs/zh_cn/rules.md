@@ -22,6 +22,16 @@
 
 &emsp;- 分类: `ROF`, `optimization`
 
+## 更好的NoAI NBT (betterNoAiNbt)
+
+&emsp;实体带有 `NoBrainAI` NBT 时跳过其 AI 逻辑（`Mob.serverAiStep`），但保留重力、流体流动、实体推挤、挤压伤害、爆炸击退、活塞推动与骑乘等被动运动；与原版 `NoAI` 不同，实体不会悬空静止。用 `/data merge entity <目标> {NoBrainAI:1b}` 设置标签，标签随实体存档保存。
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `feature`
+
 ## 实体ID命令 (commandEntityID)
 
 &emsp;查看并控制实体id的命令

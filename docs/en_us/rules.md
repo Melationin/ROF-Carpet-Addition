@@ -21,6 +21,16 @@
 &emsp;- Categories: `ROF`, `optimization`
 
 
+## Better NoAI NBT (betterNoAiNbt)
+
+&emsp;Skips AI logic (`Mob.serverAiStep`) for entities carrying the `NoBrainAI` NBT tag, while keeping passive motion such as gravity, fluids, entity pushing, crush damage, explosion knockback, pistons and riding. Unlike vanilla `NoAI`, the entity does not freeze in mid-air. Set the tag with `/data merge entity <target> {NoBrainAI:1b}`; it is saved with the entity.
+
+&emsp;- Type: `boolean`
+
+&emsp;- Default: `false`
+
+&emsp;- Categories: `ROF`, `feature`
+
 ## commandEntityID
 
 &emsp;Command to view and control entity IDs
