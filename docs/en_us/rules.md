@@ -214,6 +214,45 @@
 &emsp;- categories: `ROF`, `optimization`, `tnt`, `feature`
 
 
+## Mob AI optimization chance (mobAiChance)
+
+&emsp;Chance for a whitelisted mob to have its AI temporarily disabled; the roll happens once, the first time the entity is about to run AI. Suppressed entities keep passive motion (gravity, fluids, entity pushing, crush damage, explosion knockback, pistons, riding). 0 (default), or an empty entity list, disables the feature. The roll result is saved in the entity's `MobAi` NBT field, so reloading a chunk never re-rolls it — every entity is decided exactly once.
+
+&emsp;Suggested values: `0` (default, feature off) and `0.1` (any value between `0` and `1` is accepted).
+
+&emsp;- type: `double`
+
+&emsp;- default: `0.0`
+
+&emsp;- categories: `ROF`, `optimization`
+
+
+## Mob AI optimization entity list (mobAiEntities)
+
+&emsp;Comma-separated entity list for AI optimization. Entries are entity ids (`minecraft:pig`) or entity type tags (`#zombies`); prefix an entry with `!` to exclude it, e.g. `minecraft:pig,#zombies,!#undead`. Matching takes the union of all positive entries and subtracts every negative entry; a list with only exclusions means "everything except those", and an empty list disables the feature. Tags are matched by name and do not need to be loaded yet; an invalid entity id is rejected and the previous value is kept.
+
+&emsp;Suggested values: `!minecraft:drowned` (default — every mob except drowned) and `!minecraft:drowned,!minecraft:piglin` (also excludes piglins).
+
+&emsp;- type: `String`
+
+&emsp;- default: `!minecraft:drowned`
+
+&emsp;- categories: `ROF`, `optimization`
+
+
+## Mob AI restore time (mobAiRestoreTicks)
+
+&emsp;How many ticks a suppressed entity stays without AI before its AI is restored; must be a positive number. The remaining time is saved with the entity, and a negative value means "decided: AI is not suppressed" (that is the state after a failed roll, after being excluded, and after the AI has already been restored). Default 50 ticks (2.5 seconds).
+
+&emsp;Suggested values: `50` (default, 2.5 seconds) and `200` (10 seconds).
+
+&emsp;- type: `int`
+
+&emsp;- default: `50`
+
+&emsp;- categories: `ROF`, `optimization`
+
+
 ## optimizeForcedEnderPearlTick
 
 &emsp;Only available when better pearl self-loading is enabled. In most cases, prevents high-speed pearls from generating new chunks, greatly reducing save size. When ECM is not enabled, only pearls outside world height will not generate chunks.

@@ -36,7 +36,6 @@ public class ExtraWorldDatas implements NBTData
     public final LongOpenHashSet enderPearlForcedSyncChunks = new LongOpenHashSet();
 
 
-    /** Runtime-only, per-dimension chunk-list caches. Never serialized to world data. */
     public final AsyncWorldgenCacheData asyncWorldgenCache = new AsyncWorldgenCacheData();
 
     public static ExtraWorldDatas fromWorld(ServerLevel world){

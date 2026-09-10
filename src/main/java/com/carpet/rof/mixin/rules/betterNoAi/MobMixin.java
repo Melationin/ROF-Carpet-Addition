@@ -1,6 +1,7 @@
 package com.carpet.rof.mixin.rules.betterNoAi;
 
 import com.carpet.rof.rules.betterNoAi.BetterNoAiSettings;
+import com.carpet.rof.rules.betterNoAi.NoBrainAiAccess;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.storage.ValueInput;
@@ -23,10 +24,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * 使 {@code LivingEntity.aiStep} 跳过 travel —— 实体将悬空静止且不再受水流/击退影响。
  */
 @Mixin(Mob.class)
-public class MobMixin {
+public class MobMixin implements NoBrainAiAccess {
     /** NoBrainAI 标记，随实体 NBT 读写，服务端本地字段（不同步客户端、不占用 entityData）。 */
     @Unique
     private boolean rof$noBrainAi;
+
+    /** 供其它规则查询（例如生物AI优化在取消 AI 时让路，避免重复累加 noActionTime）。 */
+    @Override
+    public boolean rof$hasNoBrainAi() {
+        return this.rof$noBrainAi;
+    }
 
     @Inject(method = "readAdditionalSaveData", at = @At(value = "HEAD"))
     private void rof$readNoBrainAi(ValueInput input, CallbackInfo ci) {

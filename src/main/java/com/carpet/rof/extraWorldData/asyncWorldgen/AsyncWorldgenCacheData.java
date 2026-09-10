@@ -5,7 +5,6 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Mutable server-thread-only state for the two delayed chunk-list caches. */
 public final class AsyncWorldgenCacheData {
     public static final int REFRESH_INTERVAL = 40;
 

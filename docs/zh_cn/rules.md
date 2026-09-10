@@ -215,6 +215,45 @@
 &emsp;- 分类: `ROF`, `optimization`, `tnt`, `feature`
 
 
+## 生物AI优化概率 (mobAiChance)
+
+&emsp;白名单内的生物在第一次真正要跑 AI 时掷一次随机数，只有随机数小于该概率时该实体的 AI 才会被临时关闭；关闭期间保留重力、流体流动、实体推挤、挤压伤害、爆炸击退、活塞推动与骑乘等被动运动。概率为 0（默认）或实体列表为空时功能不生效。掷骰结果随实体存档保存（实体 NBT 的 `MobAi` 字段），区块重新加载不会重掷；每个实体一生只判定一次。
+
+&emsp;建议取值：`0`（默认，功能关闭）、`0.1`（不限制取值，`0`~`1` 之间任意值都可填）
+
+&emsp;- 类型: `double`
+
+&emsp;- 默认值: `0.0`
+
+&emsp;- 分类: `ROF`, `optimization`
+
+
+## 生物AI优化实体列表 (mobAiEntities)
+
+&emsp;需要参与 AI 优化的实体列表，逗号分隔；条目可以是实体 ID（`minecraft:pig`）或实体类型标签（`#zombies`），前缀 `!` 表示排除该项，例如 `minecraft:pig,#zombies,!#undead`。匹配语义为先取所有正选条目的并集，再减去所有负选条目；列表全为排除项时表示“除这些之外的全部”，列表为空时功能不生效。标签是数据包标签，写入时不要求已加载（未加载的标签等同于空集合）；写错实体 ID 时该次设置会被拒绝并保持原值。
+
+&emsp;建议取值：`!minecraft:drowned`（默认，除溺尸以外的全部生物）、`!minecraft:drowned,!minecraft:piglin`（再排除猪灵）
+
+&emsp;- 类型: `String`
+
+&emsp;- 默认值: `!minecraft:drowned`
+
+&emsp;- 分类: `ROF`, `optimization`
+
+
+## 生物AI恢复时间 (mobAiRestoreTicks)
+
+&emsp;被关闭 AI 的实体经过多少 tick 后恢复 AI，必须是正数。剩余时间随实体存档保存，小于 0 表示「已判定且不关闭 AI」（掷骰失败、被排除项拦下、以及已经恢复过的实体都是这个状态）。默认 50 tick（2.5 秒）。
+
+&emsp;建议取值：`50`（默认，2.5 秒）、`200`（10 秒）
+
+&emsp;- 类型: `int`
+
+&emsp;- 默认值: `50`
+
+&emsp;- 分类: `ROF`, `optimization`
+
+
 ## 优化自加载态珍珠tick (optimizeForcedEnderPearlTick)
 
 &emsp;仅在更好的珍珠自加载启用时可用。让大多数情况下高速珍珠的飞行不生成新区块，可大幅度减少存档体积。在ECM未打开时，只会让世界高度外的珍珠不生成区块

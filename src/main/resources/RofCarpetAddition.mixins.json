@@ -36,6 +36,7 @@
     "rules.fakePlayerTick.PlayerAiStepMixin",
     "rules.fakePlayerTick.ServerPlayerTickMixin",
     "rules.mergeTNTNext.PrimedTntMixin",
+    "rules.mobAi.MobMixin",
     "rules.particlesPacketsRange.ServerLevelMixin",
     "rules.piglinRules.BrainMixin2",
     "rules.piglinRules.EntityMixin",
