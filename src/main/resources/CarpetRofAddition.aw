@@ -8,7 +8,9 @@ accessible field net/minecraft/world/entity/item/ItemEntity target Ljava/util/UU
 accessible field net/minecraft/server/level/ServerLevel blockEvents Lit/unimi/dsi/fastutil/objects/ObjectLinkedOpenHashSet;
 
 
+#? if <26.2 {
 accessible field net/minecraft/world/entity/Entity ENTITY_COUNTER Ljava/util/concurrent/atomic/AtomicInteger;
+#?}
 accessible field net/minecraft/world/level/chunk/LevelChunk$RebindableTickingBlockEntityWrapper ticker Lnet/minecraft/world/level/block/entity/TickingBlockEntity;
 accessible class net/minecraft/server/level/ChunkMap$TrackedEntity
 accessible class net/minecraft/world/level/chunk/LevelChunk$BoundTickingBlockEntity
