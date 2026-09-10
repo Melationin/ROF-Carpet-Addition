@@ -29,8 +29,20 @@ jobs:
           mkdir -p ./run
           echo eula=true > ./run/eula.txt
           ./gradlew --no-parallel runClientMixinAudit
+      - name: collect build artifacts
+        run: |
+          mkdir -p "$RUNNER_TEMP/rof-artifacts"
+          for jar in versions/*/build/libs/*.jar; do
+            target="$RUNNER_TEMP/rof-artifacts/$(basename "$jar")"
+            if [ -e "$target" ]; then
+              echo "Duplicate artifact name: $(basename "$jar")" >&2
+              exit 1
+            fi
+            cp "$jar" "$target"
+          done
       - name: capture build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Artifacts
-          path: versions/*/build/libs/
+          path: ${{ runner.temp }}/rof-artifacts/*.jar
+          if-no-files-found: error

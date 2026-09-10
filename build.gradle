@@ -15,6 +15,7 @@ plugins {
 }
 
 def minecraftVer = stonecutter.current.version
+version = project.mod_version
 
 if (stonecutter.eval(minecraftVer, ">=26.1")) {
 	apply plugin: 'net.fabricmc.fabric-loom'
