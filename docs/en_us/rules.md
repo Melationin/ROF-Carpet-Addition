@@ -1,6 +1,6 @@
 # Rules
 
-## High-density entity push collection optimization (optimizedEntityCollection)
+## optimizedEntityCollection
 
 &emsp;Uses a section-local spatial index to optimize Lithium push candidate collection. Entity iteration order may change.
 
@@ -10,7 +10,7 @@
 
 &emsp;- Categories: `ROF`, `optimization`
 
-## Climbable block tag check cache (optimizedClimbableTagCheck)
+## optimizedClimbableTagCheck
 
 &emsp;Caches the `CLIMBABLE` block-tag lookup used by Lithium entity pushability checks, reducing repeated tag lookups in `LivingEntity.onClimbable`. The cache is invalidated after data-pack reloads.
 
@@ -21,7 +21,7 @@
 &emsp;- Categories: `ROF`, `optimization`
 
 
-## Better NoAI NBT (betterNoAiNbt)
+## betterNoAiNbt
 
 &emsp;Skips AI logic (`Mob.serverAiStep`) for entities carrying the `NoBrainAI` NBT tag, while keeping passive motion such as gravity, fluids, entity pushing, crush damage, explosion knockback, pistons and riding. Unlike vanilla `NoAI`, the entity does not freeze in mid-air. Set the tag with `/data merge entity <target> {NoBrainAI:1b}`; it is saved with the entity.
 
@@ -214,7 +214,7 @@
 &emsp;- categories: `ROF`, `optimization`, `tnt`, `feature`
 
 
-## Mob AI stall chance (mobAiStallChance)
+## mobAiStallChance
 
 &emsp;Chance for a whitelisted mob to have its AI temporarily disabled; the roll happens once, the first time the entity is about to run AI. Suppressed entities keep passive motion (gravity, fluids, entity pushing, crush damage, explosion knockback, pistons, riding). 0 (default), or an empty entity list, disables the feature. The roll result is saved in the entity's `MobAi` NBT field, so reloading a chunk never re-rolls it — every entity is decided exactly once.
 
@@ -227,7 +227,7 @@
 &emsp;- categories: `ROF`, `optimization`
 
 
-## Mob AI stall whitelist (mobAiStallWhitelist)
+## mobAiStallWhitelist
 
 &emsp;Comma-separated whitelist of mobs eligible for AI stalls. Entries are entity ids (`minecraft:pig`) or entity type tags (`#zombies`); prefix an entry with `!` to exclude it, e.g. `minecraft:pig,#zombies,!#undead`. Matching takes the union of all positive entries and subtracts every negative entry; a list with only exclusions means "everything except those", and an empty list disables the feature. Tags are matched by name and do not need to be loaded yet; an invalid entity id is rejected and the previous value is kept.
 
@@ -240,7 +240,7 @@
 &emsp;- categories: `ROF`, `optimization`
 
 
-## Mob AI stall duration (mobAiStallTicks)
+## mobAiStallTicks
 
 &emsp;How many ticks a suppressed entity stays without AI before its AI is restored; must be a positive number. The remaining time is saved with the entity, and a negative value means "decided: AI is not suppressed" (that is the state after a failed roll, after being excluded, and after the AI has already been restored). Default 50 ticks (2.5 seconds).
 
