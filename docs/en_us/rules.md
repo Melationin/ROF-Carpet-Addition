@@ -31,7 +31,7 @@
 
 &emsp;- Categories: `ROF`, `feature`
 
-## commandEntityID
+## commandEntityID`<=26.1`
 
 &emsp;Command to view and control entity IDs
 
@@ -42,7 +42,7 @@
 &emsp;- categories: `ROF`, `feature`, `creative`, `command`
 
 
-## commandEntityIDSet
+## commandEntityIDSet`<=26.1`
 
 &emsp;Command to set entity IDs
 
