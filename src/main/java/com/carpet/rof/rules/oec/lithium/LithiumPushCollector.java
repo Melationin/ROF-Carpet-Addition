@@ -1,12 +1,14 @@
 package com.carpet.rof.rules.oec.lithium;
 
 import net.caffeinemc.mods.lithium.common.entity.pushable.EntityPushablePredicate;
-import net.caffeinemc.mods.lithium.common.util.collections.ReferenceMaskedList;
+import net.minecraft.core.SectionPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.phys.AABB;
+import com.carpet.rof.rules.oec.OecCells;
+import com.carpet.rof.rules.oec.OecEntityAccess;
 import com.carpet.rof.rules.oec.OecMetrics;
-import com.carpet.rof.rules.oec.OecQueryFrame;
+import com.carpet.rof.rules.oec.OecQueryStamp;
 import com.carpet.rof.rules.oec.OecSectionAccess;
 import com.carpet.rof.rules.oec.SectionEntityGrid;
 
@@ -15,58 +17,66 @@ import java.util.ArrayList;
 public final class LithiumPushCollector {
     private LithiumPushCollector() {}
 
-    /** Returns false only when the caller must invoke Lithium's original collector. */
-    public static boolean tryCollect(Object section, long gameTime, Entity except, AABB box,
+    /** 返回 false 时调用方必须回退 Lithium 的原收集器。 */
+    public static boolean tryCollect(Object section, Entity except, AABB box,
                                      EntityPushablePredicate<? super Entity> predicate, ArrayList<Entity> output) {
-        if (!(section instanceof OecSectionAccess sectionAccess)
-                || !(section instanceof OecLithiumSectionAccess lithiumAccess)) return false;
-        SectionEntityGrid grid = sectionAccess.rof$prepareGrid(gameTime);
+        if (!(section instanceof OecSectionAccess sectionAccess)) return false;
+        SectionEntityGrid grid = sectionAccess.rof$grid();
         if (grid == null || !grid.isValid()) return false;
+        long key = sectionAccess.rof$sectionKey();
+        if (key == Long.MIN_VALUE) return false;
+        if (OecMetrics.ENABLED) OecMetrics.GRID_QUERIES.increment();
 
-        ReferenceMaskedList<Entity> masked = lithiumAccess.rof$lithiumPushableEntities();
-        LithiumMaskedListAccess maskAccess = null;
-        if (masked != null) {
-            if (!(masked instanceof LithiumMaskedListAccess access)) return false;
-            maskAccess = access;
-        }
+        int baseCellX = SectionPos.x(key) << 3;
+        int baseCellY = SectionPos.y(key) << 3;
+        int baseCellZ = SectionPos.z(key) << 3;
+        int lastCell = SectionEntityGrid.SECTION_CELL_COUNT - 1;
+        int minX = Math.max(OecCells.cell(box.minX), baseCellX);
+        int maxX = Math.min(OecCells.cell(box.maxX), baseCellX + lastCell);
+        int minY = Math.max(OecCells.cell(box.minY), baseCellY);
+        int maxY = Math.min(OecCells.cell(box.maxY), baseCellY + lastCell);
+        int minZ = Math.max(OecCells.cell(box.minZ), baseCellZ);
+        int maxZ = Math.min(OecCells.cell(box.maxZ), baseCellZ + lastCell);
+        if (minX > maxX || minY > maxY || minZ > maxZ) return true;
 
-        int intersecting = 0;
-        int accepted = 0;
+        long stamp = OecQueryStamp.current();
         boolean metrics = OecMetrics.ENABLED;
-        try (OecQueryFrame frame = OecQueryFrame.acquire()) {
-            if (!grid.collectCandidateSlots(box, frame)) return false;
-            long[] words = frame.words();
-            int wordCount = frame.wordCount();
-            if (metrics) {
-                OecMetrics.GRID_QUERIES.increment();
-                OecMetrics.CANDIDATES.add(frame.cardinality());
-            }
-
-            for (int w = 0; w < wordCount; w++) {
-                long word = words[w];
-                while (word != 0L) {
-                    int slot = (w << 6) + Long.numberOfTrailingZeros(word);
-                    word &= word - 1L;
-                    if (!grid.intersects(slot, box)) continue;
-                    Entity entity = grid.entity(slot);
-                    if (entity == null || (maskAccess != null && !maskAccess.rof$isVisible(entity))) continue;
-                    if (entity.isSpectator() || entity == except || entity instanceof EnderDragon) continue;
-                    intersecting++;
-                    if (metrics) {
-                        OecMetrics.EXACT_HITS.increment();
-                        OecMetrics.PREDICATE_CALLS.increment();
-                    }
-                    if (predicate.test(entity)) {
-                        accepted++;
-                        output.add(entity);
+        int lastScannedCell = -1;
+        for (int cellY = minY; cellY <= maxY; cellY++) {
+            for (int cellZ = minZ; cellZ <= maxZ; cellZ++) {
+                for (int cellX = minX; cellX <= maxX; cellX++) {
+                    int cell = grid.localCell(cellX, cellY, cellZ);
+                    if (cell == lastScannedCell) continue;
+                    lastScannedCell = cell;
+                    Entity[] entities = grid.cellEntities(cell);
+                    if (entities == null) continue;
+                    int size = grid.cellSize(cell);
+                    long[] mask = grid.cellMask(cell);
+                    // 逐字 + trailing zeros 只走置位条目，等价于 BitSet.nextSetBit
+                    int wordCount = (size + 63) >>> 6;
+                    for (int word = 0, base = 0; word < wordCount; word++, base += 64) {
+                        long bits = mask[word];
+                        int remaining = size - base;
+                        if (remaining < 64) bits &= (1L << remaining) - 1L;
+                        while (bits != 0L) {
+                            Entity entity = entities[base + Long.numberOfTrailingZeros(bits)];
+                            bits &= bits - 1L;
+                            if (entity == null) continue;
+                            OecEntityAccess access = (OecEntityAccess) entity;
+                            if (access.rof$pushStamp() == stamp) continue;
+                            access.rof$setPushStamp(stamp);
+                            if (metrics) OecMetrics.CANDIDATES.increment();
+                            if (entity == except || entity.isSpectator() || entity instanceof EnderDragon) continue;
+                            if (!entity.getBoundingBox().intersects(box)) continue;
+                            if (metrics) {
+                                OecMetrics.EXACT_HITS.increment();
+                                OecMetrics.PREDICATE_CALLS.increment();
+                            }
+                            if (predicate.test(entity)) output.add(entity);
+                        }
                     }
                 }
             }
-        }
-
-        if (masked == null && intersecting >= 25 && intersecting >= accepted * 2
-                && lithiumAccess.rof$lithiumPushableEntities() == null) {
-            lithiumAccess.rof$lithiumStartFilteringPushableEntities();
         }
         return true;
     }

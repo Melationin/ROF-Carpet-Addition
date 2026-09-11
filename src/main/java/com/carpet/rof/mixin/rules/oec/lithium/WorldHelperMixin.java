@@ -1,6 +1,7 @@
 package com.carpet.rof.mixin.rules.oec.lithium;
 
 import com.carpet.rof.rules.oec.OecMetrics;
+import com.carpet.rof.rules.oec.OecQueryStamp;
 import com.carpet.rof.rules.oec.OecSectionStorageAccess;
 import com.carpet.rof.rules.oec.OecSettings;
 import com.carpet.rof.rules.oec.lithium.LithiumPushCollector;
@@ -33,7 +34,7 @@ public abstract class WorldHelperMixin {
         if (OecMetrics.ENABLED) OecMetrics.QUERIES.increment();
         if (OecSettings.optimizedEntityCollection && world instanceof ServerLevel serverLevel
                 && serverLevel.getServer().isSameThread()
-                && LithiumPushCollector.tryCollect(section, world.getGameTime(), except, box, predicate, output)) {
+                && LithiumPushCollector.tryCollect(section, except, box, predicate, output)) {
             return AbortableIterationConsumer.Continuation.CONTINUE;
         }
         if (OecMetrics.ENABLED) OecMetrics.LITHIUM_FALLBACKS.increment();
@@ -50,10 +51,12 @@ public abstract class WorldHelperMixin {
     private static void rof$forEachAccessibleNonEmptySection(
             EntitySectionStorage<Entity> storage, AABB box,
             AbortableIterationConsumer<EntitySection<Entity>> consumer, Operation<Void> original) {
-        long[] keys = null;
-        if (OecSettings.optimizedEntityCollection && storage instanceof OecSectionStorageAccess access) {
-            keys = access.rof$spanCache().get(access, box);
+        if (!OecSettings.optimizedEntityCollection) {
+            original.call(storage, box, consumer);
+            return;
         }
+        OecQueryStamp.next();
+        long[] keys = storage instanceof OecSectionStorageAccess access ? access.rof$spanCache().get(access, box) : null;
         if (keys == null) {
             original.call(storage, box, consumer);
             return;
