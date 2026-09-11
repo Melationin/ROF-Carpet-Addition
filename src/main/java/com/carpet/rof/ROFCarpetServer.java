@@ -10,7 +10,7 @@ import com.carpet.rof.utils.ROFConfig;
 import com.carpet.rof.utils.ROFCarpetTranslations;
 import com.carpet.rof.utils.singleTaskWorker.SingleTaskWorker;
 import com.carpet.rof.rules.asyncWorldgen.AsyncExecutor;
-import com.carpet.rof.rules.oec.OecGridRegistry;
+import com.carpet.rof.rules.oec.OecUtil;
 import com.carpet.rof.rules.oec.lithium.ClimbableBlockStateCache;
 import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.api.ModInitializer;
@@ -67,7 +67,7 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
 
     @Override
     public void onServerClosed(MinecraftServer server) {
-        OecGridRegistry.releaseAll();
+        OecUtil.releaseAllGrids();
         ClimbableBlockStateCache.invalidate();
         AsyncExecutor.stop();
         SingleTaskWorker.INSTANCE.stop();

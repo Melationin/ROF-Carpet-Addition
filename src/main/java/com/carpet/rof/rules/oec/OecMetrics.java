@@ -17,7 +17,7 @@ public final class OecMetrics {
                 + ", candidates=" + CANDIDATES.sum() + ", exact=" + EXACT_HITS.sum() + ", predicates=" + PREDICATE_CALLS.sum()
                 + ", registrations=" + REGISTRATIONS.sum()
                 + ", boundsUpdates=" + BOUNDS_UPDATES.sum() + ", rangeChanges=" + RANGE_CHANGES.sum()
-                + ", rebuildTicks=" + REBUILDS.sum() + ", activeGrids=" + OecGridRegistry.activeCount()
+                + ", rebuildTicks=" + REBUILDS.sum() + ", activeGrids=" + OecUtil.activeGrids()
                 + ", spanHits=" + SPAN_HITS.sum() + ", spanMisses=" + SPAN_MISSES.sum()
                 + ", spanInvalidated=" + SPAN_INVALIDATED.sum() + ", spanSkipped=" + SPAN_SKIPPED.sum();
     }

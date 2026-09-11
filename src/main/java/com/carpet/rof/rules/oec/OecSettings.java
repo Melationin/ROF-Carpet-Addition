@@ -20,7 +20,7 @@ public class OecSettings extends BaseSetting {
     public static final class ToggleValidator extends Validator<Boolean> {
         @Override
         public Boolean validate(CommandSourceStack source, CarpetRule<Boolean> rule, Boolean value, String userInput) {
-            if (!value) OecGridRegistry.releaseAll();
+            if (!value) OecUtil.releaseAllGrids();
             return value;
         }
     }

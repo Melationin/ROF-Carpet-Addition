@@ -35,11 +35,11 @@ public abstract class EntitySectionMixin<T extends EntityAccess> implements OecS
         SectionEntityGrid grid = this.rof$grid;
         if (grid != null && grid.isFine() == fine) return;
         if (grid != null) {
-            OecGridRegistry.unregister(this);
+            OecUtil.unregisterGrid(this);
             grid.release();
         }
         this.rof$grid = new SectionEntityGrid(fine);
-        OecGridRegistry.register(this);
+        OecUtil.registerGrid(this);
     }
 
     @Override public void rof$clearCells() {
@@ -50,7 +50,7 @@ public abstract class EntitySectionMixin<T extends EntityAccess> implements OecS
     @Override public void rof$releaseGrid() {
         SectionEntityGrid grid = this.rof$grid;
         if (grid != null) {
-            OecGridRegistry.unregister(this);
+            OecUtil.unregisterGrid(this);
             grid.release();
             this.rof$grid = null;
         }
