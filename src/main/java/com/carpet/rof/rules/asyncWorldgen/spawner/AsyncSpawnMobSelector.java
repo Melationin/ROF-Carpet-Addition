@@ -1,6 +1,6 @@
-package com.carpet.rof.utils.asyncWorldgen.spawner;
+package com.carpet.rof.rules.asyncWorldgen.spawner;
 
-import com.carpet.rof.utils.asyncWorldgen.LoadedBlockGetter;
+import com.carpet.rof.rules.asyncWorldgen.LoadedBlockGetter;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;

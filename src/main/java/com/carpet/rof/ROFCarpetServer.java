@@ -9,7 +9,7 @@ import com.carpet.rof.utils.AutoMixinAuditExecutor;
 import com.carpet.rof.utils.ROFConfig;
 import com.carpet.rof.utils.ROFCarpetTranslations;
 import com.carpet.rof.utils.singleTaskWorker.SingleTaskWorker;
-import com.carpet.rof.utils.asyncWorldgen.AsyncExecutor;
+import com.carpet.rof.rules.asyncWorldgen.AsyncExecutor;
 import com.carpet.rof.rules.oec.OecGridRegistry;
 import com.carpet.rof.rules.oec.lithium.ClimbableBlockStateCache;
 import com.mojang.brigadier.CommandDispatcher;

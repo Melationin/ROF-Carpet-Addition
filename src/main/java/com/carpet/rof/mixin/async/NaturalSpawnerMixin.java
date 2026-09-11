@@ -1,6 +1,6 @@
 package com.carpet.rof.mixin.async;
 
-import com.carpet.rof.utils.asyncWorldgen.spawner.AsyncNaturalSpawner;
+import com.carpet.rof.rules.asyncWorldgen.spawner.AsyncNaturalSpawner;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.NaturalSpawner;

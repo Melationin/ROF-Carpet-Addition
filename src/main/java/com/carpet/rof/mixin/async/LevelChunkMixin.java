@@ -1,9 +1,9 @@
 package com.carpet.rof.mixin.async;
 
-import com.carpet.rof.utils.asyncWorldgen.spawner.AsyncNaturalSpawnerChunk;
-import com.carpet.rof.utils.asyncWorldgen.randomTick.AsyncRandomTickChunk;
-import com.carpet.rof.utils.asyncWorldgen.spawner.SpawnResult;
-import com.carpet.rof.utils.asyncWorldgen.randomTick.RandomTickResult;
+import com.carpet.rof.rules.asyncWorldgen.spawner.AsyncNaturalSpawnerChunk;
+import com.carpet.rof.rules.asyncWorldgen.randomTick.AsyncRandomTickChunk;
+import com.carpet.rof.rules.asyncWorldgen.spawner.SpawnResult;
+import com.carpet.rof.rules.asyncWorldgen.randomTick.RandomTickResult;
 import net.minecraft.world.level.chunk.LevelChunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;

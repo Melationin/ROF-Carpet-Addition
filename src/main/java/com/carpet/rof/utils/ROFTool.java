@@ -25,7 +25,7 @@ public class ROFTool
 {
     private static final org.slf4j.Logger LOGGER = LogUtils.getLogger();
     /** True only for Fabric Loader development launches (for example runServer). */
-    public static final boolean DEBUG = false && FabricLoader.getInstance().isDevelopmentEnvironment() || Boolean.getBoolean("rof.debug");;
+    public static final boolean DEBUG = FabricLoader.getInstance().isDevelopmentEnvironment() || Boolean.getBoolean("rof.debug");;
     public static boolean isNetherWorld(Level world) {
         return world.dimensionTypeRegistration().is(NETHER);
     }

@@ -1,9 +1,9 @@
-package com.carpet.rof.utils.asyncWorldgen.randomTick;
+package com.carpet.rof.rules.asyncWorldgen.randomTick;
 
 import com.carpet.rof.rules.asyncWorldgen.AsyncSettings;
 import com.carpet.rof.utils.ROFTool;
-import com.carpet.rof.utils.asyncWorldgen.DebugStats;
-import com.carpet.rof.utils.asyncWorldgen.AsyncExecutor;
+import com.carpet.rof.rules.asyncWorldgen.DebugStats;
+import com.carpet.rof.rules.asyncWorldgen.AsyncExecutor;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;

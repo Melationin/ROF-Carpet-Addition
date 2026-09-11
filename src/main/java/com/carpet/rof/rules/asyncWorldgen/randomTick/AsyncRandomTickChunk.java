@@ -1,4 +1,4 @@
-package com.carpet.rof.utils.asyncWorldgen.randomTick;
+package com.carpet.rof.rules.asyncWorldgen.randomTick;
 
 public interface AsyncRandomTickChunk
 {

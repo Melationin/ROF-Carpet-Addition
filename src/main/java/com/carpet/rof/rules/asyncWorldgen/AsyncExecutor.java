@@ -1,4 +1,4 @@
-package com.carpet.rof.utils.asyncWorldgen;
+package com.carpet.rof.rules.asyncWorldgen;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;

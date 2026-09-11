@@ -3,7 +3,7 @@ package com.carpet.rof.commands;
 import com.carpet.rof.annotation.ROFCommand;
 import com.carpet.rof.event.ROFEvents;
 import com.carpet.rof.utils.ROFTool;
-import com.carpet.rof.utils.asyncWorldgen.DebugStats;
+import com.carpet.rof.rules.asyncWorldgen.DebugStats;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;

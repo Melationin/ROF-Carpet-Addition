@@ -1,4 +1,4 @@
-package com.carpet.rof.utils.asyncWorldgen.spawner;
+package com.carpet.rof.rules.asyncWorldgen.spawner;
 
 import java.util.List;
 

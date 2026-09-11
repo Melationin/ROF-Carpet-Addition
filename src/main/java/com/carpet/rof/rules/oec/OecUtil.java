@@ -16,8 +16,8 @@ import org.jetbrains.annotations.Nullable;
 public final class OecUtil {
     public static final int EMPTY_RANGE = -1;
     private static final int RANGE_MASK = 7;
-    private static final int FINE_THRESHOLD = 64;
-    private static final int COARSE_THRESHOLD = 32;
+    private static final int FINE_THRESHOLD = 160;
+    private static final int COARSE_THRESHOLD = 128;
 
     private static long stamp = 1L;
     private static long cachedNeighborKey = Long.MIN_VALUE;

@@ -1,6 +1,6 @@
-package com.carpet.rof.utils.asyncWorldgen.spawner;
+package com.carpet.rof.rules.asyncWorldgen.spawner;
 
-import com.carpet.rof.utils.asyncWorldgen.LoadedBlockGetter;
+import com.carpet.rof.rules.asyncWorldgen.LoadedBlockGetter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;

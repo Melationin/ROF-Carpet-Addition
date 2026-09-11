@@ -1,6 +1,6 @@
 package com.carpet.rof.mixin.async;
 
-import com.carpet.rof.utils.asyncWorldgen.randomTick.AsyncRandomTick;
+import com.carpet.rof.rules.asyncWorldgen.randomTick.AsyncRandomTick;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.LevelChunk;
 import org.spongepowered.asm.mixin.Mixin;

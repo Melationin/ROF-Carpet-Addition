@@ -1,4 +1,4 @@
-package com.carpet.rof.utils.asyncWorldgen;
+package com.carpet.rof.rules.asyncWorldgen;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ChunkHolder;

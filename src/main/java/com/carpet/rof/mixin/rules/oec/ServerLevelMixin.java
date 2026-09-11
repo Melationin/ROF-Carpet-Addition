@@ -25,7 +25,8 @@ public abstract class ServerLevelMixin implements OecStorageHolder {
         return this.getEntities() instanceof OecStorageHolder holder ? holder.rof$entitySectionStorage() : null;
     }
 
-    @Inject(method = "tick(Ljava/util/function/BooleanSupplier;)V", at = @At("HEAD"))
+    @Inject(method = "tick(Ljava/util/function/BooleanSupplier;)V", at = @At(value = "INVOKE",
+                                                                             target = "Lnet/minecraft/world/level/entity/EntityTickList;forEach(Ljava/util/function/Consumer;)V"))
     private void rof$rebuildPushGrids(BooleanSupplier haveTime, CallbackInfo ci) {
         if (!OecSettings.optimizedEntityCollection) return;
         OecUtil.rebuild((ServerLevel) (Object) this);
