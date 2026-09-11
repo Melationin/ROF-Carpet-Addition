@@ -1,8 +1,8 @@
 package com.carpet.rof.mixin.rules.oec;
 
-import com.carpet.rof.rules.oec.OecGridRebuilder;
 import com.carpet.rof.rules.oec.OecSettings;
 import com.carpet.rof.rules.oec.OecStorageHolder;
+import com.carpet.rof.rules.oec.OecUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.entity.EntitySectionStorage;
@@ -28,6 +28,6 @@ public abstract class ServerLevelMixin implements OecStorageHolder {
     @Inject(method = "tick(Ljava/util/function/BooleanSupplier;)V", at = @At("HEAD"))
     private void rof$rebuildPushGrids(BooleanSupplier haveTime, CallbackInfo ci) {
         if (!OecSettings.optimizedEntityCollection) return;
-        OecGridRebuilder.rebuild((ServerLevel) (Object) this);
+        OecUtil.rebuild((ServerLevel) (Object) this);
     }
 }

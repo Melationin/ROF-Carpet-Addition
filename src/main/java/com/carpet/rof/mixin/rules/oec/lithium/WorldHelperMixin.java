@@ -1,9 +1,9 @@
 package com.carpet.rof.mixin.rules.oec.lithium;
 
 import com.carpet.rof.rules.oec.OecMetrics;
-import com.carpet.rof.rules.oec.OecQueryStamp;
 import com.carpet.rof.rules.oec.OecSectionStorageAccess;
 import com.carpet.rof.rules.oec.OecSettings;
+import com.carpet.rof.rules.oec.OecUtil;
 import com.carpet.rof.rules.oec.lithium.LithiumPushCollector;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -55,7 +55,7 @@ public abstract class WorldHelperMixin {
             original.call(storage, box, consumer);
             return;
         }
-        OecQueryStamp.next();
+        OecUtil.nextStamp();
         long[] keys = storage instanceof OecSectionStorageAccess access ? access.rof$spanCache().get(access, box) : null;
         if (keys == null) {
             original.call(storage, box, consumer);

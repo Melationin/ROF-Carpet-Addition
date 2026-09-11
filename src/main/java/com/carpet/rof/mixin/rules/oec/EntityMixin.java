@@ -1,9 +1,8 @@
 package com.carpet.rof.mixin.rules.oec;
 
-import com.carpet.rof.rules.oec.OecCells;
 import com.carpet.rof.rules.oec.OecEntityAccess;
-import com.carpet.rof.rules.oec.OecRegistration;
 import com.carpet.rof.rules.oec.OecSectionAccess;
+import com.carpet.rof.rules.oec.OecUtil;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class EntityMixin implements OecEntityAccess {
     @Unique private @Nullable OecSectionAccess rof$entitySection;
     @Unique private long rof$pushStamp;
-    @Unique private int rof$registeredCells = OecCells.EMPTY_RANGE;
+    @Unique private int rof$registeredCells = OecUtil.EMPTY_RANGE;
     @Unique private boolean rof$pushableBit;
 
     @Override public @Nullable OecSectionAccess rof$entitySection() { return this.rof$entitySection; }
@@ -31,6 +30,6 @@ public class EntityMixin implements OecEntityAccess {
 
     @Inject(method = "setBoundingBox(Lnet/minecraft/world/phys/AABB;)V", at = @At("RETURN"))
     private void rof$registerNewCells(AABB box, CallbackInfo ci) {
-        if (this.rof$entitySection != null) OecRegistration.registerNewCells((Entity) (Object) this);
+        if (this.rof$entitySection != null) OecUtil.registerNewCells((Entity) (Object) this);
     }
 }

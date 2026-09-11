@@ -61,8 +61,8 @@ public abstract class EntitySectionMixin<T extends EntityAccess> implements OecS
         if (entityLike instanceof Entity entity) {
             OecEntityAccess access = (OecEntityAccess) entity;
             access.rof$setEntitySection(this);
-            access.rof$setRegisteredCells(OecCells.EMPTY_RANGE);
-            OecRegistration.registerNewCells(entity);
+            access.rof$setRegisteredCells(OecUtil.EMPTY_RANGE);
+            OecUtil.registerNewCells(entity);
         }
     }
 

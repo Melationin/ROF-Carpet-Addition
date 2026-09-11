@@ -29,7 +29,6 @@ public final class SectionEntityGrid {
 
     public boolean isFine() { return this.fine; }
     public boolean isValid() { return this.valid; }
-    public int cellCount() { return this.cellCount; }
 
     public void clear() {
         for (int cell = 0; cell < this.cellCount; cell++) {

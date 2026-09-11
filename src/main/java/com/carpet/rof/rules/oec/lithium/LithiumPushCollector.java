@@ -5,11 +5,10 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.phys.AABB;
-import com.carpet.rof.rules.oec.OecCells;
 import com.carpet.rof.rules.oec.OecEntityAccess;
 import com.carpet.rof.rules.oec.OecMetrics;
-import com.carpet.rof.rules.oec.OecQueryStamp;
 import com.carpet.rof.rules.oec.OecSectionAccess;
+import com.carpet.rof.rules.oec.OecUtil;
 import com.carpet.rof.rules.oec.SectionEntityGrid;
 
 import java.util.ArrayList;
@@ -31,15 +30,15 @@ public final class LithiumPushCollector {
         int baseCellY = SectionPos.y(key) << 3;
         int baseCellZ = SectionPos.z(key) << 3;
         int lastCell = SectionEntityGrid.SECTION_CELL_COUNT - 1;
-        int minX = Math.max(OecCells.cell(box.minX), baseCellX);
-        int maxX = Math.min(OecCells.cell(box.maxX), baseCellX + lastCell);
-        int minY = Math.max(OecCells.cell(box.minY), baseCellY);
-        int maxY = Math.min(OecCells.cell(box.maxY), baseCellY + lastCell);
-        int minZ = Math.max(OecCells.cell(box.minZ), baseCellZ);
-        int maxZ = Math.min(OecCells.cell(box.maxZ), baseCellZ + lastCell);
+        int minX = Math.max(OecUtil.cell(box.minX), baseCellX);
+        int maxX = Math.min(OecUtil.cell(box.maxX), baseCellX + lastCell);
+        int minY = Math.max(OecUtil.cell(box.minY), baseCellY);
+        int maxY = Math.min(OecUtil.cell(box.maxY), baseCellY + lastCell);
+        int minZ = Math.max(OecUtil.cell(box.minZ), baseCellZ);
+        int maxZ = Math.min(OecUtil.cell(box.maxZ), baseCellZ + lastCell);
         if (minX > maxX || minY > maxY || minZ > maxZ) return true;
 
-        long stamp = OecQueryStamp.current();
+        long stamp = OecUtil.stamp();
         boolean metrics = OecMetrics.ENABLED;
         int lastScannedCell = -1;
         for (int cellY = minY; cellY <= maxY; cellY++) {
