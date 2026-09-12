@@ -18,14 +18,16 @@ import java.util.List;
 
 import static com.carpet.rof.rules.piglinRules.PiglinRulesSettings.piglinStackingAISuppression;
 
+
+//这个Mixin在有锂时毫无意义
 @Mixin(Entity.class)
 public class EntityMixin
 {
     @Inject(method = "collideBoundingBox(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/AABB;Lnet/minecraft/world/level/Level;Ljava/util/List;)Lnet/minecraft/world/phys/Vec3;", at = @At(value = "HEAD"), cancellable = true)
     private static void adjustMovementCancel(@Nullable Entity entity, Vec3 movement, AABB entityBoundingBox, Level world, List<VoxelShape> collisions, CallbackInfoReturnable<Vec3> cir){
         if(entity instanceof Piglin piglin){
-            int count = ((PiglinEntityAccessor) piglin).getNearPiglinCount();
-            if (!ROFTool.canLoadAi(entity.getId(), count, piglinStackingAISuppression)) {
+            if (((PiglinEntityAccessor) piglin).rof$getSuppressingAI()) {
+                cir.setReturnValue(new Vec3(0,0,0));
                 cir.cancel();
             }
         }

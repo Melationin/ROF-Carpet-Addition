@@ -37,8 +37,7 @@ public class BrainMixin2<E extends LivingEntity>
     public void tickSensors(ServerLevel world, E entity, CallbackInfo ci)
     {
         if (entity instanceof Piglin piglin) {
-            int count = ((PiglinEntityAccessor) piglin).getNearPiglinCount();
-            if (!(ROFTool.canLoadAi(piglin.getId(), count, piglinStackingAISuppression)))
+            if (((PiglinEntityAccessor) piglin).rof$getSuppressingAI())
                 ci.cancel();
         }
     }

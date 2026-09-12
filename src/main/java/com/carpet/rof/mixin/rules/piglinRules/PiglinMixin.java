@@ -1,6 +1,7 @@
 package com.carpet.rof.mixin.rules.piglinRules;
 
 import com.carpet.rof.rules.piglinRules.PiglinEntityAccessor;
+import com.carpet.rof.utils.ROFTool;
 import com.carpet.rof.utils.ROFWarp;
 
 import net.minecraft.world.entity.EntityType;
@@ -32,25 +33,31 @@ public abstract class PiglinMixin extends AbstractPiglin implements PiglinEntity
 {
 
     @Unique public int nearPiglinCount = 0;
+    @Unique public boolean suppressingAI = false;
 
     public PiglinMixin(EntityType<? extends AbstractPiglin> entityType, Level world)
     {
         super(entityType, world);
     }
 
-    @Override
-    public int getNearPiglinCount()
+    public boolean rof$getSuppressingAI()
     {
-        return nearPiglinCount;
+        return suppressingAI;
     }
+
 
 
     @Inject(method = "customServerAiStep", at = @At(value = "HEAD"))
             //? >=1.21.5 {
-    private void piglinTick(ServerLevel world, CallbackInfo ci)
+    private void piglinTick(ServerLevel level, CallbackInfo ci)
     {
+        if(piglinStackingAISuppression == 10000){
+            suppressingAI = true;
+            return;
+        }
+        suppressingAI = !ROFTool.canLoadAi(this.getId(), nearPiglinCount, piglinStackingAISuppression);
         if ((this.tickCount + this.getId() % 801) % 400 == 0) {
-            nearPiglinCount = world.getEntities(
+            nearPiglinCount = level.getEntities(
                     //? <26.2 {
                     EntityType.PIGLIN,
                     //?} else {
@@ -59,18 +66,8 @@ public abstract class PiglinMixin extends AbstractPiglin implements PiglinEntity
                     new AABB(ROFWarp.getPos_(this).add(0.5, 0.5, 0.5),ROFWarp.getPos_(this).add(-0.5, -0.5, -0.5)),
                     piglin -> true).size();
         }
+
     }
-    //?} else {
-    /*private void piglinTick( CallbackInfo ci) {
-        var world = this.getWorld();
-        if ((this.age + this.getId() % 801) % 400 == 0) {
-            nearPiglinCount = world.getEntitiesByType(EntityType.PIGLIN,
-                    new Box(this.getPos().add(0.5, 0.5, 0.5), this.getPos().add(-0.5, -0.5, -0.5)),
-                    piglinRules -> true
-            ).size();
-        }
-    }
-    *///?}
 
     //? >=1.21.6 {
     @Inject(method = "addAdditionalSaveData", at = @At(value = "HEAD"))
