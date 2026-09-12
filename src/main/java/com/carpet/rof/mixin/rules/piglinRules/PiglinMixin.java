@@ -48,7 +48,6 @@ public abstract class PiglinMixin extends AbstractPiglin implements PiglinEntity
 
 
     @Inject(method = "customServerAiStep", at = @At(value = "HEAD"))
-            //? >=1.21.5 {
     private void piglinTick(ServerLevel level, CallbackInfo ci)
     {
         if(piglinStackingAISuppression == 10000){
