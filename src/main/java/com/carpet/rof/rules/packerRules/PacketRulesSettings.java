@@ -51,10 +51,22 @@ public class PacketRulesSettings extends BaseSetting {
     )
     @QuickTranslations(
             name = "每秒实体生成发包限制",
-            description = "在同一秒生成过多的同种实体时，按概率阻止该种实体的追踪与发包。",
+            description = "在同一秒同区块生成过多的同种实体时，按概率阻止该种实体的追踪与发包。",
             extra = {"设置为负数表示禁用"}
     )
     public static int entitySpawnPacketLimitSeconds = -1;
+
+    @Rule(
+            categories = {ROF,OPTIMIZATION,PACKET},
+            strict = false,
+            options = {"-1","200","100","400"}
+    )
+    @QuickTranslations(
+            name = "每秒实体生成发包限制恢复时间",
+            description = "被每秒发包限制的实体在存活时间达到该tick数后恢复原版发包距离",
+            extra = {"设置为负数表示禁用","对每游戏刻发包限制不生效"}
+    )
+    public static int entitySpawnPacketLimitSecondsRecoverTime = 200;
 
     @Rule(
             categories = {ROF,OPTIMIZATION,PACKET},
@@ -63,8 +75,8 @@ public class PacketRulesSettings extends BaseSetting {
     )
     @QuickTranslations(
             name = "粒子包发包距离",
-            description = "此距离只能影响forced的粒子发包。但大部分粒子都是forced",
-            extra = {"原版默认为32"}
+            description = "此距离只能影响非forced的粒子发包。大部分粒子都是非forced",
+            extra = {"原版默认为32","force的粒子发包距离固定为512，不受此规则影响"}
     )
     public static double particlesPacketsRange = 32.0;
 }

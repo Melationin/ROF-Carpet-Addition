@@ -8,6 +8,7 @@ import com.carpet.rof.extraWorldData.ExtraWorldDatas;
 import com.carpet.rof.utils.AutoMixinAuditExecutor;
 import com.carpet.rof.utils.ROFConfig;
 import com.carpet.rof.utils.ROFCarpetTranslations;
+import com.carpet.rof.utils.ROFTool;
 import com.carpet.rof.utils.singleTaskWorker.SingleTaskWorker;
 import com.carpet.rof.rules.asyncWorldgen.AsyncExecutor;
 import com.carpet.rof.rules.oec.OecUtil;
@@ -39,6 +40,11 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
     @Override
     public void onInitialize()
     {
+        if(ROFTool.DEBUG){
+            Docs.create("zh_cn");
+            Docs.create("en_us");
+        }
+
         ROFCarpetServer.loadExtension();
         ClimbableBlockStateCache.registerLifecycleEvents();
         AutoMixinAuditExecutor.run();

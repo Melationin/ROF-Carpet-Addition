@@ -162,6 +162,23 @@
 &emsp;- categories: `ROF`, `optimization`, `packet`
 
 
+## entitySpawnPacketLimitSecondsRecoverTime
+
+&emsp;Entities limited by the per-second spawn packet limit restore their vanilla packet sending distance after surviving for this many ticks.
+
+&emsp; `Set to a negative number to disable`
+
+&emsp; `Has no effect on the per-tick spawn packet limit`
+
+&emsp;- type: `int`
+
+&emsp;- default: `200`
+
+&emsp;- options: `-1`, `200`, `100`, `400`
+
+&emsp;- categories: `ROF`, `optimization`, `packet`
+
+
 ## entitySpawnPacketLimitTicks
 
 &emsp;When too many entities of the same type are spawned in the same tick, reduces the packet sending distance for excess entities. Used for optimization of large-yield pearl cannons.
@@ -207,9 +224,17 @@
 
 &emsp;A more aggressive TNT merging scheme, may cause unexpected results. Cannot be used together with other TNT merging rules.
 
-&emsp;- type: `boolean`
+&emsp; `false - Disable`
+
+&emsp; `true - Enable`
+
+&emsp; `safe - Safe mode`
+
+&emsp;- type: `enum`
 
 &emsp;- default: `false`
+
+&emsp;- options: `true`, `false`, `safe`
 
 &emsp;- categories: `ROF`, `optimization`, `tnt`, `feature`
 
@@ -276,6 +301,23 @@
 &emsp;- categories: `ROF`, `optimization`, `experimental`
 
 
+## optimizeItemMerge
+
+&emsp;Tries to consolidate dropped items into full stacks to reduce lag.
+
+&emsp; `Allows partial merging: dropped items are filled up to a full stack first, and the remainder stays in the original item entity`
+
+&emsp; `Reuses Lithium's per-item-type bucketing to pick candidates, falling back to the vanilla scan when unavailable`
+
+&emsp; `Only relaxes the vanilla merge condition, and does not take over the merge flow`
+
+&emsp;- type: `boolean`
+
+&emsp;- default: `false`
+
+&emsp;- categories: `ROF`, `optimization`, `feature`
+
+
 ## optimizeRaycast
 
 &emsp;Optimizes raycast via ECM. Ensure ECM is enabled and has been loaded from the save before turning on.
@@ -291,9 +333,11 @@
 
 ## particlesPacketsRange
 
-&emsp;This distance only affects forced particle packets. But most particles are forced.
+&emsp;This distance only affects non-forced particle packets. Most particles are non-forced.
 
 &emsp; `Vanilla default is 32`
+
+&emsp; `Forced particles always use a distance of 512 and are not affected by this rule`
 
 &emsp;- type: `double`
 

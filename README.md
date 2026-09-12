@@ -1,6 +1,7 @@
 ## ROF Carpet Addition
 一个为生电服务器编写的 Carpet 拓展，主要目的是为了在不影响正常生电的情况下通过修改原版的一些逻辑减少卡顿。
 
+
 ## 前置模组
 
 | 名称          | 类型 | 链接                                                                                                                                                                       | 备注 |
@@ -27,4 +28,11 @@
 English(Using LLM Translation):
 - [Rules](docs/en_us/rules.md)
 - [Commands](docs/en_us/command.md)
+
+## 使用说明
+
+以下功能有较为明显的优化效果，在确保可靠后建议打开
+
+- **tnt合并Next**: 可大幅度减少tnt跑运行的卡顿。
+
 

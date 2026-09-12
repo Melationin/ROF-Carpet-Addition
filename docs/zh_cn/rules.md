@@ -163,6 +163,23 @@
 &emsp;- 分类: `ROF`, `optimization`, `packet`
 
 
+## 每秒实体生成发包限制恢复时间 (entitySpawnPacketLimitSecondsRecoverTime)
+
+&emsp;被每秒发包限制的实体在存活时间达到该tick数后恢复原版发包距离
+
+&emsp; `设置为负数表示禁用`
+
+&emsp; `对每游戏刻发包限制不生效`
+
+&emsp;- 类型: `int`
+
+&emsp;- 默认值: `200`
+
+&emsp;- 参考选项: `-1`, `200`, `100`, `400`
+
+&emsp;- 分类: `ROF`, `optimization`, `packet`
+
+
 ## 每游戏刻实体生成发包限制 (entitySpawnPacketLimitTicks)
 
 &emsp;在同一tick生成过多的同种实体时，减少过多的实体的发包距离。用于大当量珍珠炮的优化
@@ -208,9 +225,17 @@
 
 &emsp;更为激进的tnt合并方案, 可能会导致预期之外的结果。不能与其他tnt合并一起开。
 
-&emsp;- 类型: `boolean`
+&emsp; `false - 关闭`
+
+&emsp; `true - 开启`
+
+&emsp; `safe - 安全模式`
+
+&emsp;- 类型: `枚举`
 
 &emsp;- 默认值: `false`
+
+&emsp;- 参考选项: `true`, `false`, `safe`
 
 &emsp;- 分类: `ROF`, `optimization`, `tnt`, `feature`
 
@@ -277,6 +302,23 @@
 &emsp;- 分类: `ROF`, `optimization`, `experimental`
 
 
+## 物品合并优化 (optimizeItemMerge)
+
+&emsp;尽量让物品达到一组，以减轻卡顿
+
+&emsp; `允许部分合并：优先把掉落物填满整组，余量留在原掉落物中`
+
+&emsp; `复用锂的物品类型分桶筛选候选，锂不可用时退回原版扫描`
+
+&emsp; `只放宽原版的合并条件，不接管合并流程`
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `optimization`, `feature`
+
+
 ## raycast优化 (optimizeRaycast)
 
 &emsp;通过ECM优化raycast，开启时请保证ECM已打开且已经从存档加载过
@@ -292,9 +334,11 @@
 
 ## 粒子包发包距离 (particlesPacketsRange)
 
-&emsp;此距离只能影响forced的粒子发包。但大部分粒子都是forced
+&emsp;此距离只能影响非forced的粒子发包。大部分粒子都是非forced
 
 &emsp; `原版默认为32`
+
+&emsp; `force的粒子发包距离固定为512，不受此规则影响`
 
 &emsp;- 类型: `double`
 

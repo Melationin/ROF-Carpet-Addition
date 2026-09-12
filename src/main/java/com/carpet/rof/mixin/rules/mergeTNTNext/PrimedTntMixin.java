@@ -58,7 +58,7 @@ public abstract class PrimedTntMixin extends Entity implements MergedEntityAcces
     private void merge(CallbackInfo ci) {
         //System.out.println(mergedTNTNCount2);
 
-        if (mergeTNTNext &&
+        if (mergeTNTNext == MergeSetting.MergeTNTNextMode.TRUE &&
                 ROFWarp.getWorld_(this)  instanceof ServerLevel world
                 && !this.isRemoved() && getFuse() > 2
         &&(!mergeTNTOnlyNether || ROFTool.isNetherWorld(world))
