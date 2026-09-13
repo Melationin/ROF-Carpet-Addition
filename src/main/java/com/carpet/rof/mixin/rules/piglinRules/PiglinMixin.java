@@ -51,7 +51,7 @@ public abstract class PiglinMixin extends AbstractPiglin implements PiglinEntity
     private void piglinTick(ServerLevel level, CallbackInfo ci)
     {
         if(piglinStackingAISuppression == 10000){
-            suppressingAI = true;
+            suppressingAI = false;
             return;
         }
         suppressingAI = !ROFTool.canLoadAi(this.getId(), nearPiglinCount, piglinStackingAISuppression);

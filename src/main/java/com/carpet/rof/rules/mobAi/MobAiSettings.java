@@ -25,9 +25,8 @@ public class MobAiSettings extends BaseSetting
             name = "生物AI堵塞概率",
             description = "白名单内的生物发生 AI 堵塞、暂时停止 AI 行为的概率。",
             extra = {
-                    "建议取值：0（默认，功能关闭）、0.1（规则本身不限制取值，0~1 之间任意值都可以填）",
                     "概率为 0，或实体列表为空时，功能完全不生效",
-                    "掷骰结果随实体存档保存（实体 NBT 的 MobAi 字段），重载区块不会重掷"
+                    "掷骰结果随实体存档保存（实体 NBT 的 MobAi 字段）"
             }
     )
     public static double mobAiStallChance = 0.0D;
@@ -40,8 +39,7 @@ public class MobAiSettings extends BaseSetting
             extra = {
                     "建议取值：!minecraft:drowned（默认，除溺尸以外的全部生物）、!minecraft:drowned,!minecraft:piglin（再排除猪灵）",
                     "示例：minecraft:pig,#zombies,!#undead —— 猪与僵尸类生物，但不包括带 undead 标签的",
-                    "匹配语义：先取所有正选条目的并集，再减去所有负选条目；命中任意一个正选条目即可",
-                    "写错实体 ID 时该次设置会被拒绝并保持原值"
+                    "先取所有正选条目的并集，再减去所有负选条目；命中任意一个正选条目即可"
             })
     public static String mobAiStallWhitelist = "!minecraft:drowned";
 
@@ -50,7 +48,6 @@ public class MobAiSettings extends BaseSetting
             name = "生物AI堵塞时间",
             description = "生物 AI 堵塞持续的 tick 数，结束后恢复 AI，必须是正数。",
             extra = {
-                    "建议取值：50（默认，2.5 秒）、200（10 秒）",
                     "剩余时间随实体存档保存；小于 0 表示「已判定且不关闭 AI」",
                     "必须是正数"
             })

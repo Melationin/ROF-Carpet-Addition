@@ -1,122 +1,148 @@
 # Rules
 
-## optimizedEntityCollection
 
-&emsp;Uses a section-local spatial index to optimize Lithium push candidate collection. Entity iteration order may change.
+## asyncNaturalSpawning
 
-&emsp;- Type: `boolean`
+&emsp;Precomputes natural-spawning candidates off-thread; entity creation and counting stay on the main thread
 
-&emsp;- Default: `false`
+&emsp; `Falls back to vanilla when data is unavailable or stale`
 
-&emsp;- Categories: `ROF`, `optimization`
+&emsp;- 类型: `boolean`
 
-## optimizedClimbableTagCheck
+&emsp;- 默认值: `false`
 
-&emsp;Caches the `CLIMBABLE` block-tag lookup used by Lithium entity pushability checks, reducing repeated tag lookups in `LivingEntity.onClimbable`. The cache is invalidated after data-pack reloads.
+&emsp;- 分类: `ROF`, `optimization`, `experimental`
 
-&emsp;- Type: `boolean`
 
-&emsp;- Default: `false`
+## asyncRandomTick
 
-&emsp;- Categories: `ROF`, `optimization`
+&emsp;Precomputes the next tick's random-tick candidates off-thread; falls back to vanilla when the result is invalid
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `optimization`, `experimental`
 
 
 ## betterNoAiNbt
 
-&emsp;Skips AI logic (`Mob.serverAiStep`) for entities carrying the `NoBrainAI` NBT tag, while keeping passive motion such as gravity, fluids, entity pushing, crush damage, explosion knockback, pistons and riding. Unlike vanilla `NoAI`, the entity does not freeze in mid-air. Set the tag with `/data merge entity <target> {NoBrainAI:1b}`; it is saved with the entity.
+&emsp;Skips AI logic (Mob.serverAiStep) for entities carrying the NoBrainAI NBT tag, while keeping passive motion such as gravity, fluids, entity pushing, crush damage, explosion knockback, pistons and riding. Unlike vanilla NoAI, the entity does not freeze in mid-air.
 
-&emsp;- Type: `boolean`
+&emsp; `/data merge entity <target> {NoBrainAI:1b} to set, {NoBrainAI:0b} or /data remove entity <target> NoBrainAI to clear; the tag is saved with the entity and can also be written in /summon NBT`
 
-&emsp;- Default: `false`
+&emsp; `Skipped: target selector, goal selector, navigation, sensing, brain, and movement/look/jump controls`
 
-&emsp;- Categories: `ROF`, `feature`
+&emsp; `Kept: gravity and ground friction, water and bubble columns, entity pushing and crush damage, explosion knockback, pistons, riding (a player can still steer the mount), burning, item pickup, distance-based despawn`
 
-## commandEntityID`<=26.1`
+&emsp; `Note: the AI-independent noActionTime no longer accumulates, so the entity will not despawn from 600 ticks of inactivity near a player (same as vanilla NoAI); bosses such as the Ender Dragon or Wither stop their phase progression while tagged`
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `feature`
+
+
+## commandEntityID
 
 &emsp;Command to view and control entity IDs
 
-&emsp;- type: `String`
+&emsp;- 类型: `String`
 
-&emsp;- default: `false`
+&emsp;- 默认值: `false`
 
-&emsp;- categories: `ROF`, `feature`, `creative`, `command`
+&emsp;- 分类: `ROF`, `feature`, `creative`, `command`
 
 
-## commandEntityIDSet`<=26.1`
+## commandEntityIDSet
 
 &emsp;Command to set entity IDs
 
-&emsp;- type: `String`
+&emsp;- 类型: `String`
 
-&emsp;- default: `false`
+&emsp;- 默认值: `false`
 
-&emsp;- categories: `ROF`, `feature`, `creative`, `command`
+&emsp;- 分类: `ROF`, `feature`, `creative`, `command`
 
 
 ## commandExceedChunkMarker
 
 &emsp;Controls the permission level of ECM command. Invalid when ECM is not started.
 
-&emsp;- type: `String`
+&emsp;- 类型: `String`
 
-&emsp;- default: `ops`
+&emsp;- 默认值: `ops`
 
-&emsp;- categories: `command`, `ROF`
+&emsp;- 分类: `command`, `ROF`
 
 
 ## commandLoadedChunkFinder
 
 &emsp;Records connected chunks that are active during a certain period, used to find forgotten chunk loaders.
 
-&emsp;- type: `String`
+&emsp;- 类型: `String`
 
-&emsp;- default: `ops`
+&emsp;- 默认值: `ops`
 
-&emsp;- categories: `ROF`, `command`
+&emsp;- 分类: `ROF`, `command`
 
 
 ## commandPacketLoggerPlus
 
 &emsp;Records the pre-compression size of various packets.
 
-&emsp;- type: `String`
+&emsp;- 类型: `String`
 
-&emsp;- default: `ops`
+&emsp;- 默认值: `ops`
 
-&emsp;- categories: `command`, `ROF`
+&emsp;- 分类: `command`, `ROF`
 
 
 ## commandRequirementModify
 
 &emsp;Modify permission requirements of specified commands
 
-&emsp;- type: `String`
+&emsp;- 类型: `String`
 
-&emsp;- default: `ops`
+&emsp;- 默认值: `ops`
 
-&emsp;- categories: `command`, `creative`
+&emsp;- 分类: `command`, `creative`
 
 
 ## commandRulesSearcher
 
 &emsp;Adds a subcommand 'search' to carpet, allowing to search carpet rules by keyword
 
-&emsp;- type: `String`
+&emsp;- 类型: `String`
 
-&emsp;- default: `true`
+&emsp;- 默认值: `true`
 
-&emsp;- categories: `ROF`, `command`
+&emsp;- 分类: `ROF`, `command`
 
 
 ## commandSpawnWhitedListedPlayer
 
 &emsp;Used to summon fake players without prefix
 
-&emsp;- type: `String`
+&emsp;- 类型: `String`
 
-&emsp;- default: `ops`
+&emsp;- 默认值: `ops`
 
-&emsp;- categories: `ROF`, `command`, `creative`
+&emsp;- 分类: `ROF`, `command`, `creative`
+
+
+## enderPearlForcedSync
+
+&emsp;Keeps a pearl's tick in sync with the world tick despite async chunk loading delays
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 参考选项: `false`, `true`
+
+&emsp;- 分类: `ROF`, `optimization`, `feature`
 
 
 ## enderPearlForcedTickMinSpeed
@@ -127,24 +153,24 @@
 
 &emsp; `For pearls with the new loading logic, the loading behavior differs significantly from vanilla.`
 
-&emsp;- type: `double`
+&emsp;- 类型: `double`
 
-&emsp;- default: `-1.0`
+&emsp;- 默认值: `-1.0`
 
-&emsp;- options: `16.0`, `-1.0`
+&emsp;- 参考选项: `16.0`, `-1.0`
 
-&emsp;- categories: `ROF`, `optimization`, `feature`
+&emsp;- 分类: `ROF`, `optimization`, `feature`
 
 
 ## entityIDOverflowPeriod
 
 &emsp;Set to 0 to disable
 
-&emsp;- type: `int`
+&emsp;- 类型: `int`
 
-&emsp;- default: `0`
+&emsp;- 默认值: `0`
 
-&emsp;- categories: `ROF`, `feature`, `creative`
+&emsp;- 分类: `ROF`, `feature`, `creative`
 
 
 ## entitySpawnPacketLimitSeconds
@@ -153,30 +179,30 @@
 
 &emsp; `Set to a negative number to disable`
 
-&emsp;- type: `int`
+&emsp;- 类型: `int`
 
-&emsp;- default: `-1`
+&emsp;- 默认值: `-1`
 
-&emsp;- options: `-1`, `100`
+&emsp;- 参考选项: `-1`, `100`
 
-&emsp;- categories: `ROF`, `optimization`, `packet`
+&emsp;- 分类: `ROF`, `optimization`, `packet`
 
 
 ## entitySpawnPacketLimitSecondsRecoverTime
 
-&emsp;Entities limited by the per-second spawn packet limit restore their vanilla packet sending distance after surviving for this many ticks.
+&emsp;Throttled entities regain vanilla tracking distance after surviving this many ticks
 
-&emsp; `Set to a negative number to disable`
+&emsp; `Set to a negative value to disable`
 
-&emsp; `Has no effect on the per-tick spawn packet limit`
+&emsp; `No effect on the per-tick limit`
 
-&emsp;- type: `int`
+&emsp;- 类型: `int`
 
-&emsp;- default: `200`
+&emsp;- 默认值: `200`
 
-&emsp;- options: `-1`, `200`, `100`, `400`
+&emsp;- 参考选项: `-1`, `200`, `100`, `400`
 
-&emsp;- categories: `ROF`, `optimization`, `packet`
+&emsp;- 分类: `ROF`, `optimization`, `packet`
 
 
 ## entitySpawnPacketLimitTicks
@@ -185,26 +211,26 @@
 
 &emsp; `Set to a negative number to disable`
 
-&emsp;- type: `int`
+&emsp;- 类型: `int`
 
-&emsp;- default: `-1`
+&emsp;- 默认值: `-1`
 
-&emsp;- options: `-1`, `100`, `1000`
+&emsp;- 参考选项: `-1`, `100`, `1000`
 
-&emsp;- categories: `ROF`, `optimization`, `packet`
+&emsp;- 分类: `ROF`, `optimization`, `packet`
 
 
 ## entitySpawnPacketLimitTicksTrackerDistance
 
 &emsp;Sets the packet sending distance for entities that are limited
 
-&emsp;- type: `int`
+&emsp;- 类型: `int`
 
-&emsp;- default: `16`
+&emsp;- 默认值: `16`
 
-&emsp;- options: `2`, `16`, `64`
+&emsp;- 参考选项: `2`, `16`, `64`
 
-&emsp;- categories: `ROF`, `optimization`, `packet`
+&emsp;- 分类: `ROF`, `optimization`, `packet`
 
 
 ## exceedChunkMarker
@@ -213,69 +239,93 @@
 
 &emsp; `When enabling for the first time, be sure to load once with /exceedChunkMarker`
 
-&emsp;- type: `boolean`
+&emsp;- 类型: `boolean`
 
-&emsp;- default: `false`
+&emsp;- 默认值: `false`
 
-&emsp;- categories: `ROF`, `experimental`
+&emsp;- 分类: `ROF`, `experimental`
 
 
 ## mergeTNTNext
 
 &emsp;A more aggressive TNT merging scheme, may cause unexpected results. Cannot be used together with other TNT merging rules.
 
-&emsp; `false - Disable`
+&emsp; `False: no merging`
 
-&emsp; `true - Enable`
+&emsp; `TRUE: old explosion handling; moving merged TNT behaves unlike vanilla`
 
-&emsp; `safe - Safe mode`
+&emsp; `SAFE: safer explosion handling; moving merged TNT behaves like vanilla`
 
-&emsp;- type: `enum`
+&emsp; `AlmostVanilla: merges only when TNT explodes, keeping TNT tick order`
 
-&emsp;- default: `false`
+&emsp; `AlmostVanilla should not change TNT behaviour; report any vanilla mismatch as an issue`
 
-&emsp;- options: `true`, `false`, `safe`
+&emsp;- 类型: `MergeTNTNextMode`
 
-&emsp;- categories: `ROF`, `optimization`, `tnt`, `feature`
+&emsp;- 默认值: `FALSE`
+
+&emsp;- 分类: `ROF`, `optimization`, `tnt`, `feature`
 
 
 ## mobAiStallChance
 
-&emsp;Chance for a whitelisted mob to have its AI temporarily disabled; the roll happens once, the first time the entity is about to run AI. Suppressed entities keep passive motion (gravity, fluids, entity pushing, crush damage, explosion knockback, pistons, riding). 0 (default), or an empty entity list, disables the feature. The roll result is saved in the entity's `MobAi` NBT field, so reloading a chunk never re-rolls it — every entity is decided exactly once.
+&emsp;Chance for a whitelisted mob to have its AI temporarily disabled. The roll happens once, the first time the entity is about to run AI; only when the random value is below this chance is the AI suppressed. Passive motion (gravity, fluids, entity pushing, crush damage, explosion knockback, pistons, riding) is kept.
 
-&emsp;Suggested values: `0` (default, feature off) and `0.1` (any value between `0` and `1` is accepted).
+&emsp; `0 (default) disables the feature entirely; an empty entity list also disables it. Suggested values: 0 and 0.1 (the rule does not restrict the value, anything between 0 and 1 works)`
 
-&emsp;- type: `double`
+&emsp; `The roll result is stored in the entity's MobAi NBT field, so reloading a chunk never re-rolls it; every entity is decided exactly once`
 
-&emsp;- default: `0.0`
+&emsp; `A suppressed entity restores its AI when the restore time elapses and is never suppressed again`
 
-&emsp;- categories: `ROF`, `optimization`
+&emsp; `Never suppressed: baby mobs (LivingEntity.isBaby) and zombified piglins spawned by a nether portal random tick (they carry a portal cooldown); noActionTime still accumulates, so vanilla 600-tick idle despawn keeps working`
 
+&emsp;- 类型: `double`
 
-## mobAiStallWhitelist
+&emsp;- 默认值: `0.0`
 
-&emsp;Comma-separated whitelist of mobs eligible for AI stalls. Entries are entity ids (`minecraft:pig`) or entity type tags (`#zombies`); prefix an entry with `!` to exclude it, e.g. `minecraft:pig,#zombies,!#undead`. Matching takes the union of all positive entries and subtracts every negative entry; a list with only exclusions means "everything except those", and an empty list disables the feature. Tags are matched by name and do not need to be loaded yet; an invalid entity id is rejected and the previous value is kept.
+&emsp;- 参考选项: `0`, `0.1`
 
-&emsp;Suggested values: `!minecraft:drowned` (default — every mob except drowned) and `!minecraft:drowned,!minecraft:piglin` (also excludes piglins).
-
-&emsp;- type: `String`
-
-&emsp;- default: `!minecraft:drowned`
-
-&emsp;- categories: `ROF`, `optimization`
+&emsp;- 分类: `ROF`, `optimization`
 
 
 ## mobAiStallTicks
 
-&emsp;How many ticks a suppressed entity stays without AI before its AI is restored; must be a positive number. The remaining time is saved with the entity, and a negative value means "decided: AI is not suppressed" (that is the state after a failed roll, after being excluded, and after the AI has already been restored). Default 50 ticks (2.5 seconds).
+&emsp;How many ticks a suppressed entity stays without AI before its AI is restored; must be a positive number.
 
-&emsp;Suggested values: `50` (default, 2.5 seconds) and `200` (10 seconds).
+&emsp; `Counted in ticks experienced by the entity and saved with it (the remaining time is exactly the MobAi NBT field)`
 
-&emsp;- type: `int`
+&emsp; `A negative remaining time means 'decided: AI is not suppressed' - that is also the state after the AI has been restored`
 
-&emsp;- default: `50`
+&emsp; `It is also the maximum suppression duration; suggested values are 50 (default, 2.5 seconds) and 200 (10 seconds)`
 
-&emsp;- categories: `ROF`, `optimization`
+&emsp;- 类型: `int`
+
+&emsp;- 默认值: `50`
+
+&emsp;- 参考选项: `50`, `200`
+
+&emsp;- 分类: `ROF`, `optimization`
+
+
+## mobAiStallWhitelist
+
+&emsp;Comma-separated whitelist of mobs eligible for AI stalls. Entries are entity ids (minecraft:pig) or entity type tags (#zombies); prefix an entry with ! to exclude it. A list with only exclusions means 'everything except those'; an empty list disables the feature.
+
+&emsp; `Example: minecraft:pig,#zombies,!#undead - pigs and zombie-like mobs, but never undead ones. Suggested values: !minecraft:drowned (default, every mob except drowned) and !minecraft:drowned,!minecraft:piglin`
+
+&emsp; `Matching: union of all positive entries, minus every negative entry; hitting any positive entry is enough`
+
+&emsp; `Tags are data-pack tags matched by name; a tag that is not loaded behaves as an empty set (matches nothing)`
+
+&emsp; `Invalid entity ids are rejected and the previous value is kept`
+
+&emsp;- 类型: `String`
+
+&emsp;- 默认值: `!minecraft:drowned`
+
+&emsp;- 参考选项: `!minecraft:drowned`, `!minecraft:drowned,!minecraft:piglin`
+
+&emsp;- 分类: `ROF`, `optimization`
 
 
 ## optimizeForcedEnderPearlTick
@@ -292,30 +342,26 @@
 
 &emsp; `1_21_2+ - Enable optimization, and pearl behavior matches version 1.21.2 and above`
 
-&emsp;- type: `String`
+&emsp;- 类型: `String`
 
-&emsp;- default: `false`
+&emsp;- 默认值: `false`
 
-&emsp;- options: `false`, `true`, `1_21_2-`, `1_21_2+`
+&emsp;- 参考选项: `false`, `true`, `1_21_2-`, `1_21_2+`
 
-&emsp;- categories: `ROF`, `optimization`, `experimental`
+&emsp;- 分类: `ROF`, `optimization`, `experimental`
 
 
 ## optimizeItemMerge
 
-&emsp;Tries to consolidate dropped items into full stacks to reduce lag.
+&emsp;Fills item stacks to a full stack to reduce lag (minor effect)
 
-&emsp; `Allows partial merging: dropped items are filled up to a full stack first, and the remainder stays in the original item entity`
+&emsp; `Partial merging: drops fill up to a full stack first, the remainder stays in the original drop`
 
-&emsp; `Reuses Lithium's per-item-type bucketing to pick candidates, falling back to the vanilla scan when unavailable`
+&emsp;- 类型: `boolean`
 
-&emsp; `Only relaxes the vanilla merge condition, and does not take over the merge flow`
+&emsp;- 默认值: `false`
 
-&emsp;- type: `boolean`
-
-&emsp;- default: `false`
-
-&emsp;- categories: `ROF`, `optimization`, `feature`
+&emsp;- 分类: `ROF`, `optimization`, `feature`
 
 
 ## optimizeRaycast
@@ -324,54 +370,136 @@
 
 &emsp; `Known feature: Projectiles will ignore entity hitboxes at some specific positions.`
 
-&emsp;- type: `boolean`
+&emsp;- 类型: `boolean`
 
-&emsp;- default: `false`
+&emsp;- 默认值: `false`
 
-&emsp;- categories: `ROF`, `optimization`, `experimental`
+&emsp;- 分类: `ROF`, `optimization`, `experimental`
+
+
+## optimizedClimbableTagCheck
+
+&emsp;Caches the CLIMBABLE block-tag lookup used by Lithium entity pushability checks, reducing repeated tag lookups in LivingEntity.onClimbable. The cache is invalidated after data-pack reloads.
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `optimization`
+
+
+## optimizedEntityCollection
+
+&emsp;Uses a section-local spatial index to optimize Lithium push candidate collection. Entity iteration order may change.
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `optimization`, `experimental`
+
+
+## optimizedExplosion
+
+&emsp;Once this many explosions hit the same point within one game tick, the block calculation is skipped when a worst-case check proves no block can be destroyed; only entities are affected
+
+&emsp; `0 or less disables it`
+
+&emsp; `Only same-tick explosions with identical coordinates and power`
+
+&emsp; `State resets at every world tick start and on any block change`
+
+&emsp; `Air-only explosions are optimized too: vanilla lists the air positions along each ray, and skipping them changes no block`
+
+&emsp; `Skipped explosions consume no raycast random numbers, spawn fewer particles, and report an empty block list to the scarpet explosion event`
+
+&emsp;- 类型: `int`
+
+&emsp;- 默认值: `0`
+
+&emsp;- 参考选项: `0`, `4`, `8`, `16`
+
+&emsp;- 分类: `ROF`, `optimization`, `experimental`
+
+
+## optimizedFakePlayerTick
+
+&emsp;Trims client sync/advancement/stats/Waypoint per-tick logic for Carpet fake players, keeping main-hand item tick and behavior simulation
+
+&emsp; `Only affects Carpet fake players (EntityPlayerMPFake)`
+
+&emsp; `May affect fake player stats, advancements, scoreboard auto-sync and locator bar display`
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `optimization`
 
 
 ## particlesPacketsRange
 
-&emsp;This distance only affects non-forced particle packets. Most particles are non-forced.
+&emsp;This distance only affects forced particle packets. But most particles are forced.
 
 &emsp; `Vanilla default is 32`
 
-&emsp; `Forced particles always use a distance of 512 and are not affected by this rule`
+&emsp; `Forced particle packets use a fixed distance of 512, unaffected by this rule`
 
-&emsp;- type: `double`
+&emsp;- 类型: `double`
 
-&emsp;- default: `32.0`
+&emsp;- 默认值: `32.0`
 
-&emsp;- options: `32.0`, `1.0`, `8.0`
+&emsp;- 参考选项: `32.0`, `1.0`, `8.0`
 
-&emsp;- categories: `ROF`, `optimization`, `packet`
+&emsp;- 分类: `ROF`, `optimization`, `packet`
 
 
 ## piglinLootItemDelay
 
 &emsp;Only items that have been present for a certain time will be picked up by piglins
 
-&emsp;- type: `int`
+&emsp;- 类型: `int`
 
-&emsp;- default: `0`
+&emsp;- 默认值: `0`
 
-&emsp;- options: `0`, `20`
+&emsp;- 参考选项: `0`, `20`
 
-&emsp;- categories: `ROF`, `optimization`, `feature`
+&emsp;- 分类: `ROF`, `optimization`, `feature`
 
 
 ## piglinStackingAISuppression
 
 &emsp;For piglins stacked to a certain amount, suppress AI of some of them.
 
-&emsp;- type: `int`
+&emsp;- 类型: `int`
 
-&emsp;- default: `10000`
+&emsp;- 默认值: `10000`
 
-&emsp;- options: `100`, `10000`
+&emsp;- 参考选项: `100`, `10000`
 
-&emsp;- categories: `ROF`, `optimization`, `feature`
+&emsp;- 分类: `ROF`, `optimization`, `feature`
+
+
+## randomTickChunkCache
+
+&emsp;Reuses the random-tick chunk list, refreshed every 40 gt; when disabled, vanilla iteration is used
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `optimization`, `experimental`
+
+
+## spawningChunkCache
+
+&emsp;Reuses the natural-spawning candidate chunk list, refreshed every 40 gt; when disabled, vanilla iteration is used
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `optimization`, `experimental`
 
 
 ## tntPacketOptimization
@@ -380,10 +508,10 @@
 
 &emsp; `May cause client display errors`
 
-&emsp;- type: `boolean`
+&emsp;- 类型: `boolean`
 
-&emsp;- default: `false`
+&emsp;- 默认值: `false`
 
-&emsp;- categories: `ROF`, `optimization`, `packet`
+&emsp;- 分类: `ROF`, `optimization`, `packet`
 
 

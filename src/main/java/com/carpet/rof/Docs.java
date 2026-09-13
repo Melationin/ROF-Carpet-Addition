@@ -183,7 +183,10 @@ public class Docs
         Files.writeString(Path.of(filePath), content);
     }
 
-
+    public static void main1(){
+        main2("zh_cn");
+        main2("en_us");
+    }
     public static void main2(String lang )
     {
         ROFSettings.loadClasses();

@@ -2,35 +2,48 @@
 
 **提示：可以使用`Ctrl+F`快速查找自己想要的规则**
 
-## 高密度实体推挤收集优化 (optimizedEntityCollection)
+## 生物生成异步 (asyncNaturalSpawning)
 
-&emsp;使用区段内空间索引优化 Lithium 的高密度实体推挤候选收集。可能改变实体遍历顺序。
+&emsp;异步预计算自然生成候选；实体创建和数量统计仍在主线程执行。
 
-&emsp;- 类型: `boolean`
-
-&emsp;- 默认值: `false`
-
-&emsp;- 分类: `ROF`, `optimization`
-
-## 可攀爬方块标签判断缓存 (optimizedClimbableTagCheck)
-
-&emsp;缓存 Lithium 实体推挤判断中的 `CLIMBABLE` 方块标签查询，减少 `LivingEntity.onClimbable` 的重复标签查找。数据包重载后自动失效缓存。
+&emsp; `数据不可用或结果过期时自动回退原版。`
 
 &emsp;- 类型: `boolean`
 
 &emsp;- 默认值: `false`
 
-&emsp;- 分类: `ROF`, `optimization`
+&emsp;- 分类: `ROF`, `optimization`, `experimental`
+
+
+## 随机刻异步 (asyncRandomTick)
+
+&emsp;异步预计算下一游戏刻的随机刻候选；结果失效时自动回退原版。
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `optimization`, `experimental`
+
 
 ## 更好的NoAI NBT (betterNoAiNbt)
 
-&emsp;实体带有 `NoBrainAI` NBT 时跳过其 AI 逻辑（`Mob.serverAiStep`），但保留重力、流体流动、实体推挤、挤压伤害、爆炸击退、活塞推动与骑乘等被动运动；与原版 `NoAI` 不同，实体不会悬空静止。用 `/data merge entity <目标> {NoBrainAI:1b}` 设置标签，标签随实体存档保存。
+&emsp;实体带有 NoBrainAI NBT 时跳过其 AI 逻辑（Mob.serverAiStep），但保留重力、流体流动、实体推挤、挤压伤害、爆炸击退、活塞推动与骑乘等被动运动。与原版 NoAI 不同，实体不会悬空静止。
+
+&emsp; `用法：/data merge entity <目标> {NoBrainAI:1b} 设置，{NoBrainAI:0b} 或 /data remove entity <目标> NoBrainAI 移除；标签随实体存档保存，也支持 /summon 时直接写入`
+
+&emsp; `被跳过的：目标选择器、goal 选择器、寻路导航、传感器(sensing)、大脑(brain)、移动/视角/跳跃控制器`
+
+&emsp; `保留的：重力与落地摩擦、水流/气泡柱、实体互推与挤压伤害、爆炸击退、活塞推动、骑乘（玩家仍可操控坐骑）、燃烧、捡装备、距离消失检查`
+
+&emsp; `注意：与 AI 无关的 noActionTime 不再累加，因此在玩家附近也不会因 600 tick 无动作而消失（与原版 NoAI 行为一致）；末影龙/凋灵等 Boss 若打上该标签将停止相位推进`
 
 &emsp;- 类型: `boolean`
 
 &emsp;- 默认值: `false`
 
 &emsp;- 分类: `ROF`, `feature`
+
 
 ## 实体ID命令 (commandEntityID)
 
@@ -120,6 +133,19 @@
 &emsp;- 分类: `ROF`, `command`, `creative`
 
 
+## 珍珠加载强行同步 (enderPearlForcedSync)
+
+&emsp;防止珍珠加载时因为异步区块加载延迟而导致珍珠tick和世界tick不同步
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 参考选项: `false`, `true`
+
+&emsp;- 分类: `ROF`, `optimization`, `feature`
+
+
 ## 更好的高速珍珠自加载 (enderPearlForcedTickMinSpeed)
 
 &emsp;对速度高于一定值的珍珠使用新的加载逻辑，更加稳定，需要加载的区块更少。
@@ -150,7 +176,7 @@
 
 ## 每秒实体生成发包限制 (entitySpawnPacketLimitSeconds)
 
-&emsp;在同一秒生成过多的同种实体时，按概率阻止该种实体的追踪与发包。
+&emsp;在同一秒同区块生成过多的同种实体时，按概率阻止该种实体的追踪与发包。
 
 &emsp; `设置为负数表示禁用`
 
@@ -225,56 +251,72 @@
 
 &emsp;更为激进的tnt合并方案, 可能会导致预期之外的结果。不能与其他tnt合并一起开。
 
-&emsp; `false - 关闭`
+&emsp; `False:关闭合并`
 
-&emsp; `true - 开启`
+&emsp; `TRUE: 旧版的爆炸处理方案，会使移动中的合并tnt发生不原版的行为`
 
-&emsp; `safe - 安全模式`
+&emsp; `SAFE: 更安全的爆炸处理方案，让移动中的合并tnt行为与原版一致`
 
-&emsp;- 类型: `枚举`
+&emsp; `AlmostVanilla: 更接近原版的tnt合并方案，只在tnt爆炸时合并，并且保tnt tick顺序`
 
-&emsp;- 默认值: `false`
+&emsp; `理论上，AlmostVanilla 模式不会改变 TNT 行为，因此在纯原版中不应发现相关差异。若出现与原版不一致的情况，请提交 issue。`
 
-&emsp;- 参考选项: `true`, `false`, `safe`
+&emsp;- 类型: `MergeTNTNextMode`
+
+&emsp;- 默认值: `FALSE`
 
 &emsp;- 分类: `ROF`, `optimization`, `tnt`, `feature`
 
 
 ## 生物AI堵塞概率 (mobAiStallChance)
 
-&emsp;白名单内的生物在第一次真正要跑 AI 时掷一次随机数，只有随机数小于该概率时该实体的 AI 才会被临时关闭；关闭期间保留重力、流体流动、实体推挤、挤压伤害、爆炸击退、活塞推动与骑乘等被动运动。概率为 0（默认）或实体列表为空时功能不生效。掷骰结果随实体存档保存（实体 NBT 的 `MobAi` 字段），区块重新加载不会重掷；每个实体一生只判定一次。
+&emsp;白名单内的生物发生 AI 堵塞、暂时停止 AI 行为的概率。
 
-&emsp;建议取值：`0`（默认，功能关闭）、`0.1`（不限制取值，`0`~`1` 之间任意值都可填）
+&emsp; `概率为 0，或实体列表为空时，功能完全不生效`
+
+&emsp; `掷骰结果随实体存档保存（实体 NBT 的 MobAi 字段）`
 
 &emsp;- 类型: `double`
 
 &emsp;- 默认值: `0.0`
 
-&emsp;- 分类: `ROF`, `optimization`
-
-
-## 生物AI堵塞白名单 (mobAiStallWhitelist)
-
-&emsp;可能发生 AI 堵塞的生物白名单，逗号分隔；条目可以是实体 ID（`minecraft:pig`）或实体类型标签（`#zombies`），前缀 `!` 表示排除该项，例如 `minecraft:pig,#zombies,!#undead`。匹配语义为先取所有正选条目的并集，再减去所有负选条目；列表全为排除项时表示“除这些之外的全部”，列表为空时功能不生效。标签是数据包标签，写入时不要求已加载（未加载的标签等同于空集合）；写错实体 ID 时该次设置会被拒绝并保持原值。
-
-&emsp;建议取值：`!minecraft:drowned`（默认，除溺尸以外的全部生物）、`!minecraft:drowned,!minecraft:piglin`（再排除猪灵）
-
-&emsp;- 类型: `String`
-
-&emsp;- 默认值: `!minecraft:drowned`
+&emsp;- 参考选项: `0`, `0.1`
 
 &emsp;- 分类: `ROF`, `optimization`
 
 
 ## 生物AI堵塞时间 (mobAiStallTicks)
 
-&emsp;生物 AI 堵塞持续的 tick 数，结束后恢复 AI，必须是正数。剩余时间随实体存档保存，小于 0 表示「已判定且不关闭 AI」（掷骰失败、被排除项拦下、以及已经恢复过的实体都是这个状态）。默认 50 tick（2.5 秒）。
+&emsp;生物 AI 堵塞持续的 tick 数，结束后恢复 AI，必须是正数。
 
-&emsp;建议取值：`50`（默认，2.5 秒）、`200`（10 秒）
+&emsp; `剩余时间随实体存档保存；小于 0 表示「已判定且不关闭 AI」`
+
+&emsp; `必须是正数`
 
 &emsp;- 类型: `int`
 
 &emsp;- 默认值: `50`
+
+&emsp;- 参考选项: `50`, `200`
+
+&emsp;- 分类: `ROF`, `optimization`
+
+
+## 生物AI堵塞白名单 (mobAiStallWhitelist)
+
+&emsp;可能发生 AI 堵塞的生物白名单，逗号分隔；条目可以是实体 ID（minecraft:pig）或实体类型标签（#zombies），前缀 ! 表示排除该项。列表全为排除项时表示「除这些之外的全部」；列表为空时功能不生效。
+
+&emsp; `建议取值：!minecraft:drowned（默认，除溺尸以外的全部生物）、!minecraft:drowned,!minecraft:piglin（再排除猪灵）`
+
+&emsp; `示例：minecraft:pig,#zombies,!#undead —— 猪与僵尸类生物，但不包括带 undead 标签的`
+
+&emsp; `先取所有正选条目的并集，再减去所有负选条目；命中任意一个正选条目即可`
+
+&emsp;- 类型: `String`
+
+&emsp;- 默认值: `!minecraft:drowned`
+
+&emsp;- 参考选项: `!minecraft:drowned`, `!minecraft:drowned,!minecraft:piglin`
 
 &emsp;- 分类: `ROF`, `optimization`
 
@@ -304,13 +346,9 @@
 
 ## 物品合并优化 (optimizeItemMerge)
 
-&emsp;尽量让物品达到一组，以减轻卡顿
+&emsp;尽量让物品达到一组，以减轻卡顿(效果不明显)
 
 &emsp; `允许部分合并：优先把掉落物填满整组，余量留在原掉落物中`
-
-&emsp; `复用锂的物品类型分桶筛选候选，锂不可用时退回原版扫描`
-
-&emsp; `只放宽原版的合并条件，不接管合并流程`
 
 &emsp;- 类型: `boolean`
 
@@ -330,6 +368,60 @@
 &emsp;- 默认值: `false`
 
 &emsp;- 分类: `ROF`, `optimization`, `experimental`
+
+
+## 可攀爬方块标签判断缓存 (optimizedClimbableTagCheck)
+
+&emsp;缓存 Lithium 实体推挤判断中的 CLIMBABLE 方块标签查询，减少 LivingEntity.onClimbable 的重复标签查找。数据包重载后自动失效缓存。
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `optimization`
+
+
+## 实体推挤收集优化 (optimizedEntityCollection)
+
+&emsp;使用分区空间索引优化 Lithium 的高密度实体推挤候选收集。可能改变实体遍历顺序。
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `optimization`, `experimental`
+
+
+## 爆炸优化 (optimizedExplosion)
+
+&emsp;同一游戏刻内同一点的连续爆炸达到该次数后，先按最坏情况判断这次爆炸是否可能破坏方块；只有不可能破坏方块时才跳过方块计算，只影响实体。
+
+&emsp; `设置为 0 或负数表示禁用`
+
+&emsp; `只对同一游戏刻内、坐标与威力完全相同的连续爆炸生效`
+
+&emsp;- 类型: `int`
+
+&emsp;- 默认值: `0`
+
+&emsp;- 参考选项: `0`, `4`, `8`, `16`
+
+&emsp;- 分类: `ROF`, `optimization`, `experimental`
+
+
+## 假人tick精简 (optimizedFakePlayerTick)
+
+&emsp;精简Carpet假人的客户端同步/进度/统计/Waypoint等每tick逻辑，保留主手物品tick与行为模拟
+
+&emsp; `仅对Carpet假人(EntityPlayerMPFake)生效`
+
+&emsp; `可能影响假人的统计、进度、计分板自动同步与定位条显示`
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `optimization`
 
 
 ## 粒子包发包距离 (particlesPacketsRange)
@@ -373,6 +465,28 @@
 &emsp;- 参考选项: `100`, `10000`
 
 &emsp;- 分类: `ROF`, `optimization`, `feature`
+
+
+## 随机刻区块延迟缓存 (randomTickChunkCache)
+
+&emsp;每40gt刷新一次随机刻区块列表。关闭时完全使用原版遍历。
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `optimization`, `experimental`
+
+
+## 生物生成区块延迟缓存 (spawningChunkCache)
+
+&emsp;每40gt刷新一次自然生成候选区块列表。关闭时完全使用原版遍历。
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `optimization`, `experimental`
 
 
 ## tnt实体发包优化 (tntPacketOptimization)

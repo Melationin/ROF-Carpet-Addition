@@ -72,6 +72,8 @@ public class MergeSetting extends BaseSetting {
     )
     public static boolean mergeTNTOnlyNether = false;
 
+
+
     /** 规则开启时放宽原版"装满才合并"的限制：同物品同组件、两边都未满即可合并，余量由原版 merge 留在对方。 */
     public static boolean canPartialMerge(ItemStack selfStack, ItemStack otherStack)
     {
