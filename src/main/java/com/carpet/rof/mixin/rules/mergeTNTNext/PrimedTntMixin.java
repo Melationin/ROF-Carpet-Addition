@@ -8,10 +8,14 @@ import com.carpet.rof.utils.ROFTool;
 import com.carpet.rof.utils.ROFWarp;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.item.PrimedTnt;
 
 import net.minecraft.server.level.ServerLevel;
 //? >=1.21.6 {
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.ExplosionDamageCalculator;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 //?} else {
@@ -19,6 +23,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 *///?}
 
 import net.minecraft.world.level.Level;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -50,6 +55,16 @@ public abstract class PrimedTntMixin extends Entity implements MergedEntityAcces
     @Shadow
     public abstract int getFuse();
 
+    @Shadow
+    private boolean usedPortal;
+
+    @Shadow
+    @Final
+    public static ExplosionDamageCalculator USED_PORTAL_DAMAGE_CALCULATOR;
+
+    @Shadow
+    private float explosionPower;
+
     public PrimedTntMixin(EntityType<?> type, Level world) {
         super(type, world);
     }
@@ -58,9 +73,9 @@ public abstract class PrimedTntMixin extends Entity implements MergedEntityAcces
     private void merge(CallbackInfo ci) {
         //System.out.println(mergedTNTNCount2);
 
-        if (mergeTNTNext == MergeSetting.MergeTNTNextMode.TRUE &&
+        if (mergeTNTNext != MergeSetting.MergeTNTNextMode.FALSE &&
                 ROFWarp.getWorld_(this)  instanceof ServerLevel world
-                && !this.isRemoved() && getFuse() > 2
+                && !this.isRemoved() && getFuse() >= 2
         &&(!mergeTNTOnlyNether || ROFTool.isNetherWorld(world))
         ) {
             MergeSetting.EntityPosAndVec TntPosAndVec = new MergeSetting.EntityPosAndVec(ROFWarp.getPos_(this), this.getDeltaMovement(), this.getFuse());
@@ -77,6 +92,46 @@ public abstract class PrimedTntMixin extends Entity implements MergedEntityAcces
                     return (PrimedTnt) (Object) this;
                 }
             });
+        }
+    }
+
+    @Inject(method = "tick", at = @At(value = "HEAD"),
+            cancellable = true)
+    private void tick(CallbackInfo ci){
+        if(mergeTNTNext != MergeSetting.MergeTNTNextMode.SAFE || rof$mergedTNTNCount < 2 || this.getFuse()!=1) return;
+        this.handlePortal();
+        this.applyGravity();
+        double x =  this.getX();
+        double y = this.getY();
+        double z = this.getZ();
+
+        for(int i = 0;i<rof$mergedTNTNCount;i++){
+            var vec = this.getDeltaMovement();
+            this.move(MoverType.SELF, this.getDeltaMovement());
+            this.applyEffectsFromBlocks();
+            this.setDeltaMovement(vec);
+            explode2();
+            this.setPos(x, y, z);
+        }
+        this.discard();
+        ci.cancel();
+    }
+
+    @Unique
+    private void explode2() {
+        if (this.level() instanceof ServerLevel level && level.getGameRules().get(GameRules.TNT_EXPLODES)) {
+            this.level()
+                    .explode(
+                            null,
+                            Explosion.getDefaultDamageSource(this.level(), this),
+                            this.usedPortal?USED_PORTAL_DAMAGE_CALCULATOR:null,
+                            this.getX(),
+                            this.getY(0.0625),
+                            this.getZ(),
+                            this.explosionPower,
+                            false,
+                            Level.ExplosionInteraction.TNT
+                    );
         }
     }
 
