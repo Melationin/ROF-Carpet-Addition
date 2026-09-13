@@ -15,6 +15,7 @@ import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -28,7 +29,7 @@ public class ExtraWorldDatas implements NBTData
     public final Map<UUID, Entity> forcedEntitylist = new HashMap<>();
 
     public final HashMap<MergeSetting.EntityPosAndVec, PrimedTnt> mergeTntMap =  new HashMap<>();
-
+    public final HashMap<MergeSetting.EntityPosAndVec, ArrayList<PrimedTnt>> mergeTntMapAv =  new HashMap<>();
     public final Map<EntityType<?>,Integer> entitySpawnCountsPerTick = new HashMap<>();
 
     public final ChunkEntitySpawnLogger  chunkEntitySpawnLogger = new ChunkEntitySpawnLogger();

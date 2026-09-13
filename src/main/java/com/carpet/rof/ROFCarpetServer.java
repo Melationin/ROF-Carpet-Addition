@@ -40,10 +40,6 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
     @Override
     public void onInitialize()
     {
-        if(ROFTool.DEBUG){
-            Docs.create("zh_cn");
-            Docs.create("en_us");
-        }
 
         ROFCarpetServer.loadExtension();
         ClimbableBlockStateCache.registerLifecycleEvents();
@@ -62,6 +58,7 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
         ROFEvents.WorldTickBegin.register(world -> {
             ExtraWorldDatas.fromWorld(world).entitySpawnCountsPerTick.clear();
             ExtraWorldDatas.fromWorld(world).mergeTntMap.clear();
+            ExtraWorldDatas.fromWorld(world).mergeTntMapAv.clear();
             ExtraWorldDatas.fromWorld(world).chunkEntitySpawnLogger.run(world);
         });
 

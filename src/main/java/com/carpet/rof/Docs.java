@@ -184,14 +184,14 @@ public class Docs
     }
 
 
-    public static void create(String lang )
+    public static void main2(String lang )
     {
         ROFSettings.loadClasses();
 
         for(var clazz :  ROFSettings.ruleClasses){
             parseSettingsClass(clazz);
         }
-        
+
         Map<String,String> tr = ROFCarpetTranslations.getTranslationFromResourcePath(lang);
 
         List<RuleData<?>> sortRules = new ArrayList<>(rules.values());

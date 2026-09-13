@@ -1,7 +1,8 @@
-package com.carpet.rof.mixin.rules.mergeTNTNext;
+package com.carpet.rof.mixin.rules.merge;
 
 
 import com.carpet.rof.extraWorldData.ExtraWorldDatas;
+import com.carpet.rof.rules.merge.EntityTickOrderAccessor;
 import com.carpet.rof.rules.merge.MergeSetting;
 import com.carpet.rof.rules.merge.MergedEntityAccessor;
 import com.carpet.rof.utils.ROFTool;
@@ -9,6 +10,7 @@ import com.carpet.rof.utils.ROFWarp;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
 
 import net.minecraft.server.level.ServerLevel;
@@ -23,6 +25,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 *///?}
 
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -30,6 +33,8 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.Comparator;
 import java.util.HashMap;
 
 import static com.carpet.rof.rules.merge.MergeSetting.mergeTNTNext;
@@ -71,11 +76,9 @@ public abstract class PrimedTntMixin extends Entity implements MergedEntityAcces
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/PrimedTnt;getFuse()I"), cancellable = true)
     private void merge(CallbackInfo ci) {
-        //System.out.println(mergedTNTNCount2);
-
-        if (mergeTNTNext != MergeSetting.MergeTNTNextMode.FALSE &&
-                ROFWarp.getWorld_(this)  instanceof ServerLevel world
-                && !this.isRemoved() && getFuse() >= 2
+        if(!(ROFWarp.getWorld_(this)  instanceof ServerLevel world))return;
+        if(mergeTNTNext == MergeSetting.MergeTNTNextMode.ALMOST_VANILLA|| mergeTNTNext == MergeSetting.MergeTNTNextMode.FALSE) return;
+        if (!this.isRemoved() && getFuse() >= 2
         &&(!mergeTNTOnlyNether || ROFTool.isNetherWorld(world))
         ) {
             MergeSetting.EntityPosAndVec TntPosAndVec = new MergeSetting.EntityPosAndVec(ROFWarp.getPos_(this), this.getDeltaMovement(), this.getFuse());
@@ -83,7 +86,7 @@ public abstract class PrimedTntMixin extends Entity implements MergedEntityAcces
             tntMergeMap.compute(TntPosAndVec,(k,tnt)->{
                 if(tnt!=null){
                     ((MergedEntityAccessor) tnt).ROF$addMergeCount(rof$mergedTNTNCount);
-                    MergedEntityAccessor thisAccessor = (MergedEntityAccessor) this;
+                    MergedEntityAccessor thisAccessor = this;
                     thisAccessor.ROF$addMergeCount(rof$mergedTNTNCount);
                     this.remove(RemovalReason.DISCARDED);
                     ci.cancel();
@@ -98,36 +101,78 @@ public abstract class PrimedTntMixin extends Entity implements MergedEntityAcces
     @Inject(method = "tick", at = @At(value = "HEAD"),
             cancellable = true)
     private void tick(CallbackInfo ci){
-        if(mergeTNTNext != MergeSetting.MergeTNTNextMode.SAFE || rof$mergedTNTNCount < 2 || this.getFuse()!=1) return;
-        this.handlePortal();
-        this.applyGravity();
-        double x =  this.getX();
-        double y = this.getY();
-        double z = this.getZ();
+        if(!(ROFWarp.getWorld_(this)  instanceof ServerLevel level))return;
 
-        for(int i = 0;i<rof$mergedTNTNCount;i++){
-            var vec = this.getDeltaMovement();
-            this.move(MoverType.SELF, this.getDeltaMovement());
-            this.applyEffectsFromBlocks();
-            this.setDeltaMovement(vec);
-            explode2();
-            this.setPos(x, y, z);
+        if(mergeTNTNext == MergeSetting.MergeTNTNextMode.ALMOST_VANILLA){
+            if(this.isRemoved()) return;
+            if(this.getFuse() != 1)return;
+            var list = level.getEntitiesOfClass(PrimedTnt.class,
+                    this.makeBoundingBox().inflate(0.01)
+
+                    ,tnt->{
+                if(tnt ==(Object) this) return false;
+                if(tnt.getFuse() != 1) return false;
+                if(this.getX() != tnt.getX() || this.getY() != tnt.getY() || this.getZ() != tnt.getZ()) return false;
+                if(!this.getDeltaMovement().equals(tnt.getDeltaMovement())) return false;
+                if(
+                        ((EntityTickOrderAccessor)(Object)(this)).rof$getTickOrder()>=((EntityTickOrderAccessor)(Object)(tnt)).rof$getTickOrder()
+                ) return false;
+                return true;
+            });
+
+            list.sort(Comparator.comparingLong(tnt -> ((EntityTickOrderAccessor) (Object) (tnt)).rof$getTickOrder()));
+            long now = ((EntityTickOrderAccessor)(Object)(this)).rof$getTickOrder();
+            int count = 1;
+            for(var tnt : list){
+                if(((EntityTickOrderAccessor) (Object) (tnt)).rof$getTickOrder() != now +1){
+                    break;
+                }else {
+                    now++;
+                    count++;
+                    tnt.discard();
+                }
+            }
+            rof$mergedTNTNCount = count;
         }
-        this.discard();
-        ci.cancel();
+
+        if(mergeTNTNext == MergeSetting.MergeTNTNextMode.SAFE || mergeTNTNext == MergeSetting.MergeTNTNextMode.ALMOST_VANILLA) {
+            if(this.getFuse() != 1 || this.rof$mergedTNTNCount  < 2)return;
+            this.handlePortal();
+
+            double x = this.getX();
+            double y = this.getY();
+            double z = this.getZ();
+
+            for (int i = 0; i < rof$mergedTNTNCount; i++) {
+                var vec = this.getDeltaMovement();
+                this.applyGravity();
+                this.move(MoverType.SELF, this.getDeltaMovement());
+                this.applyEffectsFromBlocks();
+                double x2 = this.getX();
+                double y2 = this.getY();
+                double z2 = this.getZ();
+                this.setDeltaMovement(vec);
+                this.setPos(x, y, z);
+                explode2(x2, y2, z2);
+            }
+            this.discard();
+            ci.cancel();
+        }
+
+
     }
 
     @Unique
-    private void explode2() {
+    private void explode2(double x,double y,double z) {
         if (this.level() instanceof ServerLevel level && level.getGameRules().get(GameRules.TNT_EXPLODES)) {
             this.level()
                     .explode(
                             null,
                             Explosion.getDefaultDamageSource(this.level(), this),
                             this.usedPortal?USED_PORTAL_DAMAGE_CALCULATOR:null,
-                            this.getX(),
-                            this.getY(0.0625),
-                            this.getZ(),
+                            x,
+                            y+this.getBbHeight() * 0.0625,
+                            z,
                             this.explosionPower,
                             false,
                             Level.ExplosionInteraction.TNT
