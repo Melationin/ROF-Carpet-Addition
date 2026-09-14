@@ -88,8 +88,8 @@ public class MobMixin
             this.rof$mobAiRemaining = MobAiSettings.KEEP_AI;
             return;
         }
-        this.rof$mobAiRemaining = self.getRandom().nextDouble() < MobAiSettings.mobAiStallChance
-                ? MobAiSettings.mobAiStallTicks
+        this.rof$mobAiRemaining = self.getRandom().nextDouble() < MobAiSettings.mobAIDelayChance
+                ? MobAiSettings.mobAIDelayTicks
                 : MobAiSettings.KEEP_AI;
     }
 }

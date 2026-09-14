@@ -267,7 +267,7 @@
 &emsp;- 分类: `ROF`, `optimization`, `tnt`, `feature`
 
 
-## mobAiStallChance
+## mobAIDelayChance
 
 &emsp;Chance for a whitelisted mob to have its AI temporarily disabled. The roll happens once, the first time the entity is about to run AI; only when the random value is below this chance is the AI suppressed. Passive motion (gravity, fluids, entity pushing, crush damage, explosion knockback, pistons, riding) is kept.
 
@@ -288,7 +288,7 @@
 &emsp;- 分类: `ROF`, `optimization`
 
 
-## mobAiStallTicks
+## mobAIDelayTicks
 
 &emsp;How many ticks a suppressed entity stays without AI before its AI is restored; must be a positive number.
 
@@ -307,9 +307,9 @@
 &emsp;- 分类: `ROF`, `optimization`
 
 
-## mobAiStallWhitelist
+## mobAIDelayWhitelist
 
-&emsp;Comma-separated whitelist of mobs eligible for AI stalls. Entries are entity ids (minecraft:pig) or entity type tags (#zombies); prefix an entry with ! to exclude it. A list with only exclusions means 'everything except those'; an empty list disables the feature.
+&emsp;Comma-separated whitelist of mobs eligible for AI delays. Entries are entity ids (minecraft:pig) or entity type tags (#zombies); prefix an entry with ! to exclude it. A list with only exclusions means 'everything except those'; an empty list disables the feature.
 
 &emsp; `Example: minecraft:pig,#zombies,!#undead - pigs and zombie-like mobs, but never undead ones. Suggested values: !minecraft:drowned (default, every mob except drowned) and !minecraft:drowned,!minecraft:piglin`
 

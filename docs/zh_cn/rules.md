@@ -268,9 +268,9 @@
 &emsp;- 分类: `ROF`, `optimization`, `tnt`, `feature`
 
 
-## 生物AI堵塞概率 (mobAiStallChance)
+## 生物AI延迟概率 (mobAIDelayChance)
 
-&emsp;白名单内的生物发生 AI 堵塞、暂时停止 AI 行为的概率。
+&emsp;白名单内的生物发生 AI 延迟、暂时停止 AI 行为的概率。
 
 &emsp; `概率为 0，或实体列表为空时，功能完全不生效`
 
@@ -285,9 +285,9 @@
 &emsp;- 分类: `ROF`, `optimization`
 
 
-## 生物AI堵塞时间 (mobAiStallTicks)
+## 生物AI延迟时间 (mobAIDelayTicks)
 
-&emsp;生物 AI 堵塞持续的 tick 数，结束后恢复 AI，必须是正数。
+&emsp;生物 AI 延迟持续的 tick 数，结束后恢复 AI，必须是正数。
 
 &emsp; `剩余时间随实体存档保存；小于 0 表示「已判定且不关闭 AI」`
 
@@ -302,9 +302,9 @@
 &emsp;- 分类: `ROF`, `optimization`
 
 
-## 生物AI堵塞白名单 (mobAiStallWhitelist)
+## 生物AI延迟白名单 (mobAIDelayWhitelist)
 
-&emsp;可能发生 AI 堵塞的生物白名单，逗号分隔；条目可以是实体 ID（minecraft:pig）或实体类型标签（#zombies），前缀 ! 表示排除该项。列表全为排除项时表示「除这些之外的全部」；列表为空时功能不生效。
+&emsp;可能发生 AI 延迟的生物白名单，逗号分隔；条目可以是实体 ID（minecraft:pig）或实体类型标签（#zombies），前缀 ! 表示排除该项。列表全为排除项时表示「除这些之外的全部」；列表为空时功能不生效。
 
 &emsp; `建议取值：!minecraft:drowned（默认，除溺尸以外的全部生物）、!minecraft:drowned,!minecraft:piglin（再排除猪灵）`
 

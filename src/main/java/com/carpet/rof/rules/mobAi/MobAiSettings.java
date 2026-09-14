@@ -22,42 +22,42 @@ public class MobAiSettings extends BaseSetting
 
     @Rule(categories = {ROF, OPTIMIZATION}, options = {"0", "0.1"}, strict = false, validators = Validators.Probablity.class)
     @QuickTranslations(
-            name = "生物AI堵塞概率",
-            description = "白名单内的生物发生 AI 堵塞、暂时停止 AI 行为的概率。",
+            name = "生物AI延迟概率",
+            description = "白名单内的生物发生 AI 延迟、暂时停止 AI 行为的概率。",
             extra = {
                     "概率为 0，或实体列表为空时，功能完全不生效",
                     "掷骰结果随实体存档保存（实体 NBT 的 MobAi 字段）"
             }
     )
-    public static double mobAiStallChance = 0.0D;
+    public static double mobAIDelayChance = 0.0D;
 
     @Rule(categories = {ROF, OPTIMIZATION}, options = {"!minecraft:drowned", "!minecraft:drowned,!minecraft:piglin"},
             validators = MobAiEntityListValidator.class, strict = false)
     @QuickTranslations(
-            name = "生物AI堵塞白名单",
-            description = "可能发生 AI 堵塞的生物白名单，逗号分隔；条目可以是实体 ID（minecraft:pig）或实体类型标签（#zombies），前缀 ! 表示排除该项。列表全为排除项时表示「除这些之外的全部」；列表为空时功能不生效。",
+            name = "生物AI延迟白名单",
+            description = "可能发生 AI 延迟的生物白名单，逗号分隔；条目可以是实体 ID（minecraft:pig）或实体类型标签（#zombies），前缀 ! 表示排除该项。列表全为排除项时表示「除这些之外的全部」；列表为空时功能不生效。",
             extra = {
                     "建议取值：!minecraft:drowned（默认，除溺尸以外的全部生物）、!minecraft:drowned,!minecraft:piglin（再排除猪灵）",
                     "示例：minecraft:pig,#zombies,!#undead —— 猪与僵尸类生物，但不包括带 undead 标签的",
                     "先取所有正选条目的并集，再减去所有负选条目；命中任意一个正选条目即可"
             })
-    public static String mobAiStallWhitelist = "!minecraft:drowned";
+    public static String mobAIDelayWhitelist = "!minecraft:drowned";
 
     @Rule(categories = {ROF, OPTIMIZATION}, options = {"50", "200"}, strict = false, validators = RestoreTicksValidator.class)
     @QuickTranslations(
-            name = "生物AI堵塞时间",
-            description = "生物 AI 堵塞持续的 tick 数，结束后恢复 AI，必须是正数。",
+            name = "生物AI延迟时间",
+            description = "生物 AI 延迟持续的 tick 数，结束后恢复 AI，必须是正数。",
             extra = {
                     "剩余时间随实体存档保存；小于 0 表示「已判定且不关闭 AI」",
                     "必须是正数"
             })
-    public static int mobAiStallTicks = 50;
+    public static int mobAIDelayTicks = 50;
 
     public static MobAiFilter mobAiFilter = MobAiFilter.EMPTY;
 
     public static boolean enabled()
     {
-        return mobAiStallChance > 0.0D && !mobAiFilter.isEmpty();
+        return mobAIDelayChance > 0.0D && !mobAiFilter.isEmpty();
     }
 
     public static final class RestoreTicksValidator extends Validator<Integer>
