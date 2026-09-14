@@ -1,10 +1,10 @@
 package com.carpet.rof.rules.asyncWorldgen;
 
+import com.carpet.rof.utils.ChunkPosHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -29,7 +29,7 @@ public final class LoadedBlockGetter implements BlockGetter
 
     public static ChunkAccess findChunk(ServerLevel level, int x, int z, ChunkStatus status)
     {
-        ChunkHolder holder = level.getChunkSource().chunkMap.getVisibleChunkIfPresent(ChunkPos.pack(x, z));
+        ChunkHolder holder = level.getChunkSource().chunkMap.getVisibleChunkIfPresent(ChunkPosHelper.pack(x, z));
         return holder == null ? null : holder.getChunkIfPresent(status);
     }
 
@@ -71,13 +71,13 @@ public final class LoadedBlockGetter implements BlockGetter
     {
         if (pos.getY() < level.getMinY() || pos.getY() >= level.getMaxY())
             return null;
-        if (ChunkPos.pack(pos) == chunkPosCache && chunkCache != null) {
+        if (ChunkPosHelper.pack(pos) == chunkPosCache && chunkCache != null) {
             return chunkCache;
         }
         ChunkAccess chunk = findChunk(level, pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.FULL);
         if (chunk instanceof LevelChunk levelChunk) {
             chunkCache = levelChunk;
-            chunkPosCache = ChunkPos.pack(pos);
+            chunkPosCache = ChunkPosHelper.pack(pos);
             return levelChunk;
         }
         ;

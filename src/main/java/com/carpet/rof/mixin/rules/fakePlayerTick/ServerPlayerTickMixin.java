@@ -4,13 +4,8 @@ import carpet.patches.EntityPlayerMPFake;
 import com.carpet.rof.rules.fakePlayerTick.FakePlayerTickSettings;
 
 
-//? >=26.2 {
-/*import net.minecraft.advancements.triggers.LevitationTrigger;
-import net.minecraft.advancements.triggers.PlayerTrigger;
- *///?}else{
 import net.minecraft.advancements.criterion.LevitationTrigger;
 import net.minecraft.advancements.criterion.PlayerTrigger;
-//?}
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stat;

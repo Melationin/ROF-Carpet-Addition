@@ -80,20 +80,25 @@ repositories {
 stonecutter {
 	// Subproject configuration
 
-	replacements.string(current.parsed >= "26.1") {
+	// The active node (26.1) copies src/ verbatim, so the access widener has to stay in the
+	// 26.x form there; every older node is remapped and needs the "named" namespace instead.
+	replacements.string(current.parsed < "26.1") {
 		replace(
-				"classTweaker v1 named",
-				"classTweaker v1 official"
+				"classTweaker v1 official",
+				"classTweaker v1 named"
 		)
 	}
 
-	// 1.21.11 still uses the older Mojang names for these helpers:
-	//   ChunkPos.pack(int,int)/pack(BlockPos) -> asLong(...), unpack(long) -> new ChunkPos(long)
-	//   ChunkPos#x()/#z()/#pack()             -> the public x/z fields and #toLong()
-	//   RandomSource#createThreadLocalInstance -> createNewThreadLocalInstance
-	replacements.string(current.parsed < "26.1") {
-		replace("ChunkPos.pack(", "ChunkPos.asLong(")
-		replace("createThreadLocalInstance", "createNewThreadLocalInstance")
+	// Version-difference convention (keep it this way):
+	//   * an API that differs in 5+ places -> a Helper in com.carpet.rof.utils (see ChunkPosHelper)
+	//   * import paths -> a global replacement (an import path is unique, so the reverse pass on
+	//                     the other nodes finds nothing)
+	//   * everything else -> region-scoped Local Replacement in the source
+	//                        (//~ if <cond> 'from' -> 'to' { ... //~})
+	// Never register a global replacement for a plain member/call rename: Stonecutter applies it
+	// in reverse on the other nodes too, and the reverse string usually exists there.
+	replacements.string(current.parsed >= "26.2") {
+		replace("net.minecraft.advancements.criterion.", "net.minecraft.advancements.triggers.")
 	}
 
 

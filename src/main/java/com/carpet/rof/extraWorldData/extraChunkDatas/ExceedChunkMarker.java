@@ -60,7 +60,7 @@ public class ExceedChunkMarker extends ExtraChunkData
     }
 
     public boolean isNotHighChunk(int x, int z) {
-        long hash = ChunkPos.pack(x,z);
+        long hash = ChunkPosHelper.pack(x,z);
         if(hash==chunkCache){
             return chunkCacheValue;
         }

@@ -58,10 +58,10 @@ public class ChunkLoadedFinder
                 int z = ChunkPos.getZ(pos);
 
                 long[] neighbors = {
-                        ChunkPos.pack(x + 1, z),
-                        ChunkPos.pack(x - 1, z),
-                        ChunkPos.pack(x, z + 1),
-                        ChunkPos.pack(x, z - 1)
+                        ChunkPosHelper.pack(x + 1, z),
+                        ChunkPosHelper.pack(x - 1, z),
+                        ChunkPosHelper.pack(x, z + 1),
+                        ChunkPosHelper.pack(x, z - 1)
                 };
                 for(var i :neighbors){
                     if(set.remove(i)){

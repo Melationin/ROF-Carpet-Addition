@@ -23,7 +23,9 @@ public final class AsyncRandomTick
 {
     private static final List<Work> BATCH = new ArrayList<>(); // server thread only
     private static final ThreadLocal<RandomSource> WORKER_RANDOM = ThreadLocal.withInitial(
+            //~ if <26.1 'createThreadLocalInstance' -> 'createNewThreadLocalInstance'
             RandomSource::createThreadLocalInstance);
+    //~ if <26.1 'createThreadLocalInstance' -> 'createNewThreadLocalInstance'
     private static final RandomSource SERVER_RANDOM = RandomSource.createThreadLocalInstance();
 
     private AsyncRandomTick()
