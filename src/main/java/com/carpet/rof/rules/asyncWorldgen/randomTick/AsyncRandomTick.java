@@ -38,6 +38,18 @@ public final class AsyncRandomTick
             BATCH.add(new Work(chunk, speed));
     }
 
+    // Both branches answer the same question: would vanilla act on this lava random tick at all?
+    // 1.21.10 gates it on RULE_DOFIRETICK inside LavaFluid.randomTick; 1.21.11 moved the check to
+    // ServerLevel#canSpreadFireAround (FIRE_SPREAD_RADIUS_AROUND_PLAYER).
+    private static boolean rof$canSpreadFireAround(ServerLevel level, BlockPos pos)
+    {
+        //? if >=1.21.11 {
+        return level.canSpreadFireAround(pos);
+        //?} else {
+        /*return level.getGameRules().getBoolean(net.minecraft.world.level.gamerules.GameRules.RULE_DOFIRETICK);
+        *///?}
+    }
+
     public static void submitBatch(MinecraftServer server)
     {
         int epoch = server.getTickCount() + 1;
@@ -80,7 +92,7 @@ public final class AsyncRandomTick
 
                     if (state.isRandomlyTicking() || state.getFluidState().isRandomlyTicking()) {
                         if (state.getFluidState().getType().isSame(Fluids.LAVA)
-                                && !level.canSpreadFireAround(new BlockPos(minX + x, baseY + y, minZ + z))) {
+                                && !rof$canSpreadFireAround(level, new BlockPos(minX + x, baseY + y, minZ + z))) {
                             continue;
                         }
                         positions.add(((baseY + y) << 16) | (z << 8) | x);

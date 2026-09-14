@@ -162,9 +162,23 @@ public abstract class PrimedTntMixin extends Entity implements MergedEntityAcces
 
     }
 
+    // 1.21.10 still exposes the legacy GameRules API (RULE_* constants + getBoolean); 1.21.11
+    // replaced them with typed GameRule values, so only this lookup is version-scoped.
+    @Unique
+    private static boolean rof$tntExplodes(Level level) {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return false;
+        }
+        //? if >=1.21.11 {
+        return serverLevel.getGameRules().get(GameRules.TNT_EXPLODES);
+        //?} else {
+        /*return serverLevel.getGameRules().getBoolean(GameRules.RULE_TNT_EXPLODES);
+        *///?}
+    }
+
     @Unique
     private void explode2(double x,double y,double z) {
-        if (this.level() instanceof ServerLevel level && level.getGameRules().get(GameRules.TNT_EXPLODES)) {
+        if (rof$tntExplodes(this.level())) {
             this.level()
                     .explode(
                             null,

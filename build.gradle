@@ -101,6 +101,35 @@ stonecutter {
 		replace("net.minecraft.advancements.criterion.", "net.minecraft.advancements.triggers.")
 	}
 
+	// 1.21.11 renamed / split these APIs; the 1.21.10 node still uses the old locations.
+	// Exact names (never a package prefix) on purpose: a prefix rule such as
+	// "net.minecraft.world.level.gamerules." -> "net.minecraft.world.level." would reverse-match
+	// every other "net.minecraft.world.level.*" import once the newer nodes are generated.
+	replacements.string(current.parsed < "1.21.11") {
+		replace(
+				"net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl",
+				"net.minecraft.world.entity.projectile.ThrownEnderpearl"
+		)
+		replace(
+				"net.minecraft.world.entity.projectile.throwableitemprojectile.ThrowableItemProjectile",
+				"net.minecraft.world.entity.projectile.ThrowableItemProjectile"
+		)
+		// the same classes appear as mixin @At descriptors (slash form)
+		replace(
+				"Lnet/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl;",
+				"Lnet/minecraft/world/entity/projectile/ThrownEnderpearl;"
+		)
+		replace(
+				"Lnet/minecraft/world/entity/projectile/throwableitemprojectile/ThrowableItemProjectile;",
+				"Lnet/minecraft/world/entity/projectile/ThrowableItemProjectile;"
+		)
+		replace("net.minecraft.advancements.criterion.", "net.minecraft.advancements.critereon.")
+		replace("Lnet/minecraft/advancements/criterion/", "Lnet/minecraft/advancements/critereon/")
+		replace("net.minecraft.world.level.gamerules.GameRules", "net.minecraft.world.level.GameRules")
+		replace("net.minecraft.resources.Identifier", "net.minecraft.resources.ResourceLocation")
+		// the simple name changed too; the source uses it in exactly 3 places (all standalone)
+		replace("Identifier", "ResourceLocation")
+	}
 
 }
 
