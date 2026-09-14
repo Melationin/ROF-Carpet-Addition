@@ -20,7 +20,7 @@ public class MobAiSettings extends BaseSetting
     // 保存该值，避免重载后重新判定。
     public static final int KEEP_AI = -1;
 
-    @Rule(categories = {ROF, OPTIMIZATION}, options = {"0", "0.1"}, strict = false, validators = Validators.Probablity.class)
+    @Rule(categories = {ROF, OPTIMIZATION}, options = {"0", "0.5","0.9","0.95"}, strict = false, validators = Validators.Probablity.class)
     @QuickTranslations(
             name = "生物AI延迟概率",
             description = "白名单内的生物发生 AI 延迟、暂时停止 AI 行为的概率。",
@@ -43,7 +43,7 @@ public class MobAiSettings extends BaseSetting
             })
     public static String mobAIDelayWhitelist = "!minecraft:drowned";
 
-    @Rule(categories = {ROF, OPTIMIZATION}, options = {"50", "200"}, strict = false, validators = RestoreTicksValidator.class)
+    @Rule(categories = {ROF, OPTIMIZATION}, options = {"3","50", "200"}, strict = false, validators = RestoreTicksValidator.class)
     @QuickTranslations(
             name = "生物AI延迟时间",
             description = "生物 AI 延迟持续的 tick 数，结束后恢复 AI，必须是正数。",
@@ -51,7 +51,7 @@ public class MobAiSettings extends BaseSetting
                     "剩余时间随实体存档保存；小于 0 表示「已判定且不关闭 AI」",
                     "必须是正数"
             })
-    public static int mobAIDelayTicks = 50;
+    public static int mobAIDelayTicks = 3;
 
     public static MobAiFilter mobAiFilter = MobAiFilter.EMPTY;
 
