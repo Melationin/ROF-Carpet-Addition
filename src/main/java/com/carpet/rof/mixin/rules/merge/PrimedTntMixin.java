@@ -14,14 +14,14 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
 
 import net.minecraft.server.level.ServerLevel;
-//? >=1.21.6 {
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.gamerules.GameRules;
+//? >=1.21.6 {
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 //?} else {
-/*import net.minecraft.nbt.NbtCompound;
+/*import net.minecraft.nbt.CompoundTag;
 *///?}
 
 import net.minecraft.world.level.Level;
@@ -223,18 +223,16 @@ public abstract class PrimedTntMixin extends Entity implements MergedEntityAcces
 
     //?} else {
 
-    /*@Inject(method = "readCustomDataFromNbt",at = @At(value = "HEAD"))
-    private void readCustomDataFromNbt(NbtCompound tag, CallbackInfo ci) {
+    /*@Inject(method = "addAdditionalSaveData", at = @At(value = "HEAD"))
+    private void writeCustomData(CompoundTag tag, CallbackInfo ci) {
         if (rof$mergedTNTNCount > 1) {
-            tag.putInt("mergedTNT", rof$mergedTNTNCount );
+            tag.putInt("mergedTNT", rof$mergedTNTNCount);
         }
     }
 
-    @Inject(method = "writeCustomDataToNbt",at = @At(value = "HEAD"))
-    private void writeCustomDataToNbt(NbtCompound tag, CallbackInfo ci) {
-        if (tag.contains("mergedTNT")) {
-            rof$mergedTNTNCount  = ROFWarp.getFromNbt(tag.getInt("mergedTNT"));
-        }
+    @Inject(method = "readAdditionalSaveData", at = @At(value = "HEAD"))
+    private void readCustomData(CompoundTag tag, CallbackInfo ci) {
+        rof$mergedTNTNCount = tag.getIntOr("mergedTNT", rof$mergedTNTNCount);
     }
     *///?}
 

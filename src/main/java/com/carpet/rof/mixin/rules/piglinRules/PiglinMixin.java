@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 //?} else {
-/*import net.minecraft.nbt.NbtCompound;
+/*import net.minecraft.nbt.CompoundTag;
  *///?}
 
 import static com.carpet.rof.rules.piglinRules.PiglinRulesSettings.piglinStackingAISuppression;
@@ -84,18 +84,16 @@ public abstract class PiglinMixin extends AbstractPiglin implements PiglinEntity
     }
     //?} else {
 
-    /*@Inject(method = "readCustomDataFromNbt",at = @At(value = "HEAD"))
-    private void readCustomDataFromNbt(NbtCompound tag, CallbackInfo ci) {
+    /*@Inject(method = "addAdditionalSaveData", at = @At(value = "HEAD"))
+    private void writeCustomData(CompoundTag tag, CallbackInfo ci) {
         if (nearPiglinCount > piglinStackingAISuppression) {
             tag.putInt("nearPiglinCount", nearPiglinCount);
         }
     }
 
-    @Inject(method = "writeCustomDataToNbt",at = @At(value = "HEAD"))
-    private void writeCustomDataToNbt(NbtCompound tag, CallbackInfo ci) {
-        if (tag.contains("nearPiglinCount")) {
-            nearPiglinCount= ROFWarp.getFromNbt(tag.getInt("nearPiglinCount"));
-        }
+    @Inject(method = "readAdditionalSaveData", at = @At(value = "HEAD"))
+    private void readCustomData(CompoundTag tag, CallbackInfo ci) {
+        nearPiglinCount = tag.getIntOr("nearPiglinCount", nearPiglinCount);
     }
     *///?}
 

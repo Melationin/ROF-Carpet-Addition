@@ -23,6 +23,8 @@ public abstract class EntityPlayerMPFakeMixin
         if (FakePlayerTickSettings.optimizedFakePlayerTick && !optimizedFakePlayerTick$waypointDisabled)
         {
             optimizedFakePlayerTick$waypointDisabled = true;
+            // waypoint（定位条）属性是 1.21.6 才加入的，更早的版本没有这两个 Attributes。
+            //? if >=1.21.6 {
             LivingEntity self = (LivingEntity) (Object) this;
             AttributeInstance transmit = self.getAttribute(Attributes.WAYPOINT_TRANSMIT_RANGE);
             if (transmit != null)
@@ -34,6 +36,7 @@ public abstract class EntityPlayerMPFakeMixin
             {
                 receive.setBaseValue(0.0);
             }
+            //?}
         }
     }
 }

@@ -5,8 +5,12 @@ import com.carpet.rof.rules.betterNoAi.NoBrainAiAccess;
 import com.carpet.rof.rules.mobAi.MobAiSettings;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+//? if >=1.21.6 {
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+//?} else {
+/*import net.minecraft.nbt.CompoundTag;
+ *///?}
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -23,6 +27,7 @@ public class MobMixin
     @Unique
     private boolean rof$mobAiChecked;
 
+    //? if >=1.21.6 {
     @Inject(method = "readAdditionalSaveData", at = @At("HEAD"))
     private void rof$readMobAi(ValueInput input, CallbackInfo ci)
     {
@@ -40,6 +45,25 @@ public class MobMixin
             output.putInt(MobAiSettings.NBT_KEY, this.rof$mobAiRemaining);
         }
     }
+    //?} else {
+    /*@Inject(method = "readAdditionalSaveData", at = @At("HEAD"))
+    private void rof$readMobAi(CompoundTag tag, CallbackInfo ci)
+    {
+        int saved = tag.getIntOr(MobAiSettings.NBT_KEY, MobAiSettings.UNDECIDED);
+        if (saved != MobAiSettings.UNDECIDED) {
+            this.rof$mobAiRemaining = saved;
+            this.rof$mobAiChecked = true;
+        }
+    }
+
+    @Inject(method = "addAdditionalSaveData", at = @At("HEAD"))
+    private void rof$writeMobAi(CompoundTag tag, CallbackInfo ci)
+    {
+        if (this.rof$mobAiRemaining != MobAiSettings.UNDECIDED) {
+            tag.putInt(MobAiSettings.NBT_KEY, this.rof$mobAiRemaining);
+        }
+    }
+    *///?}
 
     @Inject(method = "serverAiStep", at = @At("HEAD"), cancellable = true)
     private void rof$mobAiStep(CallbackInfo ci)
