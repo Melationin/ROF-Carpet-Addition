@@ -16,12 +16,19 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityClimbableMixin
 {
+    // 1.21.11 put an isFallFlying()/CAN_GLIDE_THROUGH test in front of the CLIMBABLE lookup, so the
+    // CLIMBABLE BlockState.is call is the second one there and the only one in 1.21.10. The tag guard
+    // below keeps this safe either way.
     @WrapOperation(
             method = "onClimbable()Z",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/block/state/BlockState;is(Lnet/minecraft/tags/TagKey;)Z",
+                    //? if >=1.21.11 {
                     ordinal = 1
+                    //?} else {
+                    /*ordinal = 0
+                    *///?}
             )
     )
     private boolean rof$cacheClimbableTag(BlockState state, TagKey<Block> tag, Operation<Boolean> original)

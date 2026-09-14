@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.world.level.ChunkPos;
 
 import java.util.*;
+import com.carpet.rof.utils.ChunkPosHelper;
 
 public class ChunkLoadedFinder
 {
@@ -22,8 +23,8 @@ public class ChunkLoadedFinder
             double z = 0;
 
             for(var it : chunkConnected){
-                x += it.x();
-                z += it.z();
+                x += ChunkPosHelper.x(it);
+                z += ChunkPosHelper.z(it);
             }
             x/= chunkConnected.size();
             z/= chunkConnected.size();
@@ -38,7 +39,7 @@ public class ChunkLoadedFinder
         LongOpenHashSet  set = new LongOpenHashSet();
         List<ConnectedChunksData> retList = new ArrayList<>();
         for(ChunkPos c : this.ChunkLoadedMap){
-            set.add(c.pack());
+            set.add(ChunkPosHelper.pack(c));
         }
         LongArrayList stack = new LongArrayList();
         while(!set.isEmpty()){
@@ -51,16 +52,16 @@ public class ChunkLoadedFinder
             while(!stack.isEmpty()){
                 long pos = stack.popLong();
 
-                retList.getLast().chunkConnected.add(ChunkPos.unpack(pos));
+                retList.getLast().chunkConnected.add(ChunkPosHelper.unpack(pos));
                 //set.remove(pos);
                 int x = ChunkPos.getX(pos);
                 int z = ChunkPos.getZ(pos);
 
                 long[] neighbors = {
-                        ChunkPos.pack(x + 1, z),
-                        ChunkPos.pack(x - 1, z),
-                        ChunkPos.pack(x, z + 1),
-                        ChunkPos.pack(x, z - 1)
+                        ChunkPosHelper.pack(x + 1, z),
+                        ChunkPosHelper.pack(x - 1, z),
+                        ChunkPosHelper.pack(x, z + 1),
+                        ChunkPosHelper.pack(x, z - 1)
                 };
                 for(var i :neighbors){
                     if(set.remove(i)){

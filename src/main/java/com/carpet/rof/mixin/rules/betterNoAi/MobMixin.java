@@ -4,8 +4,12 @@ import com.carpet.rof.rules.betterNoAi.BetterNoAiSettings;
 import com.carpet.rof.rules.betterNoAi.NoBrainAiAccess;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+//? if >=1.21.6 {
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+//?} else {
+/*import net.minecraft.nbt.CompoundTag;
+ *///?}
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,6 +29,7 @@ public class MobMixin implements NoBrainAiAccess
         return this.rof$noBrainAi;
     }
 
+    //? if >=1.21.6 {
     @Inject(method = "readAdditionalSaveData", at = @At(value = "HEAD"))
     private void rof$readNoBrainAi(ValueInput input, CallbackInfo ci)
     {
@@ -38,6 +43,21 @@ public class MobMixin implements NoBrainAiAccess
             output.putBoolean("NoBrainAI", true);
         }
     }
+    //?} else {
+    /*@Inject(method = "readAdditionalSaveData", at = @At(value = "HEAD"))
+    private void rof$readNoBrainAi(CompoundTag tag, CallbackInfo ci)
+    {
+        this.rof$noBrainAi = tag.getBooleanOr("NoBrainAI", false);
+    }
+
+    @Inject(method = "addAdditionalSaveData", at = @At(value = "HEAD"))
+    private void rof$writeNoBrainAi(CompoundTag tag, CallbackInfo ci)
+    {
+        if (this.rof$noBrainAi) {
+            tag.putBoolean("NoBrainAI", true);
+        }
+    }
+    *///?}
 
     @Inject(method = "serverAiStep", at = @At(value = "HEAD"), cancellable = true)
     private void rof$suppressAi(CallbackInfo ci)

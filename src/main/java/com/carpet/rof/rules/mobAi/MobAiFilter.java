@@ -70,7 +70,12 @@ public final class MobAiFilter
 
         public boolean matches(Entity entity)
         {
+            // 1.21.11 dropped Entity#is(TagKey) and kept the tag check on EntityType.
+            //? if >=26.1 {
             return this.type != null ? entity.getType() == this.type : entity.is(this.tag);
+            //?}else{
+            /*return this.type != null ? entity.getType() == this.type : entity.getType().is(this.tag);
+            *///?}
         }
     }
 }

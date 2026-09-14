@@ -20,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.function.Predicate;
 
 import static com.carpet.rof.rules.extraChunkDatas.ExceedChunkMarkerSetting.exceedChunkMarker;
+import com.carpet.rof.utils.ChunkPosHelper;
 
 
 @Mixin(Heightmap.class)
@@ -40,9 +41,9 @@ public class HeightmapMixin
             if(
                     height>=heightExceedingChunk.topY+1
                     && this.isOpaque == Heightmap.Types.MOTION_BLOCKING.isOpaque()
-                    && heightExceedingChunk.isNotHighChunk(chunk.getPos().x(),chunk.getPos().z())
+                    && heightExceedingChunk.isNotHighChunk(ChunkPosHelper.x(chunk.getPos()),ChunkPosHelper.z(chunk.getPos()))
             ) {
-                heightExceedingChunk.addChunk(chunk.getPos().pack());;
+                heightExceedingChunk.addChunk(ChunkPosHelper.pack(chunk.getPos()));;
             }
         }
     }

@@ -84,18 +84,13 @@ public class ROFWarp
                 (int) Math.ceil(box.maxY),
                 (int) Math.ceil(box.maxZ));
     }
+    // Every supported node is Mojang-mapped (1.21.7+), so level()/position() are the only names needed.
+    // The old >=1.21.9 condition guarded an else branch that held the Yarn names getWorld()/getPos(),
+    // which exist in no Mojang-mapped node and only broke 1.21.7/1.21.8 compilation.
     public static Level getWorld_(Entity entity) {
-        //? if >=1.21.9 {
         return entity.level();
-         //?} else {
-        /*return entity.getWorld();
-        *///?}
     }
     public static Vec3 getPos_(Entity entity) {
-        //? if >=1.21.9 {
         return entity.position();
-         //?} else {
-        /*return entity.getPos();
-        *///?}
     }
 }

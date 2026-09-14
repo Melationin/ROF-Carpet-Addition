@@ -23,10 +23,19 @@ import java.util.ArrayList;
 
 @Mixin(value = WorldHelper.class, remap = false)
 public abstract class WorldHelperMixin {
+    // lithium's lambda index differs by version: 0.21.4 (1.21.11) names it lambda$getPushableEntities$1,
+    // while 0.24.7 / 0.25.3 (26.1 / 26.2) name it lambda$getPushableEntities$0.
+    //? if >=26.1 {
     @WrapOperation(
             method = "lambda$getPushableEntities$0(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;Lnet/caffeinemc/mods/lithium/common/entity/pushable/EntityPushablePredicate;Ljava/util/ArrayList;Lnet/minecraft/world/level/entity/EntitySection;)Lnet/minecraft/util/AbortableIterationConsumer$Continuation;",
             at = @At(value = "INVOKE", target = "Lnet/caffeinemc/mods/lithium/common/world/ClimbingMobCachingSection;lithium$collectPushableEntities(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;Lnet/caffeinemc/mods/lithium/common/entity/pushable/EntityPushablePredicate;Ljava/util/ArrayList;)Lnet/minecraft/util/AbortableIterationConsumer$Continuation;", remap = false)
     )
+    //?}else{
+    /*@WrapOperation(
+            method = "lambda$getPushableEntities$1(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;Lnet/caffeinemc/mods/lithium/common/entity/pushable/EntityPushablePredicate;Ljava/util/ArrayList;Lnet/minecraft/world/level/entity/EntitySection;)Lnet/minecraft/util/AbortableIterationConsumer$Continuation;",
+            at = @At(value = "INVOKE", target = "Lnet/caffeinemc/mods/lithium/common/world/ClimbingMobCachingSection;lithium$collectPushableEntities(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;Lnet/caffeinemc/mods/lithium/common/entity/pushable/EntityPushablePredicate;Ljava/util/ArrayList;)Lnet/minecraft/util/AbortableIterationConsumer$Continuation;", remap = false)
+    )
+    *///?}
     private static AbortableIterationConsumer.Continuation rof$collectPushableEntities(
             ClimbingMobCachingSection section, net.minecraft.world.level.Level world, Entity except, AABB box,
             EntityPushablePredicate<? super Entity> predicate, ArrayList<Entity> output,

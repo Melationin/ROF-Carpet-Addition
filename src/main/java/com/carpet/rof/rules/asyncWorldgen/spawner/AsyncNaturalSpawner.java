@@ -31,6 +31,7 @@ public final class AsyncNaturalSpawner
 {
     private static final List<Work> BATCH = new ArrayList<>();
     private static final ThreadLocal<RandomSource> WORKER_RANDOM = ThreadLocal.withInitial(
+            //~ if <26.1 'createThreadLocalInstance' -> 'createNewThreadLocalInstance'
             RandomSource::createThreadLocalInstance);
 
     private AsyncNaturalSpawner()
