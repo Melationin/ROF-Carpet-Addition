@@ -6,7 +6,10 @@ import com.carpet.rof.utils.ROFTool;
 import com.google.common.collect.ImmutableList;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+//? if >=26.1 {
 import net.minecraft.world.entity.ai.ActivityData;
+//?}
+import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.BehaviorControl;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.monster.piglin.PiglinAi;
@@ -41,6 +44,11 @@ public abstract class PiglinAiMixin2
         }
     }
 
+    // 26.x builds the activities as ActivityData records and hands the list to the Brain;
+    // 1.21.11 registers them directly through Brain#addActivity. Both wrap the same behaviour
+    // lists in the same order (core, idle, admireItem, fight, celebrate, retreat, rideHoglin),
+    // so the activity/behaviour indices used by PiglinBCWrapper stay identical.
+    //? if >=26.1 {
     @WrapOperation(method = {"initCoreActivity","initIdleActivity"},at = @At(value = "INVOKE",
                                                         target = "Lnet/minecraft/world/entity/ai/ActivityData;create(Lnet/minecraft/world/entity/schedule/Activity;ILcom/google/common/collect/ImmutableList;)Lnet/minecraft/world/entity/ai/ActivityData;"))
     private static ActivityData<Piglin> CoreAndIdleWrapper(Activity activity, int priorityOfFirstBehavior,
@@ -66,6 +74,33 @@ public abstract class PiglinAiMixin2
     {
         return original.call(activity, priorityOfFirstBehavior, rof$wrap(behaviorList), memoryToEraseWhenStopped);
     }
+    //?}else{
+    /*@WrapOperation(method = {"initCoreActivity","initIdleActivity"},at = @At(value = "INVOKE",
+                                                        target = "Lnet/minecraft/world/entity/ai/Brain;addActivity(Lnet/minecraft/world/entity/schedule/Activity;ILcom/google/common/collect/ImmutableList;)V"))
+    private static void rof$coreAndIdleWrapper(Brain<Piglin> brain, Activity activity, int priorityOfFirstBehavior,
+                                                     ImmutableList<? extends BehaviorControl<? super Piglin>> behaviorList,
+                                                     Operation<Void> original)
+    {
+        original.call(brain, activity, priorityOfFirstBehavior, rof$wrap(behaviorList));
+    }
+
+    @WrapOperation(method = {
+            "initAdmireItemActivity",
+            "initFightActivity",
+            "initCelebrateActivity",
+            "initRetreatActivity",
+            "initRideHoglinActivity"
+    },at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/ai/Brain;addActivityAndRemoveMemoryWhenStopped(Lnet/minecraft/world/entity/schedule/Activity;ILcom/google/common/collect/ImmutableList;Lnet/minecraft/world/entity/ai/memory/MemoryModuleType;)V"))
+    private static void rof$otherWrapper(Brain<Piglin> brain, Activity activity, int priorityOfFirstBehavior,
+                                                          ImmutableList<? extends BehaviorControl<? super Piglin>> behaviorList,
+                                                          MemoryModuleType<?> memoryToEraseWhenStopped,
+                                                          Operation<Void> original)
+    {
+        original.call(brain, activity, priorityOfFirstBehavior, rof$wrap(behaviorList), memoryToEraseWhenStopped);
+    }
+    *///?}
 
 
     @Unique

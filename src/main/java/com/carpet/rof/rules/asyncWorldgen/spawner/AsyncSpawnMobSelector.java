@@ -24,6 +24,7 @@ import net.minecraft.world.level.levelgen.structure.structures.NetherFortressStr
 
 import java.util.Map;
 import java.util.Optional;
+import com.carpet.rof.utils.ChunkPosHelper;
 
 
 final class AsyncSpawnMobSelector
@@ -70,8 +71,8 @@ final class AsyncSpawnMobSelector
             if (override == null)
                 continue;
             for (long packed : entry.getValue()) {
-                ChunkPos startPos = ChunkPos.unpack(packed);
-                ChunkAccess startChunk = LoadedBlockGetter.findChunk(level, startPos.x(), startPos.z(),
+                ChunkPos startPos = ChunkPosHelper.unpack(packed);
+                ChunkAccess startChunk = LoadedBlockGetter.findChunk(level, ChunkPosHelper.x(startPos), ChunkPosHelper.z(startPos),
                         ChunkStatus.STRUCTURE_STARTS);
                 if (startChunk == null)
                     return null;
@@ -109,8 +110,8 @@ final class AsyncSpawnMobSelector
         if (references == null)
             return null;
         for (long packed : references.getReferencesForStructure(fortress)) {
-            ChunkPos start = ChunkPos.unpack(packed);
-            ChunkAccess startChunk = LoadedBlockGetter.findChunk(level, start.x(), start.z(),
+            ChunkPos start = ChunkPosHelper.unpack(packed);
+            ChunkAccess startChunk = LoadedBlockGetter.findChunk(level, ChunkPosHelper.x(start), ChunkPosHelper.z(start),
                     ChunkStatus.STRUCTURE_STARTS);
             if (startChunk == null)
                 return null;

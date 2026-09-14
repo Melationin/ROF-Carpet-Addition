@@ -1,4 +1,4 @@
-classTweaker v1 official
+classTweaker v1 named
 
 
 

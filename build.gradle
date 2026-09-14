@@ -87,6 +87,15 @@ stonecutter {
 		)
 	}
 
+	// 1.21.11 still uses the older Mojang names for these helpers:
+	//   ChunkPos.pack(int,int)/pack(BlockPos) -> asLong(...), unpack(long) -> new ChunkPos(long)
+	//   ChunkPos#x()/#z()/#pack()             -> the public x/z fields and #toLong()
+	//   RandomSource#createThreadLocalInstance -> createNewThreadLocalInstance
+	replacements.string(current.parsed < "26.1") {
+		replace("ChunkPos.pack(", "ChunkPos.asLong(")
+		replace("createThreadLocalInstance", "createNewThreadLocalInstance")
+	}
+
 
 }
 

@@ -29,6 +29,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static com.carpet.rof.rules.enderPearl.EnderPearlSettings.*;
+import com.carpet.rof.utils.ChunkPosHelper;
 //import static com.carpet.rof.rules.extraChunkDatas.ExceedChunkMarkerSetting.optimizeForcedEnderPearlTick;
 
 
@@ -176,10 +177,10 @@ public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
     {
         if (enderPearlForcedSync && this.level() instanceof ServerLevel serverLevel) {
             var chunkPos = this.chunkPosition();
-            serverLevel.getChunk(chunkPos.x(), chunkPos.z(), ChunkStatus.FULL, true);
+            serverLevel.getChunk(ChunkPosHelper.x(chunkPos), ChunkPosHelper.z(chunkPos), ChunkStatus.FULL, true);
             ExtraWorldDatas.fromWorld(serverLevel)
                     .enderPearlForcedSyncChunks
-                    .add(chunkPos.pack());
+                    .add(ChunkPosHelper.pack(chunkPos));
             //serverLevel.entityManager.updateChunkStatus(chunkPos, Visibility.TICKING);
         }
     }

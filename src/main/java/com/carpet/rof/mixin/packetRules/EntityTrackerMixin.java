@@ -23,6 +23,7 @@ import java.util.List;
 import static com.carpet.rof.rules.packerRules.PacketRulesSettings.entitySpawnPacketLimitSeconds;
 import static com.carpet.rof.rules.packerRules.PacketRulesSettings.entitySpawnPacketLimitSecondsRecoverTime;
 import static com.carpet.rof.rules.packerRules.PacketRulesSettings.entitySpawnPacketLimitTicks;
+import com.carpet.rof.utils.ChunkPosHelper;
 
 @Mixin(ChunkMap.TrackedEntity.class)
 public abstract class EntityTrackerMixin implements TrackedEntityRecoveryAccessor
@@ -57,8 +58,8 @@ public abstract class EntityTrackerMixin implements TrackedEntityRecoveryAccesso
        }
         if(entitySpawnPacketLimitSeconds>=0) {
             var data2 = ExtraWorldDatas.fromWorld((ServerLevel) (ROFWarp.getWorld_(entity) )).chunkEntitySpawnLogger;
-            data2.add(entity.chunkPosition().pack(), entity.getType());
-            int count2 = data2.get(entity.chunkPosition().pack(), entity.getType());
+            data2.add(ChunkPosHelper.pack(entity.chunkPosition()), entity.getType());
+            int count2 = data2.get(ChunkPosHelper.pack(entity.chunkPosition()), entity.getType());
             if (Math.random()*count2 >= entitySpawnPacketLimitSeconds) {
                 this.range = 0;
                 this.rof$spawnLimitedBySeconds = true;

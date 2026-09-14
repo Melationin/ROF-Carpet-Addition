@@ -37,6 +37,7 @@ import java.nio.file.Path;
 import java.util.function.BooleanSupplier;
 
 import static com.carpet.rof.rules.extraChunkDatas.ExceedChunkMarkerSetting.exceedChunkMarker;
+import com.carpet.rof.utils.ChunkPosHelper;
 
 @Mixin(ServerLevel.class)
 public abstract class ServerLevelMixin implements IExtraChunkDataAccessor
@@ -88,7 +89,7 @@ public abstract class ServerLevelMixin implements IExtraChunkDataAccessor
         //? <=1.21.4 {
         /*return !this.chunkManager.chunkLoadingManager.getTicketManager().shouldTickEntities(entity.getChunkPos().toLong());
          *///?} else {
-        return !this.chunkSource.chunkMap.getDistanceManager().inEntityTickingRange(entity.chunkPosition().pack());
+        return !this.chunkSource.chunkMap.getDistanceManager().inEntityTickingRange(ChunkPosHelper.pack(entity.chunkPosition()));
         //?}
     }
 
@@ -99,7 +100,7 @@ public abstract class ServerLevelMixin implements IExtraChunkDataAccessor
         var tickChunkList = ExtraWorldDatas.fromWorld((ServerLevel) (Object)this).enderPearlForcedSyncChunks;
 
         for(var chunkPos : tickChunkList){
-            entityManager.updateChunkStatus(ChunkPos.unpack(chunkPos), Visibility.TICKING);
+            entityManager.updateChunkStatus(ChunkPosHelper.unpack(chunkPos), Visibility.TICKING);
         }
         tickChunkList.clear();
 

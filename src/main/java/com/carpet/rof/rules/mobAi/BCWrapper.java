@@ -33,11 +33,15 @@ public abstract class BCWrapper<E extends LivingEntity> implements BehaviorContr
         return originalBC.getStatus();
     }
 
+    // 1.21.11's BehaviorControl has no getRequiredMemories(); the memory requirement moved
+    // into Behavior#hasRequiredMemories there, so the wrapper must not override it.
+    //? if >=26.1 {
     @Override
     public @NonNull Set<MemoryModuleType<?>> getRequiredMemories()
     {
         return originalBC.getRequiredMemories();
     }
+    //?}
 
     @Override
     public boolean tryStart(ServerLevel level, E body, long timestamp)

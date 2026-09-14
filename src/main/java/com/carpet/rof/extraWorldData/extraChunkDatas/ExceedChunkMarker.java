@@ -21,6 +21,7 @@ import net.minecraft.world.level.chunk.status.ChunkStatus;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.carpet.rof.utils.ROFTool.rDEBUG;
+import com.carpet.rof.utils.ChunkPosHelper;
 
 
 public class ExceedChunkMarker extends ExtraChunkData
@@ -134,11 +135,11 @@ public class ExceedChunkMarker extends ExtraChunkData
         while (it.hasNext()){
             long l = it.nextLong();
             if((world.getGameTime()+l)%400 == 0) {
-                ChunkPos chunkPos = ChunkPos.unpack(l);
-                ChunkAccess chunk = world.getChunkSource().getChunk(chunkPos.x(), chunkPos.z(), ChunkStatus.FULL, false);
+                ChunkPos chunkPos = ChunkPosHelper.unpack(l);
+                ChunkAccess chunk = world.getChunkSource().getChunk(ChunkPosHelper.x(chunkPos), ChunkPosHelper.z(chunkPos), ChunkStatus.FULL, false);
                 if(chunk != null) {
                     Heightmap hmp =  chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.MOTION_BLOCKING);
-                    int maxPos = chunkHighestBlockPosMap.getOrDefault(chunkPos.pack(),0);
+                    int maxPos = chunkHighestBlockPosMap.getOrDefault(ChunkPosHelper.pack(chunkPos),0);
                     if(maxPos!=0 && (hmp.getFirstAvailable(maxPos/16,maxPos%16) > topY)) continue;
                     for(int i = 0;i<256;++i)
                         if(hmp.getFirstAvailable(i/16,i%16) > topY){
@@ -221,7 +222,7 @@ public class ExceedChunkMarker extends ExtraChunkData
                     ,process);
                    for(var entry: future.join().entrySet()){
                        if(entry.getValue() == true){
-                           tempChunks2.add(entry.getKey().pack());
+                           tempChunks2.add(ChunkPosHelper.pack(entry.getKey()));
                        }
                    }
                    tempChunks = tempChunks2;
