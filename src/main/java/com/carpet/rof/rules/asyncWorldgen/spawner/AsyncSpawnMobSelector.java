@@ -8,7 +8,11 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.util.RandomSource;
+//? if >=1.21.5 {
 import net.minecraft.util.random.WeightedList;
+//?} else {
+/*import net.minecraft.util.random.WeightedRandomList;
+ *///?}
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
@@ -41,7 +45,7 @@ final class AsyncSpawnMobSelector
         if (category == MobCategory.WATER_AMBIENT && biome.is(
                 BiomeTags.REDUCED_WATER_AMBIENT_SPAWNS) && random.nextFloat() < .98F)
             return Optional.empty();
-        WeightedList<MobSpawnSettings.SpawnerData> mobs = mobsAt(level, biome, category, pos);
+        var mobs = mobsAt(level, biome, category, pos);
         return mobs == null ? Optional.empty() : mobs.getRandom(random);
     }
 
@@ -50,11 +54,20 @@ final class AsyncSpawnMobSelector
         Holder<Biome> biome = biome(level, pos);
         if (biome == null)
             return Validation.UNAVAILABLE;
-        WeightedList<MobSpawnSettings.SpawnerData> mobs = mobsAt(level, biome, category, pos);
+        var mobs = mobsAt(level, biome, category, pos);
+        // 1.21.5 起 WeightedList 才有 contains，1.21.4 的 WeightedRandomList 只能 unwrap 后查。
+        //? if >=1.21.5 {
         return mobs == null ? Validation.UNAVAILABLE : mobs.contains(data) ? Validation.ALLOWED : Validation.DENIED;
+        //?} else {
+        /*return mobs == null ? Validation.UNAVAILABLE : mobs.unwrap().contains(data) ? Validation.ALLOWED : Validation.DENIED;
+        *///?}
     }
 
+    //? if >=1.21.5 {
     private static WeightedList<MobSpawnSettings.SpawnerData> mobsAt(ServerLevel level, Holder<Biome> biome, MobCategory category, BlockPos pos)
+    //?} else {
+    /*private static WeightedRandomList<MobSpawnSettings.SpawnerData> mobsAt(ServerLevel level, Holder<Biome> biome, MobCategory category, BlockPos pos)
+    *///?}
     {
         Boolean fortress = fortress(level, category, pos);
         if (fortress == null)
