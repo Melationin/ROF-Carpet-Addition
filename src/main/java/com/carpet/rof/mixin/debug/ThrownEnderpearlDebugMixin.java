@@ -32,31 +32,31 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(value = ThrownEnderpearl.class,priority = 900)
 public abstract class ThrownEnderpearlDebugMixin extends ThrowableItemProjectile
 {
-    /** 是否是调试珍珠（名称匹配调试前缀）。 */
+    // 是否是调试珍珠（名称匹配调试前缀）。
     @Unique
     private boolean rofDebugActive = false;
 
-    /** 是否已经输出过落地结果（避免重复输出）。 */
+    // 是否已经输出过落地结果（避免重复输出）。
     @Unique
     private boolean rofDebugReported = false;
 
-    /** 珍珠内累计的tick数（不含生成tick，即实际飞行tick数）。 */
+    // 珍珠内累计的tick数（不含生成tick，即实际飞行tick数）。
     @Unique
     private int rofDebugPearlTicks = 0;
 
-    /** 开始计时的世界 gameTime（第一个珍珠tick时记录）。 */
+    // 开始计时的世界 gameTime（第一个珍珠tick时记录）。
     @Unique
     private long rofDebugWorldTickStart = -1;
 
-    /** 最后一次珍珠tick时观察到的世界 gameTime。 */
+    // 最后一次珍珠tick时观察到的世界 gameTime。
     @Unique
     private long rofDebugWorldTickAtLastPearlTick = -1;
 
-    /** 应用过的初速度，用于落地时输出。 */
+    // 应用过的初速度，用于落地时输出。
     @Unique
     private Vec3 rofDebugAppliedVelocity = null;
 
-    /** 珍珠的调试名。 */
+    // 珍珠的调试名。
     @Unique
     private String rofDebugName = null;
 

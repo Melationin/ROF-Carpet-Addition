@@ -43,6 +43,12 @@ public final class OptimizedExplosionUtil
         }
         data.count++;
 
+        if ((data.blockDamageEmpty || data.forceStopped) && !data.isBlockVerdictValid())
+        {
+            data.blockDamageEmpty = false;
+            data.forceStopped = false;
+        }
+
         if (data.blockDamageEmpty)
         {
             OptimizedExplosionStats.onCachedVerdict();
@@ -63,6 +69,7 @@ public final class OptimizedExplosionUtil
         if (worstCaseDestroysBlock(explosion, level, calculator, center, radius))
         {
             data.forceStopped = true;
+            data.captureBlockStamp();
             OptimizedExplosionStats.onUnsafeVerdict();
             return false;
         }
@@ -77,10 +84,8 @@ public final class OptimizedExplosionUtil
         return isSupportedCalculator(calculator);
     }
 
-    /**
-     * 最坏情况判定只有在"功率越大破坏得越多"成立时才是可靠的上界，
-     * 自定义的伤害计算器可能让 shouldBlockExplode 随功率非单调，因此只对原版计算器生效。
-     */
+     //最坏情况判定只有在"功率越大破坏得越多"成立时才是可靠的上界，
+     //自定义的伤害计算器可能让 shouldBlockExplode 随功率非单调，因此只对原版计算器生效。
     private static boolean isSupportedCalculator(ExplosionDamageCalculator calculator)
     {
         Class<?> type = calculator.getClass();
@@ -89,7 +94,7 @@ public final class OptimizedExplosionUtil
                 || type == SimpleExplosionDamageCalculator.class;
     }
 
-    /** 与原版 hurtEntities 的查询盒一致 */
+    // 与原版 hurtEntities 的查询盒一致
     public static AABB makeEntityBox(Vec3 center, float radius)
     {
         float doubleRadius = radius * 2.0F;

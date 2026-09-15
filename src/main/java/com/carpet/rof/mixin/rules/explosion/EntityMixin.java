@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Entity.class)
 public abstract class EntityMixin implements ExposureCacheAccess
 {
-    /** 0 = 从没算过，-1 = 算过之后实体动过，大于 0 = 算缓存时的批次号 */
+    // 0 = 从没算过，-1 = 算过之后实体动过，大于 0 = 算缓存时的批次号
     @Unique
     private int exposureStamp;
     @Unique

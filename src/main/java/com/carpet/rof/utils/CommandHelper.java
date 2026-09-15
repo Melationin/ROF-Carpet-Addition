@@ -269,7 +269,7 @@ public class CommandHelper<S extends SharedSuggestionProvider>
         }
     }
 
-    /** 0 替换  1 并 -1 或*/
+    // 0 替换  1 并 -1 或
     public void setCommandRequirement(String commandString, BiPredicate<S,Boolean> predicate){
         setCommandRequirementNode(rootNode, registerCommandList(commandString, List.of()), predicate);
     }

@@ -2,10 +2,10 @@ package com.carpet.rof.commands;
 
 import com.carpet.rof.annotation.ROFCommand;
 import com.carpet.rof.debug.ItemFillStats;
+import com.carpet.rof.utils.CommandHelper;
 import com.carpet.rof.utils.ROFTool;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 
 @ROFCommand
@@ -16,8 +16,8 @@ public final class ItemFillDebugCommand
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
     {
         if (!ROFTool.DEBUG) return;
-        dispatcher.register(Commands.literal("rofDebug")
-                .then(Commands.literal("itemFill").executes(context -> stats(context.getSource()))));
+        CommandHelper<CommandSourceStack> helper = new CommandHelper<>(dispatcher.getRoot());
+        helper.registerCommand("rofDebug itemFill").command(context -> stats(context.getSource()));
     }
 
     private static int stats(CommandSourceStack source)

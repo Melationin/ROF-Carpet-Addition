@@ -6,6 +6,7 @@ import com.carpet.rof.annotation.QuickTranslations;
 import com.carpet.rof.annotation.ROFCommand;
 import com.carpet.rof.annotation.ROFRule;
 import com.carpet.rof.logger.packetLogger.PacketLogger;
+import com.carpet.rof.utils.CommandHelper;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.network.protocol.PacketType;
@@ -18,7 +19,6 @@ import java.util.Map;
 import static carpet.api.settings.RuleCategory.COMMAND;
 import static carpet.api.settings.RuleCategory.EXPERIMENTAL;
 import static com.carpet.rof.rules.BaseSetting.ROF;
-import static net.minecraft.commands.Commands.literal;
 
 @ROFRule
 @ROFCommand
@@ -39,27 +39,10 @@ public class PacketLoggerCommand
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
     {
-        dispatcher.register(literal("packetLogger").requires(
-                        source -> carpet.utils.CommandHelper.canUseCommand(source, commandPacketLoggerPlus))
-                .then(literal("start").executes(ctx ->
-                {
-
-                    if (PacketLogger.instance == null) {
-                        PacketLogger.instance = new PacketLogger();
-                    }
-                    PacketLogger.instance.start(ctx.getSource().getLevel().getGameTime());
-
-                    ctx.getSource().sendSuccess(() -> Component.nullToEmpty("Packet logger enabled"), false);
-                    return 0;
-                })).then(literal("stop").executes(ctx ->
-                {
-
-                    if (PacketLogger.instance == null) {
-                        ctx.getSource().sendFailure(Component.nullToEmpty("Packet logger not enabled!"));
-                    }
-                    PacketLogger.instance.stop(ctx.getSource().getLevel().getGameTime());
-                    return printPacketData(ctx);
-                })).executes(ctx ->
+        CommandHelper<CommandSourceStack> helper = new CommandHelper<>(dispatcher.getRoot());
+        helper.registerCommand("packetLogger{r}")
+                .rCarpet(() -> commandPacketLoggerPlus)
+                .command(ctx ->
                 {
                     if (PacketLogger.instance == null) {
                         ctx.getSource().sendFailure(Component.nullToEmpty("Packet logger not enabled!"));
@@ -67,7 +50,25 @@ public class PacketLoggerCommand
                     }
                     PacketLogger.instance.setEndtime(ctx.getSource().getLevel().getGameTime());
                     return printPacketData(ctx);
-                }));
+                });
+        helper.registerCommand("packetLogger start").command(ctx ->
+        {
+            if (PacketLogger.instance == null) {
+                PacketLogger.instance = new PacketLogger();
+            }
+            PacketLogger.instance.start(ctx.getSource().getLevel().getGameTime());
+
+            ctx.getSource().sendSuccess(() -> Component.nullToEmpty("Packet logger enabled"), false);
+            return 0;
+        });
+        helper.registerCommand("packetLogger stop").command(ctx ->
+        {
+            if (PacketLogger.instance == null) {
+                ctx.getSource().sendFailure(Component.nullToEmpty("Packet logger not enabled!"));
+            }
+            PacketLogger.instance.stop(ctx.getSource().getLevel().getGameTime());
+            return printPacketData(ctx);
+        });
     }
 
     private static int printPacketData(CommandContext<CommandSourceStack> ctx)

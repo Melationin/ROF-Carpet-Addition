@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-/** cell 坐标换算、候选筛选、实体移动时的增量登记，以及每 tick 的全局重建。 */
+// cell 坐标换算、候选筛选、实体移动时的增量登记，以及每 tick 的全局重建。
 public final class OecUtil {
     public static final int EMPTY_RANGE = -1;
     private static final int RANGE_MASK = 7;
@@ -54,12 +54,12 @@ public final class OecUtil {
                 && Double.isFinite(box.maxX) && Double.isFinite(box.maxY) && Double.isFinite(box.maxZ);
     }
 
-    /** 与 Lithium 的 MAYBE_PUSHABLE 同义：Entity.isPushable 的默认实现返回 false，重写者才可能可推。 */
+    // 与 Lithium 的 MAYBE_PUSHABLE 同义：Entity.isPushable 的默认实现返回 false，重写者才可能可推。
     public static boolean maybePushable(Entity entity) {
         return PushableEntityClassGroup.MAYBE_PUSHABLE.contains(entity);
     }
 
-    /** 与 Lithium 的 entityPushableHeuristic 同源：身处可攀爬方块内视为不可推，其余情况交给谓词判定。 */
+    // 与 Lithium 的 entityPushableHeuristic 同源：身处可攀爬方块内视为不可推，其余情况交给谓词判定。
     public static boolean currentlyPushable(Entity entity) {
         return !PushableEntityClassGroup.CACHABLE_UNPUSHABILITY.contains(entity)
                 || !entity.getInBlockState().is(BlockTags.CLIMBABLE);
@@ -69,7 +69,7 @@ public final class OecUtil {
         return level instanceof OecStorageHolder holder ? holder.rof$entitySectionStorage() : null;
     }
 
-    /** 实体移动时只把"新接触的 cell"写进自己 section 的网格，脱离的 cell 留给查询时的实时 AABB 淘汰。 */
+    // 实体移动时只把"新接触的 cell"写进自己 section 的网格，脱离的 cell 留给查询时的实时 AABB 淘汰。
     public static void registerNewCells(Entity entity) {
         OecEntityAccess access = (OecEntityAccess) entity;
         OecSectionAccess section = access.rof$entitySection();
@@ -110,7 +110,7 @@ public final class OecUtil {
         if (OecMetrics.ENABLED) OecMetrics.RANGE_CHANGES.increment();
     }
 
-    /** 每 tick 全局重建：先清空所有 cell，再把实体按实时 AABB 写进自己与邻居 section 的 cell。 */
+    // 每 tick 全局重建：先清空所有 cell，再把实体按实时 AABB 写进自己与邻居 section 的 cell。
     public static void rebuild(ServerLevel level) {
         EntitySectionStorage<?> storage = storageOf(level);
         if (!(storage instanceof OecSectionStorageAccess storageAccess)) return;
@@ -189,7 +189,7 @@ public final class OecUtil {
         }
     }
 
-    /** 只跟踪当前持有网格的 section；调用都在服务端线程。 */
+    // 只跟踪当前持有网格的 section；调用都在服务端线程。
     public static synchronized void registerGrid(OecSectionAccess section) { GRIDS.add(section); }
 
     public static synchronized void unregisterGrid(OecSectionAccess section) { GRIDS.remove(section); }

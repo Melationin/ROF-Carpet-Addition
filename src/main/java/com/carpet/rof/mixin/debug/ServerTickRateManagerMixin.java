@@ -14,7 +14,7 @@ public abstract class ServerTickRateManagerMixin
 {
     @Shadow private long sprintTickStartTime;
 
-    /** endTickWork 只在加速刻被调用一次，sprintTickStartTime 是原版在 checkShouldSprintThisTick 里记下的刻起点。 */
+    // endTickWork 只在加速刻被调用一次，sprintTickStartTime 是原版在 checkShouldSprintThisTick 里记下的刻起点。
     @Inject(method = "endTickWork", at = @At("TAIL"))
     private void rof$reportSprintTick(CallbackInfo ci)
     {

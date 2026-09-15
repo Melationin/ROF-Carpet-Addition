@@ -42,6 +42,18 @@ public class MergeSetting extends BaseSetting {
     )
     public static MergeTNTNextMode mergeTNTNext = MergeTNTNextMode.FALSE;
 
+    @Rule(
+            categories = {ROF,OPTIMIZATION,TNT,FEATURE}
+    )
+    @QuickTranslations(
+            name = "合并TNTnext爆炸",
+            description = "把合并TNT产生的多次爆炸合成一次，只对实体作用一次。仅在合并TNT已启用、且爆炸确定不会破坏方块时生效。",
+            extra = {"需要 mergeTNTNext 处于非 False 模式",
+                    "只合并确定不会破坏方块的爆炸",
+                    "合并后伤害与击退只结算一次，不再随合并数量叠加"}
+    )
+    public static boolean mergeTNTNextExplosion = false;
+
 /*
     @Rule(
             categories = {ROF,OPTIMIZATION,FEATURE}
@@ -74,7 +86,7 @@ public class MergeSetting extends BaseSetting {
 
 
 
-    /** 规则开启时放宽原版"装满才合并"的限制：同物品同组件、两边都未满即可合并，余量由原版 merge 留在对方。 */
+    // 规则开启时放宽原版"装满才合并"的限制：同物品同组件、两边都未满即可合并，余量由原版 merge 留在对方。
     public static boolean canPartialMerge(ItemStack selfStack, ItemStack otherStack)
     {
         return selfStack.getCount() < selfStack.getMaxStackSize()

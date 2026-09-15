@@ -4,7 +4,7 @@ import net.minecraft.world.entity.Entity;
 
 import java.util.Arrays;
 
-/** cell 直接持有实体条目与"可推"位；删除只置 null，不压缩。 */
+// cell 直接持有实体条目与"可推"位；删除只置 null，不压缩。
 public final class SectionEntityGrid {
     public static final int CELL_SIZE = 2;
     public static final int CELLS_PER_AXIS = 8;
@@ -57,7 +57,7 @@ public final class SectionEntityGrid {
         this.cellSizes[cell] = size + 1;
     }
 
-    /** 全局 cell 坐标 → 本网格内部的 cell 下标；粗网格整段只有一格。 */
+    // 全局 cell 坐标 → 本网格内部的 cell 下标；粗网格整段只有一格。
     public int localCell(int cellX, int cellY, int cellZ) {
         if (!this.fine) return 0;
         return (cellX & 7) | ((cellZ & 7) << 3) | ((cellY & 7) << 6);

@@ -1,5 +1,6 @@
 package com.carpet.rof.rules.explosion;
 
+import com.carpet.rof.blockChange.LevelBlockChangeAccess;
 import com.carpet.rof.debug.OptimizedExplosionStats;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import net.minecraft.server.level.ServerLevel;
@@ -11,14 +12,14 @@ import java.util.List;
 
 /**
  * 同一世界、同一点、同一威力的连续爆炸的合并元数据。
- * 只在当前游戏刻内有效：世界 tick 开始、或世界中有任何方块变化时都会被清空。
+ * 只在当前游戏刻内有效（世界 tick 开始时清空）；方块判定在世界方块戳记未变化前可以复用。
  */
 public class ExplosionMergeData
 {
-    /** 实体移动与实体生成的热路径快速查找入口，仅在启用优化期间非空 */
+    // 实体移动与实体生成的热路径快速查找入口，仅在启用优化期间非空
     public static ExplosionMergeData ACTIVE;
 
-    /** 批次号发号器：全局递增，保证不同世界、不同合并组的批次号不会撞车 */
+    // 批次号发号器：全局递增，保证不同世界、不同合并组的批次号不会撞车
     private static int nextStamp;
 
     public ServerLevel level;
@@ -32,11 +33,14 @@ public class ExplosionMergeData
     public boolean forceStopped;
     public boolean blockDamageEmpty;
     public boolean enabled;
-    /** 本组的批次号，实体身上记的就是它；0 表示本组还没开始缓存 */
+    // 本组的批次号，实体身上记的就是它；0 表示本组还没开始缓存
     public int exposureStamp;
     public final List<Entity> entities = new ArrayList<>();
-    /** 与 entities 下标一一对应的暴露度缓存，NaN 表示这个实体在本组里还没算过 */
+    // 与 entities 下标一一对应的暴露度缓存，NaN 表示这个实体在本组里还没算过
     public final DoubleArrayList exposures = new DoubleArrayList();
+
+    // 做出方块判定时世界的方块变更戳记；戳记一变，forceStopped 和 blockDamageEmpty 都必须重算
+    public int levelStamp;
 
     public boolean isUsed()
     {
@@ -69,7 +73,18 @@ public class ExplosionMergeData
         this.entities.clear();
         this.entities.addAll(this.level.getEntities(this.source, this.entityBox));
         this.resetExposureCache();
+        this.captureBlockStamp();
         ACTIVE = this;
+    }
+
+    public void captureBlockStamp()
+    {
+        this.levelStamp = ((LevelBlockChangeAccess) this.level).rof$getBlockChangeStamp();
+    }
+
+    public boolean isBlockVerdictValid()
+    {
+        return this.levelStamp == ((LevelBlockChangeAccess) this.level).rof$getBlockChangeStamp();
     }
 
     public void clear()
@@ -88,6 +103,7 @@ public class ExplosionMergeData
         this.blockDamageEmpty = false;
         this.enabled = false;
         this.exposureStamp = 0;
+        this.levelStamp = 0;
         this.entities.clear();
         this.exposures.clear();
     }

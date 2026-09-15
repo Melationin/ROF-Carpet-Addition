@@ -24,7 +24,7 @@ import static net.minecraft.world.level.dimension.BuiltinDimensionTypes.NETHER;
 public class ROFTool
 {
     private static final org.slf4j.Logger LOGGER = LogUtils.getLogger();
-    /** True only for Fabric Loader development launches (for example runServer). */
+    // True only for Fabric Loader development launches (for example runServer).
     public static final boolean DEBUG = FabricLoader.getInstance().isDevelopmentEnvironment() || Boolean.getBoolean("rof.debug");;
     public static boolean isNetherWorld(Level world) {
         return world.dimensionTypeRegistration().is(NETHER);
@@ -43,7 +43,7 @@ public class ROFTool
         x = (x >> 8) ^ x;
         return x & 0xFFFF;
     }
-    /** Decodes a packed chunk position (lower 32 bits = x, upper 32 bits = z). */
+    // Decodes a packed chunk position (lower 32 bits = x, upper 32 bits = z).
     public static ChunkPos getChunkPos(long value) {
         return new ChunkPos((int) (value & 0xFFFFFFFFL), (int) (value >>> 32));
     }

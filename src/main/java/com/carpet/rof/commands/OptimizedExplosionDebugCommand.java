@@ -2,10 +2,10 @@ package com.carpet.rof.commands;
 
 import com.carpet.rof.annotation.ROFCommand;
 import com.carpet.rof.debug.OptimizedExplosionStats;
+import com.carpet.rof.utils.CommandHelper;
 import com.carpet.rof.utils.ROFTool;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 
 @ROFCommand
@@ -16,12 +16,11 @@ public final class OptimizedExplosionDebugCommand
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
     {
         if (!ROFTool.DEBUG) return;
-        dispatcher.register(Commands.literal("rofDebug")
-                .then(Commands.literal("optimizedExplosion")
-                        .executes(context -> report(context.getSource()))
-                        .then(Commands.literal("start").executes(context -> start(context.getSource())))
-                        .then(Commands.literal("stop").executes(context -> stop(context.getSource())))
-                        .then(Commands.literal("reset").executes(context -> reset(context.getSource())))));
+        CommandHelper<CommandSourceStack> helper = new CommandHelper<>(dispatcher.getRoot());
+        helper.registerCommand("rofDebug optimizedExplosion").command(context -> report(context.getSource()));
+        helper.registerCommand("rofDebug optimizedExplosion start").command(context -> start(context.getSource()));
+        helper.registerCommand("rofDebug optimizedExplosion stop").command(context -> stop(context.getSource()));
+        helper.registerCommand("rofDebug optimizedExplosion reset").command(context -> reset(context.getSource()));
     }
 
     private static int start(CommandSourceStack source)

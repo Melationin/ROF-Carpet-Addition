@@ -2,10 +2,10 @@ package com.carpet.rof.commands;
 
 import com.carpet.rof.annotation.ROFCommand;
 import com.carpet.rof.rules.oec.OecMetrics;
+import com.carpet.rof.utils.CommandHelper;
 import com.carpet.rof.utils.ROFTool;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 
 @ROFCommand
@@ -14,9 +14,9 @@ public final class OecDebugCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         if (!ROFTool.DEBUG) return;
-        dispatcher.register(Commands.literal("rofDebug").then(Commands.literal("oec")
-                .executes(context -> stats(context.getSource()))
-                .then(Commands.literal("reset").executes(context -> reset(context.getSource())))));
+        CommandHelper<CommandSourceStack> helper = new CommandHelper<>(dispatcher.getRoot());
+        helper.registerCommand("rofDebug oec").command(context -> stats(context.getSource()));
+        helper.registerCommand("rofDebug oec reset").command(context -> reset(context.getSource()));
     }
 
     private static int stats(CommandSourceStack source) {

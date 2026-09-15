@@ -2,24 +2,24 @@ package com.carpet.rof.commands;
 
 import com.carpet.rof.annotation.ROFCommand;
 import com.carpet.rof.event.ROFEvents;
+import com.carpet.rof.utils.CommandHelper;
 import com.carpet.rof.utils.ROFTool;
 import com.carpet.rof.rules.asyncWorldgen.DebugStats;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 
 import java.util.Locale;
 
-/** Development-environment diagnostics; intentionally absent from production command trees. */
+// Development-environment diagnostics; intentionally absent from production command trees.
 @ROFCommand
 public final class AsyncWorldgenDebugCommand {
     private AsyncWorldgenDebugCommand() { }
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         if (!ROFTool.DEBUG) return;
-        dispatcher.register(Commands.literal("rofDebug")
-                .then(Commands.literal("asyncWorldgen").executes(context -> start(context.getSource()))));
+        CommandHelper<CommandSourceStack> helper = new CommandHelper<>(dispatcher.getRoot());
+        helper.registerCommand("rofDebug asyncWorldgen").command(context -> start(context.getSource()));
     }
 
     private static int start(CommandSourceStack source) {

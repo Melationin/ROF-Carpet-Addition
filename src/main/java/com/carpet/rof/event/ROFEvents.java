@@ -11,17 +11,17 @@ import java.util.function.Function;
 
 public class ROFEvents
 {
-    /** 非热点数据，提供给事件回调使用，key 是一个字符串，value 是一个 Object，可以是任何类型的数据。事件回调可以通过这个 map 来存储和获取数据*/
+    // 非热点数据，提供给事件回调使用，key 是一个字符串，value 是一个 Object，可以是任何类型的数据。事件回调可以通过这个 map 来存储和获取数据
     private static final Map<Pair<String,Object>,Object> data = new HashMap<>();
 
-    /** 必须提供正确的类型！！！*/
+    // 必须提供正确的类型！！！
     public static  <T> T getData(String key, Object owner, T defaultValue) {
         if(data.get(new Pair<>(key, owner)) != null){
             return (T)data.get(new Pair<>(key, owner));
         }
         return defaultValue;
     }
-    /** 必须提供正确的类型！！！*/
+    // 必须提供正确的类型！！！
     public static  <T> T getData(String key, Object owner) {
         if(data.get(new Pair<>(key, owner)) != null){
             return (T)data.get(new Pair<>(key, owner));
@@ -61,7 +61,7 @@ public class ROFEvents
         }
     }
 
-    /** 可以多回调，返回 true 时自动移除。 */
+    // 可以多回调，返回 true 时自动移除。
     public static class TickTasks<T>
     {
         private final Set<Task<T>> backCalls = new HashSet<>();

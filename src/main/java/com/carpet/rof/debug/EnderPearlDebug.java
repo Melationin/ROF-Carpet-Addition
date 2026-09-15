@@ -46,14 +46,12 @@ public final class EnderPearlDebug
      */
     public static boolean ENABLED = ROFTool.DEBUG;
 
-    /** 调试名称前缀，只有带此前缀名称的珍珠才会进入调试流程，不影响普通珍珠。 */
+    // 调试名称前缀，只有带此前缀名称的珍珠才会进入调试流程，不影响普通珍珠。
     public static final String NAME_PREFIX = "rof:";
 
     private EnderPearlDebug() {}
 
-    /**
-     * 获取珍珠的调试名：优先实体自定义名，其次物品自定义名；都没有则返回 null。
-     */
+    // 获取珍珠的调试名：优先实体自定义名，其次物品自定义名；都没有则返回 null。
     public static String getDebugName(ThrownEnderpearl pearl)
     {
         Component custom = pearl.getCustomName();
@@ -71,9 +69,7 @@ public final class EnderPearlDebug
         return name != null && name.startsWith(NAME_PREFIX);
     }
 
-    /**
-     * 从调试名解析初速度；无法解析时返回 null（调用方保持原速度并记日志）。
-     */
+    // 从调试名解析初速度；无法解析时返回 null（调用方保持原速度并记日志）。
     public static Vec3 parseVelocity(String name, ThrownEnderpearl pearl)
     {
         String body = name.substring(NAME_PREFIX.length()).trim();
@@ -103,7 +99,7 @@ public final class EnderPearlDebug
         }
     }
 
-    /** 速度方向：珍珠当前运动方向 > 抛掷者视线 > +X。 */
+    // 速度方向：珍珠当前运动方向 > 抛掷者视线 > +X。
     private static Vec3 direction(ThrownEnderpearl pearl)
     {
         Vec3 motion = pearl.getDeltaMovement();

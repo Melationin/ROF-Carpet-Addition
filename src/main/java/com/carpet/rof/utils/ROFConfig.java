@@ -51,7 +51,7 @@ public class ROFConfig {
     public static ROFConfig INSTANCE;
     // ------------------------------------------------------------------ load / save
 
-    /** 从文件加载配置；文件不存在时使用空配置。 */
+    // 从文件加载配置；文件不存在时使用空配置。
     public void load() {
         if (!Files.exists(filePath)) {
             data = new JsonObject();
@@ -66,7 +66,7 @@ public class ROFConfig {
         }
     }
 
-    /** 将当前配置保存到文件。 */
+    // 将当前配置保存到文件。
     public void save() {
         try {
             Files.createDirectories(filePath.getParent());
@@ -114,10 +114,9 @@ public class ROFConfig {
         }
         return  data.get(key);
     }
-    /**
-     * 设置配置值（支持 Boolean / Integer / Long / Double / Float / String，
-     * 其他类型序列化为 JSON 字符串）。
-     */
+
+     // 设置配置值（支持 Boolean / Integer / Long / Double / Float / String，
+     // 其他类型序列化为 JSON 字符串）。
     public <T> void set(String key, T value) {
         if (value instanceof Boolean b)  { data.addProperty(key, b); return; }
         if (value instanceof Number  n)  { data.addProperty(key, n); return; }
@@ -128,22 +127,22 @@ public class ROFConfig {
 
     // ------------------------------------------------------------------ misc
 
-    /** 检查 key 是否存在。 */
+    // 检查 key 是否存在。
     public boolean has(String key) {
         return data.has(key);
     }
 
-    /** 删除一个 key。 */
+    // 删除一个 key。
     public void remove(String key) {
         data.remove(key);
     }
 
-    /** 返回底层 JsonObject 的副本（只读用途）。 */
+    // 返回底层 JsonObject 的副本（只读用途）。
     public JsonObject snapshot() {
         return data.deepCopy();
     }
 
-    /** 清空所有配置项。 */
+    // 清空所有配置项。
     public void clear() {
         data = new JsonObject();
     }

@@ -104,5 +104,9 @@
   "carpet.rule.mergeTNTNext.extra.2": "SAFE: safer explosion handling; moving merged TNT behaves like vanilla",
   "carpet.rule.mergeTNTNext.extra.3": "AlmostVanilla: merges only when TNT explodes, keeping TNT tick order",
   "carpet.rule.mergeTNTNext.extra.4": "AlmostVanilla should not change TNT behaviour; report any vanilla mismatch as an issue",
+  "carpet.rule.mergeTNTNextExplosion.desc": "Merges the multiple explosions produced by one merged TNT into a single explosion, so entities are affected only once. Only applies when TNT merging is enabled and the explosion is proven unable to destroy any block.",
+  "carpet.rule.mergeTNTNextExplosion.extra.0": "Requires mergeTNTNext to be a mode other than False",
+  "carpet.rule.mergeTNTNextExplosion.extra.1": "Only explosions that cannot destroy any block are merged",
+  "carpet.rule.mergeTNTNextExplosion.extra.2": "Damage and knockback are applied once instead of once per merged TNT",
   "carpet.rule.particlesPacketsRange.extra.1": "Forced particle packets use a fixed distance of 512, unaffected by this rule"
 }

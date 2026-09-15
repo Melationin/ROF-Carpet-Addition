@@ -2,9 +2,7 @@ package com.carpet.rof.rules;
 
 import com.carpet.rof.annotation.ROFRule;
 
-/**
- * Here is your example Settings class you can plug to use carpetmod /carpet settings registerCommand
- */
+// Here is your example Settings class you can plug to use carpetmod /carpet settings registerCommand
 @SuppressWarnings("CanBeFinal")
 @ROFRule
 public class BaseSetting

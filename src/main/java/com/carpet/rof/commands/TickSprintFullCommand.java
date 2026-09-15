@@ -6,11 +6,11 @@ import com.carpet.rof.annotation.QuickTranslations;
 import com.carpet.rof.annotation.ROFCommand;
 import com.carpet.rof.annotation.ROFRule;
 import com.carpet.rof.debug.SprintTickTimer;
+import com.carpet.rof.utils.CommandHelper;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.tree.CommandNode;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 
 import static carpet.api.settings.RuleCategory.COMMAND;
@@ -38,10 +38,9 @@ public class TickSprintFullCommand
         if (sprint == null) return;
         CommandNode<CommandSourceStack> time = sprint.getChild("time");
         if (time == null) return;
-        time.addChild(Commands.literal("full")
-                .requires(source -> carpet.utils.CommandHelper.canUseCommand(source, commandTickSprintFull))
-                .executes(context -> sprintFull(context.getSource(), IntegerArgumentType.getInteger(context, "time")))
-                .build());
+        new CommandHelper<>(time).registerCommand("full{r}")
+                .rCarpet(() -> commandTickSprintFull)
+                .command(context -> sprintFull(context.getSource(), IntegerArgumentType.getInteger(context, "time")));
     }
 
     private static int sprintFull(CommandSourceStack source, int time)

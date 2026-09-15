@@ -16,7 +16,7 @@ import java.util.ArrayList;
 public final class LithiumPushCollector {
     private LithiumPushCollector() {}
 
-    /** 返回 false 时调用方必须回退 Lithium 的原收集器。 */
+    // 返回 false 时调用方必须回退 Lithium 的原收集器。
     public static boolean tryCollect(Object section, Entity except, AABB box,
                                      EntityPushablePredicate<? super Entity> predicate, ArrayList<Entity> output) {
         if (!(section instanceof OecSectionAccess sectionAccess)) return false;

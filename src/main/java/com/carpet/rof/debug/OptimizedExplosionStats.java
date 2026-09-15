@@ -130,7 +130,7 @@ public final class OptimizedExplosionStats
         if (active) exposureReused++;
     }
 
-    /** 未命中：0 = 本组里从没算过，-1 = 算过之后动过，其余 = 上一个合并组留下的值 */
+    // 未命中：0 = 本组里从没算过，-1 = 算过之后动过，其余 = 上一个合并组留下的值
     public static void onExposureMiss(int stamp)
     {
         if (!active) return;
@@ -144,7 +144,7 @@ public final class OptimizedExplosionStats
         if (active) exposureMissIndex++;
     }
 
-    /** 没走合并组、直接调原版 getSeenPercent 的次数 */
+    // 没走合并组、直接调原版 getSeenPercent 的次数
     public static void onExposureUnmanaged()
     {
         if (active) exposureUnmanaged++;
