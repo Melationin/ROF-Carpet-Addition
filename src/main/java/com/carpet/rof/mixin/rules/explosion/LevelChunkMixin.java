@@ -15,10 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(LevelChunk.class)
 public abstract class LevelChunkMixin
 {
-    /**
-     * 世界上任何方块变化都让合并元数据失效。
-     * 钩在 Level.setBlock 的下游汇聚点：无论是爆炸破坏方块还是别处的方块改动都会经过这里。
-     */
+
     @Inject(
             method = "setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Lnet/minecraft/world/level/block/state/BlockState;",
             at = @At("HEAD"))

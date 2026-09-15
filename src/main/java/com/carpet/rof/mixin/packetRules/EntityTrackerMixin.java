@@ -4,6 +4,7 @@ package com.carpet.rof.mixin.packetRules;
 import com.carpet.rof.extraWorldData.ExtraWorldDatas;
 import com.carpet.rof.rules.packerRules.PacketRulesSettings;
 import com.carpet.rof.rules.packerRules.TrackedEntityRecoveryAccessor;
+import com.carpet.rof.utils.ROFTool;
 import com.carpet.rof.utils.ROFWarp;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.server.level.ChunkMap;
@@ -53,6 +54,7 @@ public abstract class EntityTrackerMixin implements TrackedEntityRecoveryAccesso
            int count = data.get(entity.getType());
            if (count > entitySpawnPacketLimitTicks){
                this.range = PacketRulesSettings.entitySpawnPacketLimitTicksTrackerDistance;
+               ROFTool.rDEBUG("[EntityTrackerMixin] count: " + count);
                this.rof$spawnLimitedByTicks = true;
            }
        }

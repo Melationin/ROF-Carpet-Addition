@@ -8,6 +8,7 @@
     "async.NaturalSpawnerMixin",
     "async.ServerChunkCacheMixin",
     "async.ServerLevelMixin",
+    "debug.ServerTickRateManagerMixin",
     "debug.ThrownEnderpearlDebugMixin",
     "event.ServerLevelMixin",
     "event.ServerMixin",

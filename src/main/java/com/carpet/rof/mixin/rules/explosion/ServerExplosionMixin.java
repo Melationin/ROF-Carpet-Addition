@@ -48,15 +48,48 @@ public abstract class ServerExplosionMixin
     private List<Entity> rof$useTrackedEntities(ServerLevel level, Entity source, AABB box, Operation<List<Entity>> original)
     {
         ExplosionMergeData data = ExplosionMergeData.ACTIVE;
-        if (data != null && data.enabled)
+        List<Entity> entities;
+        if (data != null && data.enabled && isSameGroup(data))
         {
-            ServerExplosion self = (ServerExplosion) (Object) this;
-            Vec3 center = self.center();
-            if (data.matches(level, center.x, center.y, center.z, self.radius()))
-            {
-                return data.entitySnapshot();
-            }
+            entities = data.entitySnapshot();
         }
-        return original.call(level, source, box);
+        else
+        {
+            entities = original.call(level, source, box);
+        }
+        OptimizedExplosionStats.onEntityQuery(entities.size());
+        return entities;
+    }
+
+    /**
+     * 同一合并组内、实体没有移动时，暴露度（getSeenPercent）可以复用：
+     * 它只由实体碰撞箱、坐标、所在世界、沿途方块与本组数据决定。
+     * 这是 hurtEntities 里对 getSeenPercent 的唯一调用点（ServerExplosion.java:189）。
+     * 伤害与击退仍然逐次结算，不做任何合并。
+     */
+    @WrapOperation(
+            method = "hurtEntities",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/ServerExplosion;getSeenPercent(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/entity/Entity;)F"))
+    private float rof$reuseExposure(Vec3 center, Entity entity, Operation<Float> original)
+    {
+        ExplosionMergeData data = ExplosionMergeData.ACTIVE;
+        if (data != null && data.enabled && isSameGroup(data))
+        {
+            float cached = data.cachedExposure(entity);
+            if (!Float.isNaN(cached)) return cached;
+            float computed = original.call(center, entity);
+            OptimizedExplosionStats.onExposureComputed();
+            data.cacheExposure(entity, computed);
+            return computed;
+        }
+        OptimizedExplosionStats.onExposureUnmanaged();
+        return original.call(center, entity);
+    }
+
+    private boolean isSameGroup(ExplosionMergeData data)
+    {
+        ServerExplosion self = (ServerExplosion) (Object) this;
+        Vec3 center = self.center();
+        return data.matches(self.level(), center.x, center.y, center.z, self.radius());
     }
 }
