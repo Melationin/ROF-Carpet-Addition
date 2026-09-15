@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import static com.carpet.rof.rules.merge.MergeSetting.canPartialMerge;
-import static com.carpet.rof.rules.merge.MergeSetting.optimizeItemMerge;
+import static com.carpet.rof.rules.merge.MergeSetting.optimizedItemMerge;
 
 
 @Mixin(ItemEntityLazyIterationConsumer.class)
@@ -24,6 +24,6 @@ public abstract class ItemEntityLazyIterationConsumerMixin
     private static boolean allowPartialMerge(ItemStack selfStack, ItemStack otherStack)
     {
         if (ItemEntity.areMergable(selfStack, otherStack)) return true;
-        return optimizeItemMerge && canPartialMerge(selfStack, otherStack);
+        return optimizedItemMerge && canPartialMerge(selfStack, otherStack);
     }
 }

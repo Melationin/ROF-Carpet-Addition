@@ -24,7 +24,7 @@ public class MergeSetting extends BaseSetting {
 
     public enum MergeTNTNextMode
     {
-        TRUE, FALSE, SAFE, ALMOST_VANILLA
+        TRUE, FALSE, SAFE, ALMOST_VANILLA, SAFE_PLUS
     }
 
     @Rule(
@@ -37,6 +37,7 @@ public class MergeSetting extends BaseSetting {
                     "TRUE: 旧版的爆炸处理方案，会使移动中的合并tnt发生不原版的行为",
                     "SAFE: 更安全的爆炸处理方案，让移动中的合并tnt行为与原版一致",
                     "AlmostVanilla: 更接近原版的tnt合并方案，只在tnt爆炸时合并，并且保tnt tick顺序",
+                    "SafePlus: 与 AlmostVanilla 一样只在tnt爆炸时合并，但合并判定放在每tick一次的提前遍历里，只合并遍历中相邻的同点位tnt，且不改写实体tick顺序",
                     "理论上，AlmostVanilla 模式不会改变 TNT 行为，因此在纯原版中不应发现相关差异。若出现与原版不一致的情况，请提交 issue。"
             }
     )
@@ -46,13 +47,12 @@ public class MergeSetting extends BaseSetting {
             categories = {ROF,OPTIMIZATION,TNT,FEATURE}
     )
     @QuickTranslations(
-            name = "合并TNTnext爆炸",
-            description = "把合并TNT产生的多次爆炸合成一次，只对实体作用一次。仅在合并TNT已启用、且爆炸确定不会破坏方块时生效。",
+            name = "爆炸合并",
+            description = "把合并TNT产生的多次爆炸合成一次，只对实体作用一次。仅在合并TNT和爆炸优化已启用时生效。",
             extra = {"需要 mergeTNTNext 处于非 False 模式",
-                    "只合并确定不会破坏方块的爆炸",
-                    "合并后伤害与击退只结算一次，不再随合并数量叠加"}
+                    "伤害只结算一次；推力按合并次数补齐，总推力与原版一致"}
     )
-    public static boolean mergeTNTNextExplosion = false;
+    public static boolean mergeExplosion = false;
 
 /*
     @Rule(
@@ -72,17 +72,7 @@ public class MergeSetting extends BaseSetting {
             description = "尽量让物品达到一组，以减轻卡顿(效果不明显)",
             extra = {"允许部分合并：优先把掉落物填满整组，余量留在原掉落物中"}
     )
-    public static boolean optimizeItemMerge = false;
-
-    @Rule(
-            categories = {ROF,OPTIMIZATION,TNT,FEATURE},
-            conditions = {OnlySGU.class}
-    )
-    @QuickTranslations(
-            name = "仅在下界合并TNT",
-            description = "特化tnt合并功能。为了一些特殊的机器。"
-    )
-    public static boolean mergeTNTOnlyNether = false;
+    public static boolean optimizedItemMerge = false;
 
 
 

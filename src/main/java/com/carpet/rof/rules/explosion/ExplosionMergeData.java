@@ -33,6 +33,8 @@ public class ExplosionMergeData
     public boolean forceStopped;
     public boolean blockDamageEmpty;
     public boolean enabled;
+    public int needExplosionCount = 1;
+    public int explosionCount = 1;
     // 本组的批次号，实体身上记的就是它；0 表示本组还没开始缓存
     public int exposureStamp;
     public final List<Entity> entities = new ArrayList<>();
@@ -102,6 +104,8 @@ public class ExplosionMergeData
         this.forceStopped = false;
         this.blockDamageEmpty = false;
         this.enabled = false;
+        this.needExplosionCount = 1;
+        this.explosionCount = 1;
         this.exposureStamp = 0;
         this.levelStamp = 0;
         this.entities.clear();

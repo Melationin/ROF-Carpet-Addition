@@ -1,8 +1,10 @@
 package com.carpet.rof.mixin.rules.explosion;
 
 import com.carpet.rof.debug.OptimizedExplosionStats;
+import com.carpet.rof.extraWorldData.ExtraWorldDatas;
 import com.carpet.rof.rules.explosion.ExplosionMergeData;
 import com.carpet.rof.rules.explosion.OptimizedExplosionUtil;
+import com.carpet.rof.rules.merge.MergeSetting;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -16,6 +18,7 @@ import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.List;
@@ -34,9 +37,15 @@ public abstract class ServerExplosionMixin
     private List<BlockPos> rof$optimizeExplosionBlocks(ServerExplosion instance, Operation<List<BlockPos>> original)
     {
         OptimizedExplosionStats.onExplosion();
+        ExplosionMergeData data = ExtraWorldDatas.fromWorld(instance.level()).explosionMergeData;
+        // TNT 合并侧写在本次爆炸前的预期合并次数；begin() 会把它复位，所以先取出并消费掉
+        int mergeCount = MergeSetting.mergeExplosion ? data.needExplosionCount : 1;
+        data.needExplosionCount = 1;
+        data.explosionCount = 1;
         if (OptimizedExplosionUtil.shouldSkipBlockCalculation(instance, this.damageCalculator))
         {
             OptimizedExplosionStats.onSkipped();
+            if (mergeCount > 1) data.explosionCount = mergeCount;
             return new ObjectArrayList<>();
         }
         return original.call(instance);
@@ -59,6 +68,21 @@ public abstract class ServerExplosionMixin
         }
         OptimizedExplosionStats.onEntityQuery(entities.size());
         return entities;
+    }
+
+    // 被合并掉的爆炸不会再 push，这里按合并次数补齐推力，等价于原版多次 push 的叠加
+    @WrapOperation(
+            method = "hurtEntities",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/ExplosionDamageCalculator;getKnockbackMultiplier(Lnet/minecraft/world/entity/Entity;)F"))
+    private float rof$mergeKnockback(ExplosionDamageCalculator calculator, Entity entity, Operation<Float> original)
+    {
+        float multiplier = original.call(calculator, entity);
+        ExplosionMergeData data = ExplosionMergeData.ACTIVE;
+        if (data != null && data.enabled && data.explosionCount > 1 && isSameGroup(data))
+        {
+            return multiplier * data.explosionCount;
+        }
+        return multiplier;
     }
 
     /**
@@ -86,6 +110,7 @@ public abstract class ServerExplosionMixin
         return original.call(center, entity);
     }
 
+    @Unique
     private boolean isSameGroup(ExplosionMergeData data)
     {
         ServerExplosion self = (ServerExplosion) (Object) this;

@@ -41,7 +41,7 @@ public class EnderPearlSettings extends BaseSetting {
                     "1_21_2- - 开启优化,且珍珠特性符合1.21.2及以下版本",
                     "1_21_2+ - 开启优化,且珍珠特性符合1.21.2以上版本"}
     )
-    public static String optimizeForcedEnderPearlTick = "false";
+    public static String optimizedForcedEnderPearlTick = "false";
 
 
     @Rule(

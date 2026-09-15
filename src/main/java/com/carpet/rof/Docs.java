@@ -82,11 +82,13 @@ public class Docs
     }
 
 
-    public static String generateDocument(List<RuleData<?>> rules, Map<String, String> translations){
+    public static String generateDocument(List<RuleData<?>> rules, Map<String, String> translations, String lang){
         StringBuilder sb = new StringBuilder();
+        boolean en = lang.equals("en_us");
         // 文档头部
-        sb.append("# 规则\n\n");
-        sb.append("**提示：可以使用`Ctrl+F`快速查找自己想要的规则**\n\n");
+        sb.append(en ? "# Rules\n\n" : "# 规则\n\n");
+        sb.append(en ? "**Tip: use `Ctrl+F` to quickly find the rule you need**\n\n"
+                : "**提示：可以使用`Ctrl+F`快速查找自己想要的规则**\n\n");
 
         for (RuleData<?> rule : rules) {
 
@@ -113,24 +115,24 @@ public class Docs
             }
 
             // 类型
-            sb.append("&emsp;- 类型: `").append( rule.type.getSimpleName()).append("`\n\n");
+            sb.append(en ? "&emsp;- Type: `" : "&emsp;- 类型: `").append( rule.type.getSimpleName()).append("`\n\n");
 
             // 默认值
-            sb.append("&emsp;- 默认值: `").append(rule.defaultValue).append("`\n\n");
+            sb.append(en ? "&emsp;- Default: `" : "&emsp;- 默认值: `").append(rule.defaultValue).append("`\n\n");
 
             // 参考选项（如果存在且非空）
             if (rule.suggestions != null && !rule.suggestions.isEmpty()) {
                 String options = rule.suggestions.stream()
                         .map(opt -> "`" + opt + "`")
                         .collect(Collectors.joining(", "));
-                sb.append("&emsp;- 参考选项: ").append(options).append("\n\n");
+                sb.append(en ? "&emsp;- Options: " : "&emsp;- 参考选项: ").append(options).append("\n\n");
             }
 
             // 分类
             String categories = rule.categories.stream()
                     .map(cat -> "`" + cat + "`")
                     .collect(Collectors.joining(", "));
-            sb.append("&emsp;").append("- 分类: ").append(categories).append("\n\n");
+            sb.append("&emsp;").append(en ? "- Categories: " : "- 分类: ").append(categories).append("\n\n");
 
             // 规则之间空一行
             sb.append("\n");
@@ -139,11 +141,13 @@ public class Docs
         return sb.toString();
     }
 
-    public static String generateCommand(List<RuleData<?>> rules, Map<String, String> translations){
+    public static String generateCommand(List<RuleData<?>> rules, Map<String, String> translations, String lang){
         StringBuilder sb = new StringBuilder();
+        boolean en = lang.equals("en_us");
         // 文档头部
-        sb.append("# 命令\n\n");
-        sb.append("**提示：可以使用`Ctrl+F`快速查找自己想要的命令**\n\n");
+        sb.append(en ? "# Commands\n\n" : "# 命令\n\n");
+        sb.append(en ? "**Tip: use `Ctrl+F` to quickly find the command you need**\n\n"
+                : "**提示：可以使用`Ctrl+F`快速查找自己想要的命令**\n\n");
 
         for (RuleData<?> rule : rules) {
 
@@ -200,7 +204,7 @@ public class Docs
         List<RuleData<?>> sortRules = new ArrayList<>(rules.values());
         sortRules.sort(Comparator.comparing(r -> ((RuleData<?>)r).name));
 
-        String doc = generateDocument(sortRules, tr);
+        String doc = generateDocument(sortRules, tr, lang);
         try {
             saveStringToFile(doc, "docs/"+lang+"/rules.md");
             //System.out.println("文档已成功保存到 carpet_rules.md");
@@ -209,7 +213,7 @@ public class Docs
             e.printStackTrace();
         }
 
-        String docC = generateCommand(sortRules, tr);
+        String docC = generateCommand(sortRules, tr, lang);
         try {
             saveStringToFile(docC, "docs/"+lang+"/command.md");
            // System.out.println("文档已成功保存到 carpet_rules.md");

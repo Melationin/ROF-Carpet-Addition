@@ -2,10 +2,10 @@ package com.carpet.rof.mixin.rules.merge;
 
 
 import com.carpet.rof.extraWorldData.ExtraWorldDatas;
+import com.carpet.rof.rules.explosion.ExplosionMergeData;
 import com.carpet.rof.rules.merge.EntityTickOrderAccessor;
 import com.carpet.rof.rules.merge.MergeSetting;
 import com.carpet.rof.rules.merge.MergedEntityAccessor;
-import com.carpet.rof.utils.ROFTool;
 import com.carpet.rof.utils.ROFWarp;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -26,6 +26,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -38,7 +39,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 import static com.carpet.rof.rules.merge.MergeSetting.mergeTNTNext;
-import static com.carpet.rof.rules.merge.MergeSetting.mergeTNTOnlyNether;
 
 @Mixin(PrimedTnt.class)
 public abstract class PrimedTntMixin extends Entity implements MergedEntityAccessor
@@ -49,6 +49,9 @@ public abstract class PrimedTntMixin extends Entity implements MergedEntityAcces
 
     @Unique
     private int rof$mergedTNTNCount = 1;
+
+    @Unique
+    private Vec3 rof$lastExplosionPos;
 
     @Override
     public void ROF$addMergeCount(int mergeCount){
@@ -77,10 +80,8 @@ public abstract class PrimedTntMixin extends Entity implements MergedEntityAcces
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/PrimedTnt;getFuse()I"), cancellable = true)
     private void merge(CallbackInfo ci) {
         if(!(ROFWarp.getWorld_(this)  instanceof ServerLevel world))return;
-        if(mergeTNTNext == MergeSetting.MergeTNTNextMode.ALMOST_VANILLA|| mergeTNTNext == MergeSetting.MergeTNTNextMode.FALSE) return;
-        if (!this.isRemoved() && getFuse() >= 2
-        &&(!mergeTNTOnlyNether || ROFTool.isNetherWorld(world))
-        ) {
+        if(mergeTNTNext != MergeSetting.MergeTNTNextMode.TRUE && mergeTNTNext != MergeSetting.MergeTNTNextMode.SAFE) return;
+        if (!this.isRemoved() && getFuse() >= 2) {
             MergeSetting.EntityPosAndVec TntPosAndVec = new MergeSetting.EntityPosAndVec(ROFWarp.getPos_(this), this.getDeltaMovement(), this.getFuse());
             HashMap<MergeSetting.EntityPosAndVec, PrimedTnt> tntMergeMap = ExtraWorldDatas.fromWorld(world).mergeTntMap;
             tntMergeMap.compute(TntPosAndVec,(k,tnt)->{
@@ -135,13 +136,14 @@ public abstract class PrimedTntMixin extends Entity implements MergedEntityAcces
             rof$mergedTNTNCount = count;
         }
 
-        if(mergeTNTNext == MergeSetting.MergeTNTNextMode.SAFE || mergeTNTNext == MergeSetting.MergeTNTNextMode.ALMOST_VANILLA) {
+        if(mergeTNTNext == MergeSetting.MergeTNTNextMode.SAFE || mergeTNTNext == MergeSetting.MergeTNTNextMode.ALMOST_VANILLA || mergeTNTNext == MergeSetting.MergeTNTNextMode.SAFE_PLUS) {
             if(this.getFuse() != 1 || this.rof$mergedTNTNCount  < 2)return;
             this.handlePortal();
 
             double x = this.getX();
             double y = this.getY();
             double z = this.getZ();
+            ExplosionMergeData data = ExtraWorldDatas.fromWorld(level).explosionMergeData;
 
             for (int i = 0; i < rof$mergedTNTNCount; i++) {
                 var vec = this.getDeltaMovement();
@@ -153,7 +155,12 @@ public abstract class PrimedTntMixin extends Entity implements MergedEntityAcces
                 double z2 = this.getZ();
                 this.setDeltaMovement(vec);
                 this.setPos(x, y, z);
+                Vec3 explosionPos = new Vec3(x2, y2, z2);
+                data.explosionCount = 1;
+                data.needExplosionCount = explosionPos.equals(rof$lastExplosionPos) ? rof$mergedTNTNCount - i : 1;
+                rof$lastExplosionPos = explosionPos;
                 explode2(x2, y2, z2);
+                i += data.explosionCount - 1;
             }
             this.discard();
             ci.cancel();
@@ -196,12 +203,22 @@ public abstract class PrimedTntMixin extends Entity implements MergedEntityAcces
 
     @Inject(method = "explode", at = @At(value = "HEAD"), cancellable = true)
     private void onExplode(CallbackInfo ci) {
-        if (rof$mergedTNTNCount > 1)
+        if (rof$mergedTNTNCount > 1) {
+            if (!(ROFWarp.getWorld_(this) instanceof ServerLevel level)) return;
+            ExplosionMergeData data = ExtraWorldDatas.fromWorld(level).explosionMergeData;
             for (int i = 0; i < rof$mergedTNTNCount - 1; i++) {
-                ROFWarp.getWorld_(this)
-                        .explode(this, this.getX(), this.getY(0.0625),
-                        this.getZ(), 4.0F, Level.ExplosionInteraction.TNT);
+                data.explosionCount = 1;
+                data.needExplosionCount = rof$mergedTNTNCount - i;
+                level.explode(this, this.getX(), this.getY(0.0625),
+                        this.getZ(), this.explosionPower, Level.ExplosionInteraction.TNT);
+                if (data.explosionCount > 1) {
+                    ci.cancel();
+                    return;
+                }
             }
+            data.explosionCount = 1;
+            data.needExplosionCount = 1;
+        }
         else if (rof$mergedTNTNCount == 0) {
             ci.cancel();
         }

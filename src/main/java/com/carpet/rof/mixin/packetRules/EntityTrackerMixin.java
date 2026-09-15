@@ -54,7 +54,7 @@ public abstract class EntityTrackerMixin implements TrackedEntityRecoveryAccesso
            int count = data.get(entity.getType());
            if (count > entitySpawnPacketLimitTicks){
                this.range = PacketRulesSettings.entitySpawnPacketLimitTicksTrackerDistance;
-               ROFTool.rDEBUG("[EntityTrackerMixin] count: " + count);
+               //ROFTool.rDEBUG("[EntityTrackerMixin] count: " + count);
                this.rof$spawnLimitedByTicks = true;
            }
        }

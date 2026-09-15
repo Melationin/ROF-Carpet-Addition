@@ -30,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static com.carpet.rof.rules.enderPearl.EnderPearlSettings.*;
 import com.carpet.rof.utils.ChunkPosHelper;
-//import static com.carpet.rof.rules.extraChunkDatas.ExceedChunkMarkerSetting.optimizeForcedEnderPearlTick;
+//import static com.carpet.rof.rules.extraChunkDatas.ExceedChunkMarkerSetting.optimizedForcedEnderPearlTick;
 
 
 // Java 标准库
@@ -82,7 +82,7 @@ public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
                     return;
                 }
                 //?}
-                if(!optimizeForcedEnderPearlTick.equals("false")){
+                if(!optimizedForcedEnderPearlTick.equals("false")){
                     boolean  canSkip = true;
                     for (BlockPos blockPos : ROFWarp.getBlockPosIt(this.getBoundingBox())) {
                         if(!ExceedChunkMarker.mustBeAir((ServerLevel)ROFWarp.getWorld_(this) ,blockPos)
@@ -93,9 +93,9 @@ public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
                     }
 
                     boolean over1_21_2 = false;
-                    if(optimizeForcedEnderPearlTick.equals("1_21_2-")){
+                    if(optimizedForcedEnderPearlTick.equals("1_21_2-")){
                         over1_21_2 = false;
-                    }else if(optimizeForcedEnderPearlTick.equals("1_21_2+")){
+                    }else if(optimizedForcedEnderPearlTick.equals("1_21_2+")){
                         over1_21_2 = true;
                     }else {
                         //? > 1.21.2 {

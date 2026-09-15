@@ -29,7 +29,7 @@ public class ExceedChunkMarkerSetting extends BaseSetting {
             description = "通过ECM优化raycast，开启时请保证ECM已打开且已经从存档加载过",
             extra = "已知特性：投掷物会忽略一些特定位置的实体碰撞箱。"
     )
-    public static boolean optimizeRaycast = false;
+    public static boolean optimizedRaycast = false;
 
 
 }
