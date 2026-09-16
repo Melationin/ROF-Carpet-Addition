@@ -5,6 +5,8 @@ import com.carpet.rof.extraWorldData.asyncWorldgen.AsyncWorldgenCacheData;
 import com.carpet.rof.rules.asyncWorldgen.AsyncSettings;
 import com.carpet.rof.rules.asyncWorldgen.spawner.AsyncNaturalSpawner;
 import com.carpet.rof.rules.asyncWorldgen.randomTick.AsyncRandomTick;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
@@ -15,7 +17,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.Consumer;
@@ -30,10 +31,10 @@ public class ServerChunkCacheMixin
     @Final
     private ServerLevel level;
 
-    @Redirect(method = "tickChunks(Lnet/minecraft/util/profiling/ProfilerFiller;J)V",
+    @WrapOperation(method = "tickChunks(Lnet/minecraft/util/profiling/ProfilerFiller;J)V",
               at = @At(value = "INVOKE",
                        target = "Lnet/minecraft/server/level/ChunkMap;forEachBlockTickingChunk(Ljava/util/function/Consumer;)V"))
-    private void rof$cacheBlockTickingChunks(ChunkMap map, Consumer<LevelChunk> consumer)
+    private void rof$cacheBlockTickingChunks(ChunkMap map, Consumer<LevelChunk> consumer, Operation<Void> original)
     {
         AsyncWorldgenCacheData cache = ExtraWorldDatas.fromWorld(level).asyncWorldgenCache;
         boolean enabled = AsyncSettings.randomTickChunkCache;
@@ -43,11 +44,11 @@ public class ServerChunkCacheMixin
         }
         long tick = level.getServer().getTickCount();
         if (!enabled) {
-            map.forEachBlockTickingChunk(consumer);
+            original.call(map, consumer);
         } else {
             if (cache.randomTickingChunksTick < 0 || tick - cache.randomTickingChunksTick >= AsyncWorldgenCacheData.REFRESH_INTERVAL) {
                 cache.randomTickingChunks.clear();
-                map.forEachBlockTickingChunk(cache.randomTickingChunks::add);
+                original.call(map, (Consumer<LevelChunk>) cache.randomTickingChunks::add);
                 cache.randomTickingChunksTick = tick;
             }
             cache.randomTickingChunks.forEach(consumer);

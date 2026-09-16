@@ -2,6 +2,8 @@ package com.carpet.rof.mixin.rules.fakePlayerTick;
 
 import carpet.patches.EntityPlayerMPFake;
 import com.carpet.rof.rules.fakePlayerTick.FakePlayerTickSettings;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
 
 import net.minecraft.advancements.criterion.LevitationTrigger;
@@ -17,7 +19,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayer.class)
@@ -29,32 +30,32 @@ public abstract class ServerPlayerTickMixin
         return FakePlayerTickSettings.optimizedFakePlayerTick && player instanceof EntityPlayerMPFake;
     }
 
-    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/inventory/AbstractContainerMenu;broadcastChanges()V"))
-    private void optimizedFakePlayerTick$skipContainerBroadcast(AbstractContainerMenu menu)
+    @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/inventory/AbstractContainerMenu;broadcastChanges()V"))
+    private void optimizedFakePlayerTick$skipContainerBroadcast(AbstractContainerMenu menu, Operation<Void> original)
     {
         if (!isFakeOptimized((ServerPlayer) (Object) this))
         {
-            menu.broadcastChanges();
+            original.call(menu);
         }
     }
 
     //? >=26.2 {
-    /*@Redirect(method = {"tick", "doTick"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/advancements/triggers/PlayerTrigger;trigger(Lnet/minecraft/server/level/ServerPlayer;)V"))
-    private void optimizedFakePlayerTick$skipPlayerTrigger(PlayerTrigger trigger, ServerPlayer player)
+    /*@WrapOperation(method = {"tick", "doTick"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/advancements/triggers/PlayerTrigger;trigger(Lnet/minecraft/server/level/ServerPlayer;)V"))
+    private void optimizedFakePlayerTick$skipPlayerTrigger(PlayerTrigger trigger, ServerPlayer player, Operation<Void> original)
     {
         if (!isFakeOptimized(player))
         {
-            trigger.trigger(player);
+            original.call(trigger, player);
         }
     }
      *///?}else{
 
-    @Redirect(method = {"tick", "doTick"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/advancements/criterion/PlayerTrigger;trigger(Lnet/minecraft/server/level/ServerPlayer;)V"))
-    private void optimizedFakePlayerTick$skipPlayerTrigger(PlayerTrigger trigger, ServerPlayer player)
+    @WrapOperation(method = {"tick", "doTick"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/advancements/criterion/PlayerTrigger;trigger(Lnet/minecraft/server/level/ServerPlayer;)V"))
+    private void optimizedFakePlayerTick$skipPlayerTrigger(PlayerTrigger trigger, ServerPlayer player, Operation<Void> original)
     {
         if (!isFakeOptimized(player))
         {
-            trigger.trigger(player);
+            original.call(trigger, player);
         }
     }
 
@@ -64,22 +65,22 @@ public abstract class ServerPlayerTickMixin
 
 
     //? >=26.2 {
-    /*@Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/advancements/triggers/LevitationTrigger;trigger(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/phys/Vec3;I)V"))
-    private void optimizedFakePlayerTick$skipLevitationTrigger(LevitationTrigger trigger, ServerPlayer player, Vec3 start, int duration)
+    /*@WrapOperation(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/advancements/triggers/LevitationTrigger;trigger(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/phys/Vec3;I)V"))
+    private void optimizedFakePlayerTick$skipLevitationTrigger(LevitationTrigger trigger, ServerPlayer player, Vec3 start, int duration, Operation<Void> original)
     {
         if (!isFakeOptimized(player))
         {
-            trigger.trigger(player, start, duration);
+            original.call(trigger, player, start, duration);
         }
     }
      *///?}else{
 
-    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/advancements/criterion/LevitationTrigger;trigger(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/phys/Vec3;I)V"))
-    private void optimizedFakePlayerTick$skipLevitationTrigger(LevitationTrigger trigger, ServerPlayer player, Vec3 start, int duration)
+    @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/advancements/criterion/LevitationTrigger;trigger(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/phys/Vec3;I)V"))
+    private void optimizedFakePlayerTick$skipLevitationTrigger(LevitationTrigger trigger, ServerPlayer player, Vec3 start, int duration, Operation<Void> original)
     {
         if (!isFakeOptimized(player))
         {
-            trigger.trigger(player, start, duration);
+            original.call(trigger, player, start, duration);
         }
     }
     //?}
@@ -94,12 +95,12 @@ public abstract class ServerPlayerTickMixin
     }
 
 
-    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/PlayerAdvancements;flushDirty(Lnet/minecraft/server/level/ServerPlayer;Z)V"))
-    private void optimizedFakePlayerTick$skipFlushDirty(PlayerAdvancements advancements, ServerPlayer player, boolean show)
+    @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/PlayerAdvancements;flushDirty(Lnet/minecraft/server/level/ServerPlayer;Z)V"))
+    private void optimizedFakePlayerTick$skipFlushDirty(PlayerAdvancements advancements, ServerPlayer player, boolean show, Operation<Void> original)
     {
         if (!isFakeOptimized(player))
         {
-            advancements.flushDirty(player, show);
+            original.call(advancements, player, show);
         }
     }
 
@@ -112,14 +113,14 @@ public abstract class ServerPlayerTickMixin
         }
     }
 
-    @Redirect(method = "doTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Inventory;getContainerSize()I"))
-    private int optimizedFakePlayerTick$skipInventoryMapScan(Inventory inventory)
+    @WrapOperation(method = "doTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Inventory;getContainerSize()I"))
+    private int optimizedFakePlayerTick$skipInventoryMapScan(Inventory inventory, Operation<Integer> original)
     {
         if (isFakeOptimized((ServerPlayer) (Object) this))
         {
             return 0;
         }
-        return inventory.getContainerSize();
+        return original.call(inventory);
     }
 
     @Inject(method = "updateScoreForCriteria", at = @At("HEAD"), cancellable = true)
