@@ -31,17 +31,17 @@ public class MobAiSettings extends BaseSetting
     )
     public static double mobAIDelayChance = 0.0D;
 
-    @Rule(categories = {ROF, OPTIMIZATION}, options = {"!minecraft:drowned", "!minecraft:drowned,!minecraft:piglin"},
+    @Rule(categories = {ROF, OPTIMIZATION}, options = {"{}", "{!minecraft:drowned}", "{!minecraft:drowned,!minecraft:piglin}"},
             validators = MobAiEntityListValidator.class, strict = false)
     @QuickTranslations(
             name = "生物AI延迟白名单",
-            description = "可能发生 AI 延迟的生物白名单，逗号分隔；条目可以是实体 ID（minecraft:pig）或实体类型标签（#zombies），前缀 ! 表示排除该项。列表全为排除项时表示「除这些之外的全部」；列表为空时功能不生效。",
+            description = "可能发生 AI 延迟的生物白名单，花括号包裹、逗号分隔；条目可以是实体 ID（minecraft:pig）或实体类型标签（#zombies），前缀 ! 表示排除该项。列表全为排除项时表示「除这些之外的全部」；{} 表示空列表，功能不生效。",
             extra = {
-                    "建议取值：!minecraft:drowned（默认，除溺尸以外的全部生物）、!minecraft:drowned,!minecraft:piglin（再排除猪灵）",
-                    "示例：minecraft:pig,#zombies,!#undead —— 猪与僵尸类生物，但不包括带 undead 标签的",
+                    "建议取值：{!minecraft:drowned}（默认，除溺尸以外的全部生物）、{!minecraft:drowned,!minecraft:piglin}（再排除猪灵）",
+                    "示例：{minecraft:pig,#zombies,!#undead} —— 猪与僵尸类生物，但不包括带 undead 标签的",
                     "先取所有正选条目的并集，再减去所有负选条目；命中任意一个正选条目即可"
             })
-    public static String mobAIDelayWhitelist = "!minecraft:drowned";
+    public static String mobAIDelayWhitelist = "{!minecraft:drowned}";
 
     @Rule(categories = {ROF, OPTIMIZATION}, options = {"3","50", "200"}, strict = false, validators = RestoreTicksValidator.class)
     @QuickTranslations(

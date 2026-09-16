@@ -24,7 +24,10 @@ public abstract class ListSettingValidator<E> extends Validator<String>
     {
         List<E> allowed = new ArrayList<>();
         List<E> denied = new ArrayList<>();
-        String value = newValue == null ? "" : newValue;
+        String value = newValue == null ? "" : newValue.trim();
+        if (value.length() >= 2 && value.startsWith("{") && value.endsWith("}")) {
+            value = value.substring(1, value.length() - 1);
+        }
         for (String raw : value.split(SEPARATOR)) {
             String token = raw.trim();
             if (token.isEmpty()) {
@@ -48,6 +51,6 @@ public abstract class ListSettingValidator<E> extends Validator<String>
     @Override
     public String description()
     {
-        return "逗号分隔的条目列表，条目为" + this.entryDescription() + "；前缀 " + NEGATE_PREFIX + " 表示排除该项。";
+        return "花括号包裹、逗号分隔的条目列表，条目为" + this.entryDescription() + "；前缀 " + NEGATE_PREFIX + " 表示排除该项；{} 表示空列表。";
     }
 }

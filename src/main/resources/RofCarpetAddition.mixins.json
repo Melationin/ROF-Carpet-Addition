@@ -56,7 +56,12 @@
     "rules.piglinRules.EntityMixin",
     "rules.piglinRules.MobMixin",
     "rules.piglinRules.PiglinAiMixin2",
-    "rules.piglinRules.PiglinMixin"
+    "rules.piglinRules.PiglinMixin",
+    "rules.spawnStatistic.ChunkMapMixin",
+    "rules.spawnStatistic.LocalMobCapCalculatorMixin",
+    "rules.spawnStatistic.ServerChunkCacheMixin",
+    "rules.spawnStatistic.ServerLevelMixin",
+    "rules.spawnStatistic.SpawnStateMixin"
   ],
   "injectors": {
     "defaultRequire": 1
