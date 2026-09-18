@@ -20,6 +20,15 @@ public final class ChunkPosHelper
         *///?}
     }
 
+    public static ChunkPos containing(BlockPos pos)
+    {
+        //? if >=26.1 {
+        return ChunkPos.containing(pos);
+        //?}else{
+        /*return new ChunkPos(pos);
+         *///?}
+    }
+
     public static int z(ChunkPos pos)
     {
         //? if >=26.1 {

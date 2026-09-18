@@ -1,6 +1,7 @@
 package com.carpet.rof.mixin.rules.spawnStatistic;
 
 import com.carpet.rof.rules.spawnStatistic.SpawnStateSimplifyAccess;
+import com.carpet.rof.utils.ChunkPosHelper;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
@@ -55,7 +56,7 @@ public abstract class SpawnStateMixin implements SpawnStateSimplifyAccess
         }
         MobCategory category = mob.getType().getCategory();
         this.mobCategoryCounts.addTo(category, 1);
-        this.localMobCapCalculator.addMob(ChunkPos.containing(mob.blockPosition()), category);
+        this.localMobCapCalculator.addMob(ChunkPosHelper.containing(mob.blockPosition()), category);
         ci.cancel();
     }
 }

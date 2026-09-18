@@ -9,6 +9,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
 
@@ -56,9 +57,8 @@ public final class FakePlayerMatrixDebugCommand {
     private static int killFakes(CommandSourceStack source, boolean all) {
         int removed = 0;
         for (ServerPlayer player : List.copyOf(source.getServer().getPlayerList().getPlayers())) {
-            if (player instanceof EntityPlayerMPFake fake
-                    && (all || fake.getGameProfile().name().startsWith(FAKE_PREFIX))) {
-                fake.kill(fake.level());
+            if (player instanceof EntityPlayerMPFake fake) {
+                fake.kill((ServerLevel) ROFWarp.getWorld_(fake));
                 removed++;
             }
         }

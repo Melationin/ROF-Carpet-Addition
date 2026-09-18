@@ -1,5 +1,6 @@
 package com.carpet.rof.rules.spawnStatistic;
 
+import com.carpet.rof.utils.ChunkPosHelper;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -28,7 +29,7 @@ public final class SpawnStatisticSimplifyUtil
             }
             BlockPos pos = entity.blockPosition();
             if (entity instanceof Mob) {
-                localMobCapCalculator.addMob(ChunkPos.containing(pos), category);
+                localMobCapCalculator.addMob(ChunkPosHelper.containing(pos), category);
             }
             mobCounts.addTo(category, 1);
         }

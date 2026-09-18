@@ -38,8 +38,7 @@ public class EnderPearlSettings extends BaseSetting {
 
     @Rule(
             categories = {ROF,OPTIMIZATION,EXPERIMENTAL},
-            options = {"false","true"},
-            strict = true
+            options = {"false","true"}
     )
     @QuickTranslations(
 
@@ -51,7 +50,8 @@ public class EnderPearlSettings extends BaseSetting {
 
     @Rule(
             options = {"0", "50","100","1000"},
-            categories = {ROF,OPTIMIZATION,FEATURE}
+            categories = {ROF,OPTIMIZATION,FEATURE},
+            strict = false
     )@QuickTranslations(
             name = "珍珠加载堵塞主线程",
             description = "让珍珠的区块加载堵塞主线程，减少珍珠tick和世界tick不同步的问题。",

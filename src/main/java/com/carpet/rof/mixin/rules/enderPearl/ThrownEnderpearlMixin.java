@@ -35,19 +35,12 @@ import com.carpet.rof.utils.ChunkPosHelper;
 public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
 {
 
-
-    @Shadow
-    public abstract @Nullable Entity getOwner();
-
     @Unique
     final double MinSpeed = enderPearlForcedTickMinSpeed;
 
     // 是否启用同步状态（冻结 or 物理更新）
     @Unique
     public boolean syncMode = true;
-
-    @Unique
-    private int EPTicks = 1;
 
     // 必须定义的构造函数，调用父类
     protected ThrownEnderpearlMixin(EntityType<?extends ThrowableItemProjectile> entityType, Level world) {
@@ -62,7 +55,6 @@ public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
         Level world = ROFWarp.getWorld_(this);
         if (world instanceof ServerLevel serverWorld) {
             var forcedEntitylist = ExtraWorldDatas.fromWorld(serverWorld ).forcedEntitylist;
-            EPTicks++;
             if (syncMode) {
                 if ((MinSpeed > 0) && (Math.abs(this.getDeltaMovement().x) > MinSpeed || Math.abs(this.getDeltaMovement().z) > MinSpeed)) {//大于最高速度，切换加载逻辑
                     syncMode = false;

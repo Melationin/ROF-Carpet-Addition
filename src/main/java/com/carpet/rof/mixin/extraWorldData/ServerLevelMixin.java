@@ -6,26 +6,20 @@ import com.carpet.rof.accessor.IExtraChunkDataAccessor;
 import com.carpet.rof.extraWorldData.ExtraWorldDatas;
 import com.carpet.rof.utils.ROFIO;
 import com.carpet.rof.utils.ROFTool;
-import com.carpet.rof.utils.singleTaskWorker.SingleTaskWorker;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtAccounter;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.core.Holder;
+
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.*;
-import net.minecraft.server.waypoints.ServerWaypointManager;
-import net.minecraft.util.Util;
+
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.entity.EntityTickList;
 import net.minecraft.world.level.entity.PersistentEntitySectionManager;
-import net.minecraft.world.level.entity.Visibility;
-import net.minecraft.world.level.storage.WritableLevelData;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.dimension.DimensionType;
+
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -85,9 +79,6 @@ public abstract class ServerLevelMixin implements IExtraChunkDataAccessor
     @Shadow
     public abstract void tickNonPassenger(Entity entity);
 
-    @Shadow
-    @Final
-    private ServerWaypointManager waypointManager;
 
     @Unique
     private boolean shouldBeForceLoaded(Entity entity)

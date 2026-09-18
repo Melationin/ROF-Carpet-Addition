@@ -18,8 +18,11 @@ import static com.carpet.rof.rules.enderPearl.EnderPearlSettings.betterEnderPear
 public final class BetterEnderPearlTicket
 {
 
+    //? if >= 1.21.9 {
     public static final TicketType TYPE = new TicketType(40L, TicketType.FLAG_SIMULATION | TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
-
+    //? }else{
+     /*public static final TicketType TYPE = new TicketType(40L, false, TicketType.TicketUse.SIMULATION);
+    *///?}
     public static final int LEVEL = ChunkLevel.byStatus(FullChunkStatus.ENTITY_TICKING);
 
     private BetterEnderPearlTicket() {}
