@@ -1,5 +1,6 @@
 # Rules
 
+**Tip: use `Ctrl+F` to quickly find the rule you need**
 
 ## asyncNaturalSpawning
 
@@ -7,22 +8,35 @@
 
 &emsp; `Falls back to vanilla when data is unavailable or stale`
 
-&emsp;- 类型: `boolean`
+&emsp;- Type: `boolean`
 
-&emsp;- 默认值: `false`
+&emsp;- Default: `false`
 
-&emsp;- 分类: `ROF`, `optimization`, `experimental`
+&emsp;- Categories: `ROF`, `optimization`, `experimental`
 
 
 ## asyncRandomTick
 
 &emsp;Precomputes the next tick's random-tick candidates off-thread; falls back to vanilla when the result is invalid
 
-&emsp;- 类型: `boolean`
+&emsp;- Type: `boolean`
 
-&emsp;- 默认值: `false`
+&emsp;- Default: `false`
 
-&emsp;- 分类: `ROF`, `optimization`, `experimental`
+&emsp;- Categories: `ROF`, `optimization`, `experimental`
+
+
+## betterEnderPearlTicket
+
+&emsp;Replaces the vanilla loading ticket with a special loading ticket in certain cases. When ECM is not enabled, it only applies to pearls outside world height.
+
+&emsp;- Type: `boolean`
+
+&emsp;- Default: `false`
+
+&emsp;- Options: `false`, `true`
+
+&emsp;- Categories: `ROF`, `optimization`, `experimental`
 
 
 ## betterNoAiNbt
@@ -37,140 +51,153 @@
 
 &emsp; `Note: the AI-independent noActionTime no longer accumulates, so the entity will not despawn from 600 ticks of inactivity near a player (same as vanilla NoAI); bosses such as the Ender Dragon or Wither stop their phase progression while tagged`
 
-&emsp;- 类型: `boolean`
+&emsp;- Type: `boolean`
 
-&emsp;- 默认值: `false`
+&emsp;- Default: `false`
 
-&emsp;- 分类: `ROF`, `feature`
+&emsp;- Categories: `ROF`, `feature`
+
+
+## blockingEnderPearlLoading
+
+&emsp;Makes a pearl's chunk loading block the main thread, reducing desync between pearl ticks and world ticks.
+
+&emsp; `The maximum blocking time in milliseconds; set to 0 to disable.`
+
+&emsp;- Type: `int`
+
+&emsp;- Default: `0`
+
+&emsp;- Options: `0`, `50`, `100`, `1000`
+
+&emsp;- Categories: `ROF`, `optimization`, `feature`
 
 
 ## commandEntityID
 
 &emsp;Command to view and control entity IDs
 
-&emsp;- 类型: `String`
+&emsp;- Type: `String`
 
-&emsp;- 默认值: `false`
+&emsp;- Default: `false`
 
-&emsp;- 分类: `ROF`, `feature`, `creative`, `command`
+&emsp;- Categories: `ROF`, `feature`, `creative`, `command`
 
 
 ## commandEntityIDSet
 
 &emsp;Command to set entity IDs
 
-&emsp;- 类型: `String`
+&emsp;- Type: `String`
 
-&emsp;- 默认值: `false`
+&emsp;- Default: `false`
 
-&emsp;- 分类: `ROF`, `feature`, `creative`, `command`
+&emsp;- Categories: `ROF`, `feature`, `creative`, `command`
 
 
 ## commandExceedChunkMarker
 
 &emsp;Controls the permission level of ECM command. Invalid when ECM is not started.
 
-&emsp;- 类型: `String`
+&emsp;- Type: `String`
 
-&emsp;- 默认值: `ops`
+&emsp;- Default: `ops`
 
-&emsp;- 分类: `command`, `ROF`
+&emsp;- Categories: `command`, `ROF`
 
 
 ## commandLoadedChunkFinder
 
 &emsp;Records connected chunks that are active during a certain period, used to find forgotten chunk loaders.
 
-&emsp;- 类型: `String`
+&emsp;- Type: `String`
 
-&emsp;- 默认值: `ops`
+&emsp;- Default: `ops`
 
-&emsp;- 分类: `ROF`, `command`
+&emsp;- Categories: `ROF`, `command`
 
 
 ## commandPacketLoggerPlus
 
 &emsp;Records the pre-compression size of various packets.
 
-&emsp;- 类型: `String`
+&emsp;- Type: `String`
 
-&emsp;- 默认值: `ops`
+&emsp;- Default: `ops`
 
-&emsp;- 分类: `command`, `ROF`
+&emsp;- Categories: `command`, `ROF`
 
 
 ## commandRequirementModify
 
 &emsp;Modify permission requirements of specified commands
 
-&emsp;- 类型: `String`
+&emsp;- Type: `String`
 
-&emsp;- 默认值: `ops`
+&emsp;- Default: `ops`
 
-&emsp;- 分类: `command`, `creative`
+&emsp;- Categories: `command`, `creative`
 
 
 ## commandRulesSearcher
 
 &emsp;Adds a subcommand 'search' to carpet, allowing to search carpet rules by keyword
 
-&emsp;- 类型: `String`
+&emsp;- Type: `String`
 
-&emsp;- 默认值: `true`
+&emsp;- Default: `true`
 
-&emsp;- 分类: `ROF`, `command`
+&emsp;- Categories: `ROF`, `command`
 
 
 ## commandSpawnWhitedListedPlayer
 
 &emsp;Used to summon fake players without prefix
 
-&emsp;- 类型: `String`
+&emsp;- Type: `String`
 
-&emsp;- 默认值: `ops`
+&emsp;- Default: `ops`
 
-&emsp;- 分类: `ROF`, `command`, `creative`
+&emsp;- Categories: `ROF`, `command`, `creative`
 
 
-## enderPearlForcedSync
+## commandTickSprintFull
 
-&emsp;Keeps a pearl's tick in sync with the world tick despite async chunk loading delays
+&emsp;Adds a 'full' argument to /tick sprint that prints the duration of every game tick while sprinting
 
-&emsp;- 类型: `boolean`
+&emsp;- Type: `String`
 
-&emsp;- 默认值: `false`
+&emsp;- Default: `ops`
 
-&emsp;- 参考选项: `false`, `true`
-
-&emsp;- 分类: `ROF`, `optimization`, `feature`
+&emsp;- Categories: `ROF`, `command`
 
 
 ## enderPearlForcedTickMinSpeed
 
-&emsp;Applies new loading logic to ender pearls with speed above a certain threshold, which is more stable and requires fewer loaded chunks.
+&emsp;(Deprecated - the better pearl loading ticket can replace it with better results) Applies new loading logic to ender pearls whose speed is above a certain threshold; this is more stable and requires fewer loaded chunks.
 
 &emsp; `The set value indicates the self-loading speed threshold. Set to a negative value to disable.`
 
 &emsp; `For pearls with the new loading logic, the loading behavior differs significantly from vanilla.`
 
-&emsp;- 类型: `double`
+&emsp;- Type: `double`
 
-&emsp;- 默认值: `-1.0`
+&emsp;- Default: `-1.0`
 
-&emsp;- 参考选项: `16.0`, `-1.0`
+&emsp;- Options: `16.0`, `-1.0`
 
-&emsp;- 分类: `ROF`, `optimization`, `feature`
+&emsp;- Categories: `ROF`, `optimization`, `feature`
 
 
 ## entityIDOverflowPeriod
 
 &emsp;Set to 0 to disable
 
-&emsp;- 类型: `int`
+&emsp;- Type: `int`
 
-&emsp;- 默认值: `0`
+&emsp;- Default: `0`
 
-&emsp;- 分类: `ROF`, `feature`, `creative`
+&emsp;- Categories: `ROF`, `feature`, `creative`
 
 
 ## entitySpawnPacketLimitSeconds
@@ -179,13 +206,13 @@
 
 &emsp; `Set to a negative number to disable`
 
-&emsp;- 类型: `int`
+&emsp;- Type: `int`
 
-&emsp;- 默认值: `-1`
+&emsp;- Default: `-1`
 
-&emsp;- 参考选项: `-1`, `100`
+&emsp;- Options: `-1`, `100`
 
-&emsp;- 分类: `ROF`, `optimization`, `packet`
+&emsp;- Categories: `ROF`, `optimization`, `packet`
 
 
 ## entitySpawnPacketLimitSecondsRecoverTime
@@ -196,13 +223,13 @@
 
 &emsp; `No effect on the per-tick limit`
 
-&emsp;- 类型: `int`
+&emsp;- Type: `int`
 
-&emsp;- 默认值: `200`
+&emsp;- Default: `200`
 
-&emsp;- 参考选项: `-1`, `200`, `100`, `400`
+&emsp;- Options: `-1`, `200`, `100`, `400`
 
-&emsp;- 分类: `ROF`, `optimization`, `packet`
+&emsp;- Categories: `ROF`, `optimization`, `packet`
 
 
 ## entitySpawnPacketLimitTicks
@@ -211,26 +238,26 @@
 
 &emsp; `Set to a negative number to disable`
 
-&emsp;- 类型: `int`
+&emsp;- Type: `int`
 
-&emsp;- 默认值: `-1`
+&emsp;- Default: `-1`
 
-&emsp;- 参考选项: `-1`, `100`, `1000`
+&emsp;- Options: `-1`, `100`, `1000`
 
-&emsp;- 分类: `ROF`, `optimization`, `packet`
+&emsp;- Categories: `ROF`, `optimization`, `packet`
 
 
 ## entitySpawnPacketLimitTicksTrackerDistance
 
 &emsp;Sets the packet sending distance for entities that are limited
 
-&emsp;- 类型: `int`
+&emsp;- Type: `int`
 
-&emsp;- 默认值: `16`
+&emsp;- Default: `16`
 
-&emsp;- 参考选项: `2`, `16`, `64`
+&emsp;- Options: `2`, `16`, `64`
 
-&emsp;- 分类: `ROF`, `optimization`, `packet`
+&emsp;- Categories: `ROF`, `optimization`, `packet`
 
 
 ## exceedChunkMarker
@@ -239,11 +266,26 @@
 
 &emsp; `When enabling for the first time, be sure to load once with /exceedChunkMarker`
 
-&emsp;- 类型: `boolean`
+&emsp;- Type: `boolean`
 
-&emsp;- 默认值: `false`
+&emsp;- Default: `false`
 
-&emsp;- 分类: `ROF`, `experimental`
+&emsp;- Categories: `ROF`, `experimental`
+
+
+## mergeExplosion
+
+&emsp;Merges the multiple explosions produced by one merged TNT into a single explosion, so entities are affected only once. Only applies when TNT merging and explosion optimization are both enabled.
+
+&emsp; `Requires mergeTNTNext to be a mode other than False`
+
+&emsp; `Damage is applied once; knockback is scaled by the merge count, so the total push matches vanilla`
+
+&emsp;- Type: `boolean`
+
+&emsp;- Default: `false`
+
+&emsp;- Categories: `ROF`, `optimization`, `tnt`, `feature`
 
 
 ## mergeTNTNext
@@ -260,11 +302,13 @@
 
 &emsp; `AlmostVanilla should not change TNT behaviour; report any vanilla mismatch as an issue`
 
-&emsp;- 类型: `MergeTNTNextMode`
+&emsp; `SafePlus: merges only at explosion time like AlmostVanilla, but the decision is made in a once-per-tick pre-pass over adjacent same-position TNTs, without rewriting entity tick order`
 
-&emsp;- 默认值: `FALSE`
+&emsp;- Type: `MergeTNTNextMode`
 
-&emsp;- 分类: `ROF`, `optimization`, `tnt`, `feature`
+&emsp;- Default: `FALSE`
+
+&emsp;- Categories: `ROF`, `optimization`, `tnt`, `feature`
 
 
 ## mobAIDelayChance
@@ -275,17 +319,13 @@
 
 &emsp; `The roll result is stored in the entity's MobAi NBT field, so reloading a chunk never re-rolls it; every entity is decided exactly once`
 
-&emsp; `A suppressed entity restores its AI when the restore time elapses and is never suppressed again`
+&emsp;- Type: `double`
 
-&emsp; `Never suppressed: baby mobs (LivingEntity.isBaby) and zombified piglins spawned by a nether portal random tick (they carry a portal cooldown); noActionTime still accumulates, so vanilla 600-tick idle despawn keeps working`
+&emsp;- Default: `0.0`
 
-&emsp;- 类型: `double`
+&emsp;- Options: `0`, `0.5`, `0.9`, `0.95`
 
-&emsp;- 默认值: `0.0`
-
-&emsp;- 参考选项: `0`, `0.1`
-
-&emsp;- 分类: `ROF`, `optimization`
+&emsp;- Categories: `ROF`, `optimization`
 
 
 ## mobAIDelayTicks
@@ -296,107 +336,69 @@
 
 &emsp; `A negative remaining time means 'decided: AI is not suppressed' - that is also the state after the AI has been restored`
 
-&emsp; `It is also the maximum suppression duration; suggested values are 50 (default, 2.5 seconds) and 200 (10 seconds)`
+&emsp;- Type: `int`
 
-&emsp;- 类型: `int`
+&emsp;- Default: `3`
 
-&emsp;- 默认值: `50`
+&emsp;- Options: `3`, `50`, `200`
 
-&emsp;- 参考选项: `50`, `200`
-
-&emsp;- 分类: `ROF`, `optimization`
+&emsp;- Categories: `ROF`, `optimization`
 
 
 ## mobAIDelayWhitelist
 
-&emsp;Comma-separated whitelist of mobs eligible for AI delays. Entries are entity ids (minecraft:pig) or entity type tags (#zombies); prefix an entry with ! to exclude it. A list with only exclusions means 'everything except those'; an empty list disables the feature.
+&emsp;Whitelist of mobs eligible for AI delays, wrapped in braces and comma-separated. Entries are entity ids (minecraft:pig) or entity type tags (#zombies); prefix an entry with ! to exclude it. A list with only exclusions means 'everything except those'; {} disables the feature.
 
-&emsp; `Example: minecraft:pig,#zombies,!#undead - pigs and zombie-like mobs, but never undead ones. Suggested values: !minecraft:drowned (default, every mob except drowned) and !minecraft:drowned,!minecraft:piglin`
+&emsp; `Example: {minecraft:pig,#zombies,!#undead} - pigs and zombie-like mobs, but never undead ones. Suggested values: {!minecraft:drowned} (default, every mob except drowned) and {!minecraft:drowned,!minecraft:piglin}`
 
 &emsp; `Matching: union of all positive entries, minus every negative entry; hitting any positive entry is enough`
 
 &emsp; `Tags are data-pack tags matched by name; a tag that is not loaded behaves as an empty set (matches nothing)`
 
-&emsp; `Invalid entity ids are rejected and the previous value is kept`
+&emsp;- Type: `String`
 
-&emsp;- 类型: `String`
+&emsp;- Default: `{!minecraft:drowned}`
 
-&emsp;- 默认值: `!minecraft:drowned`
+&emsp;- Options: `{}`, `{!minecraft:drowned}`, `{!minecraft:drowned,!minecraft:piglin}`
 
-&emsp;- 参考选项: `!minecraft:drowned`, `!minecraft:drowned,!minecraft:piglin`
-
-&emsp;- 分类: `ROF`, `optimization`
-
-
-## optimizeForcedEnderPearlTick
-
-&emsp;Only available when better pearl self-loading is enabled. In most cases, prevents high-speed pearls from generating new chunks, greatly reducing save size. When ECM is not enabled, only pearls outside world height will not generate chunks.
-
-&emsp; `Known feature: Pearls will ignore entity hitboxes that are not loaded.`
-
-&emsp; `false - Disable optimization`
-
-&emsp; `true - Enable optimization, and pearl behavior matches current version`
-
-&emsp; `1_21_2- - Enable optimization, and pearl behavior matches version 1.21.2 and below`
-
-&emsp; `1_21_2+ - Enable optimization, and pearl behavior matches version 1.21.2 and above`
-
-&emsp;- 类型: `String`
-
-&emsp;- 默认值: `false`
-
-&emsp;- 参考选项: `false`, `true`, `1_21_2-`, `1_21_2+`
-
-&emsp;- 分类: `ROF`, `optimization`, `experimental`
-
-
-## optimizeItemMerge
-
-&emsp;Fills item stacks to a full stack to reduce lag (minor effect)
-
-&emsp; `Partial merging: drops fill up to a full stack first, the remainder stays in the original drop`
-
-&emsp;- 类型: `boolean`
-
-&emsp;- 默认值: `false`
-
-&emsp;- 分类: `ROF`, `optimization`, `feature`
-
-
-## optimizeRaycast
-
-&emsp;Optimizes raycast via ECM. Ensure ECM is enabled and has been loaded from the save before turning on.
-
-&emsp; `Known feature: Projectiles will ignore entity hitboxes at some specific positions.`
-
-&emsp;- 类型: `boolean`
-
-&emsp;- 默认值: `false`
-
-&emsp;- 分类: `ROF`, `optimization`, `experimental`
+&emsp;- Categories: `ROF`, `optimization`
 
 
 ## optimizedClimbableTagCheck
 
 &emsp;Caches the CLIMBABLE block-tag lookup used by Lithium entity pushability checks, reducing repeated tag lookups in LivingEntity.onClimbable. The cache is invalidated after data-pack reloads.
 
-&emsp;- 类型: `boolean`
+&emsp;- Type: `boolean`
 
-&emsp;- 默认值: `false`
+&emsp;- Default: `false`
 
-&emsp;- 分类: `ROF`, `optimization`
+&emsp;- Categories: `ROF`, `optimization`
+
+
+## optimizedEnderPearlTick
+
+&emsp;In most cases, stops flying high-speed pearls from generating new chunks, which can greatly reduce save size. When ECM is not enabled, only pearls outside world height will not generate chunks.
+
+&emsp; `Known feature: Pearls will ignore entity hitboxes that are not loaded.`
+
+&emsp;- Type: `boolean`
+
+&emsp;- Default: `false`
+
+&emsp;- Options: `false`, `true`
+
+&emsp;- Categories: `ROF`, `optimization`, `experimental`
 
 
 ## optimizedEntityCollection
 
 &emsp;Uses a section-local spatial index to optimize Lithium push candidate collection. Entity iteration order may change.
 
-&emsp;- 类型: `boolean`
+&emsp;- Type: `boolean`
 
-&emsp;- 默认值: `false`
+&emsp;- Default: `false`
 
-&emsp;- 分类: `ROF`, `optimization`, `experimental`
+&emsp;- Categories: `ROF`, `optimization`, `experimental`
 
 
 ## optimizedExplosion
@@ -407,19 +409,13 @@
 
 &emsp; `Only same-tick explosions with identical coordinates and power`
 
-&emsp; `State resets at every world tick start and on any block change`
+&emsp;- Type: `int`
 
-&emsp; `Air-only explosions are optimized too: vanilla lists the air positions along each ray, and skipping them changes no block`
+&emsp;- Default: `0`
 
-&emsp; `Skipped explosions consume no raycast random numbers, spawn fewer particles, and report an empty block list to the scarpet explosion event`
+&emsp;- Options: `0`, `4`, `8`, `16`
 
-&emsp;- 类型: `int`
-
-&emsp;- 默认值: `0`
-
-&emsp;- 参考选项: `0`, `4`, `8`, `16`
-
-&emsp;- 分类: `ROF`, `optimization`, `experimental`
+&emsp;- Categories: `ROF`, `optimization`, `experimental`
 
 
 ## optimizedFakePlayerTick
@@ -430,11 +426,37 @@
 
 &emsp; `May affect fake player stats, advancements, scoreboard auto-sync and locator bar display`
 
-&emsp;- 类型: `boolean`
+&emsp;- Type: `boolean`
 
-&emsp;- 默认值: `false`
+&emsp;- Default: `false`
 
-&emsp;- 分类: `ROF`, `optimization`
+&emsp;- Categories: `ROF`, `optimization`
+
+
+## optimizedItemMerge
+
+&emsp;Fills item stacks to a full stack to reduce lag (minor effect)
+
+&emsp; `Partial merging: drops fill up to a full stack first, the remainder stays in the original drop`
+
+&emsp;- Type: `boolean`
+
+&emsp;- Default: `false`
+
+&emsp;- Categories: `ROF`, `optimization`, `feature`
+
+
+## optimizedRaycast
+
+&emsp;Optimizes raycast via ECM. Ensure ECM is enabled and has been loaded from the save before turning on.
+
+&emsp; `Known feature: Projectiles will ignore entity hitboxes at some specific positions.`
+
+&emsp;- Type: `boolean`
+
+&emsp;- Default: `false`
+
+&emsp;- Categories: `ROF`, `optimization`, `experimental`
 
 
 ## particlesPacketsRange
@@ -445,61 +467,78 @@
 
 &emsp; `Forced particle packets use a fixed distance of 512, unaffected by this rule`
 
-&emsp;- 类型: `double`
+&emsp;- Type: `double`
 
-&emsp;- 默认值: `32.0`
+&emsp;- Default: `32.0`
 
-&emsp;- 参考选项: `32.0`, `1.0`, `8.0`
+&emsp;- Options: `32.0`, `1.0`, `8.0`
 
-&emsp;- 分类: `ROF`, `optimization`, `packet`
+&emsp;- Categories: `ROF`, `optimization`, `packet`
 
 
 ## piglinLootItemDelay
 
 &emsp;Only items that have been present for a certain time will be picked up by piglins
 
-&emsp;- 类型: `int`
+&emsp;- Type: `int`
 
-&emsp;- 默认值: `0`
+&emsp;- Default: `0`
 
-&emsp;- 参考选项: `0`, `20`
+&emsp;- Options: `0`, `20`
 
-&emsp;- 分类: `ROF`, `optimization`, `feature`
+&emsp;- Categories: `ROF`, `optimization`, `feature`
 
 
 ## piglinStackingAISuppression
 
 &emsp;For piglins stacked to a certain amount, suppress AI of some of them.
 
-&emsp;- 类型: `int`
+&emsp;- Type: `int`
 
-&emsp;- 默认值: `10000`
+&emsp;- Default: `10000`
 
-&emsp;- 参考选项: `100`, `10000`
+&emsp;- Options: `100`, `10000`
 
-&emsp;- 分类: `ROF`, `optimization`, `feature`
+&emsp;- Categories: `ROF`, `optimization`, `feature`
 
 
 ## randomTickChunkCache
 
 &emsp;Reuses the random-tick chunk list, refreshed every 40 gt; when disabled, vanilla iteration is used
 
-&emsp;- 类型: `boolean`
+&emsp;- Type: `boolean`
 
-&emsp;- 默认值: `false`
+&emsp;- Default: `false`
 
-&emsp;- 分类: `ROF`, `optimization`, `experimental`
+&emsp;- Categories: `ROF`, `optimization`, `experimental`
+
+
+## spawnStatisticSimplifyWhitelist
+
+&emsp;Whitelist of dimensions whose spawn statistic is simplified, wrapped in braces and comma-separated; {} simplifies nothing
+
+&emsp; `Simplification skips the chunk lookup and the biome query inside the spawn statistic`
+
+&emsp; `The result stays identical to vanilla only when no biome of the world defines spawn costs`
+
+&emsp;- Type: `String`
+
+&emsp;- Default: `{}`
+
+&emsp;- Options: `{}`, `{minecraft:overworld}`, `{minecraft:overworld,minecraft:the_end}`
+
+&emsp;- Categories: `ROF`, `optimization`
 
 
 ## spawningChunkCache
 
 &emsp;Reuses the natural-spawning candidate chunk list, refreshed every 40 gt; when disabled, vanilla iteration is used
 
-&emsp;- 类型: `boolean`
+&emsp;- Type: `boolean`
 
-&emsp;- 默认值: `false`
+&emsp;- Default: `false`
 
-&emsp;- 分类: `ROF`, `optimization`, `experimental`
+&emsp;- Categories: `ROF`, `optimization`, `experimental`
 
 
 ## tntPacketOptimization
@@ -508,10 +547,10 @@
 
 &emsp; `May cause client display errors`
 
-&emsp;- 类型: `boolean`
+&emsp;- Type: `boolean`
 
-&emsp;- 默认值: `false`
+&emsp;- Default: `false`
 
-&emsp;- 分类: `ROF`, `optimization`, `packet`
+&emsp;- Categories: `ROF`, `optimization`, `packet`
 
 

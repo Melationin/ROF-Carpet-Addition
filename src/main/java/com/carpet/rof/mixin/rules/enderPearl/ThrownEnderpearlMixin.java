@@ -3,26 +3,21 @@ package com.carpet.rof.mixin.rules.enderPearl;
 // Minecraft 相关导入
 
 import com.carpet.rof.extraWorldData.ExtraWorldDatas;
-import com.carpet.rof.extraWorldData.extraChunkDatas.ExceedChunkMarker;
+import com.carpet.rof.rules.enderPearl.BetterEnderPearlTicket;
 import com.carpet.rof.utils.ROFWarp;
-import com.carpet.rof.utils.ROFTool;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrowableItemProjectile;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.entity.Visibility;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
-import net.minecraft.world.level.chunk.LevelChunk;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -39,6 +34,10 @@ import com.carpet.rof.utils.ChunkPosHelper;
 @Mixin(ThrownEnderpearl.class)
 public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
 {
+
+
+    @Shadow
+    public abstract @Nullable Entity getOwner();
 
     @Unique
     final double MinSpeed = enderPearlForcedTickMinSpeed;
@@ -69,86 +68,18 @@ public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
                     syncMode = false;
                     forcedEntitylist.put(this.getUUID(), this);
                 }
-            }else {
-
+            }
+            else {
                 //? >=1.21.2 {
 
-                if ((Math.abs(this.getDeltaMovement().x) <= MinSpeed && Math.abs(this.getDeltaMovement().z) <= MinSpeed)) {
+                if ((Math.abs(this.getDeltaMovement().x) <= MinSpeed && Math.abs(
+                        this.getDeltaMovement().z) <= MinSpeed)) {
                     forcedEntitylist.put(this.getUUID(), null);
-                    ChunkPos chunkPos = chunkPosition();
                     this.setPos(ROFWarp.getPos_(this));
                     ServerPlayer.placeEnderPearlTicket(serverWorld, chunkPosition());
                     syncMode = true;
-                    return;
                 }
                 //?}
-                if(!optimizedForcedEnderPearlTick.equals("false")){
-                    boolean  canSkip = true;
-                    for (BlockPos blockPos : ROFWarp.getBlockPosIt(this.getBoundingBox())) {
-                        if(!ExceedChunkMarker.mustBeAir((ServerLevel)ROFWarp.getWorld_(this) ,blockPos)
-                        ){
-                            canSkip = false;
-                            break;
-                        }
-                    }
-
-                    boolean over1_21_2 = false;
-                    if(optimizedForcedEnderPearlTick.equals("1_21_2-")){
-                        over1_21_2 = false;
-                    }else if(optimizedForcedEnderPearlTick.equals("1_21_2+")){
-                        over1_21_2 = true;
-                    }else {
-                        //? > 1.21.2 {
-                        over1_21_2 = true;
-                        //?} else {
-                        /*over1_21_2 = false;
-                        *///?}
-                    }
-
-                    if(canSkip) {
-                        if(over1_21_2) {
-                            this.applyGravity();
-                            this.setDeltaMovement(this.getDeltaMovement().scale(0.99));
-                            HitResult hitResult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
-                            Vec3 vec3d;
-                            if (hitResult.getType() != HitResult.Type.MISS) {
-                                vec3d = hitResult.getLocation();
-                            } else {
-                                vec3d = ROFWarp.getPos_(this).add(this.getDeltaMovement());
-                            }
-
-                            this.setPos(vec3d);
-                            this.updateRotation();
-
-                            if (hitResult.getType() != HitResult.Type.MISS && this.isAlive()) {
-                                this.hitTargetOrDeflectSelf(hitResult);
-                            }
-
-                            if (this.isRemoved()) {
-                                forcedEntitylist.remove(this);
-                            }
-                            ci.cancel();
-                        }else {
-                            HitResult hitResult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
-                            if (hitResult.getType() != HitResult.Type.MISS) {
-                                this.hitTargetOrDeflectSelf(hitResult);
-                            }
-                            Vec3 vec3d = this.getDeltaMovement();
-                            double d = this.getX() + vec3d.x;
-                            double e = this.getY() + vec3d.y;
-                            double f = this.getZ() + vec3d.z;
-                            this.updateRotation();
-                            float h= 0.99F;;
-                            this.setDeltaMovement(vec3d.scale((double)h));
-                            this.applyGravity();
-                            this.setPos(d, e, f);
-                            if (this.isRemoved()) {
-                                forcedEntitylist.remove(this);
-                            }
-                            ci.cancel();
-                        }
-                    }
-                }
             }
         }
     }
@@ -175,15 +106,17 @@ public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
                      shift = At.Shift.AFTER))
     private void EndPearlForcedSync(CallbackInfo ci)
     {
-        if (enderPearlForcedSync && this.level() instanceof ServerLevel serverLevel) {
+        if (blockingEnderPearlLoading >0 && this.level() instanceof ServerLevel serverLevel) {
             var chunkPos = this.chunkPosition();
-            serverLevel.getChunk(ChunkPosHelper.x(chunkPos), ChunkPosHelper.z(chunkPos), ChunkStatus.FULL, true);
+            //serverLevel.getChunk(ChunkPosHelper.x(chunkPos), ChunkPosHelper.z(chunkPos), ChunkStatus.FULL, true);
             ExtraWorldDatas.fromWorld(serverLevel)
                     .enderPearlForcedSyncChunks
                     .add(ChunkPosHelper.pack(chunkPos));
-            //serverLevel.entityManager.updateChunkStatus(chunkPos, Visibility.TICKING);
+            serverLevel.entityManager.updateChunkStatus( chunkPos, Visibility.TICKING);
         }
     }
+
+
 
     @Inject(method = "tick", at = @At(value = "RETURN"))
     private void ChunkUnloadingEnd(CallbackInfo ci){
@@ -194,5 +127,19 @@ public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
                 forcedEntitylist.put(this.getUUID(),null);
             }
         }
+    }
+
+
+
+    @WrapOperation(method = "tick",
+                   at = @At(value = "INVOKE",
+                            target = "Lnet/minecraft/server/level/ServerPlayer;registerAndUpdateEnderPearlTicket(Lnet/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl;)J"))
+    private long rof$betterEnderPearlTicket(ServerPlayer player, ThrownEnderpearl pearl, Operation<Long> original)
+    {
+        if(BetterEnderPearlTicket.tryReplaceTicket(pearl, player))
+        {
+            return BetterEnderPearlTicket.vanillaTicketTimer();
+        }
+        return original.call(player, pearl);
     }
 }

@@ -26,6 +26,19 @@
 &emsp;- 分类: `ROF`, `optimization`, `experimental`
 
 
+## 更好的珍珠加载票 (betterEnderPearlTicket)
+
+&emsp;用一种特殊的加载票替代某些情况下原有的加载票。在ECM未打开时，只对世界高度外的珍珠有效
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 参考选项: `false`, `true`
+
+&emsp;- 分类: `ROF`, `optimization`, `experimental`
+
+
 ## 更好的NoAI NBT (betterNoAiNbt)
 
 &emsp;实体带有 NoBrainAI NBT 时跳过其 AI 逻辑（Mob.serverAiStep），但保留重力、流体流动、实体推挤、挤压伤害、爆炸击退、活塞推动与骑乘等被动运动。与原版 NoAI 不同，实体不会悬空静止。
@@ -43,6 +56,21 @@
 &emsp;- 默认值: `false`
 
 &emsp;- 分类: `ROF`, `feature`
+
+
+## 珍珠加载堵塞主线程 (blockingEnderPearlLoading)
+
+&emsp;让珍珠的区块加载堵塞主线程，减少珍珠tick和世界tick不同步的问题。
+
+&emsp; `此处为最大堵塞时间，设置为0表示禁用。`
+
+&emsp;- 类型: `int`
+
+&emsp;- 默认值: `0`
+
+&emsp;- 参考选项: `0`, `50`, `100`, `1000`
+
+&emsp;- 分类: `ROF`, `optimization`, `feature`
 
 
 ## 实体ID命令 (commandEntityID)
@@ -133,22 +161,20 @@
 &emsp;- 分类: `ROF`, `command`, `creative`
 
 
-## 珍珠加载强行同步 (enderPearlForcedSync)
+## 加速逐tick耗时输出 (commandTickSprintFull)
 
-&emsp;防止珍珠加载时因为异步区块加载延迟而导致珍珠tick和世界tick不同步
+&emsp;为 /tick sprint 添加 full 参数，加速时输出每一个游戏刻的耗时
 
-&emsp;- 类型: `boolean`
+&emsp;- 类型: `String`
 
-&emsp;- 默认值: `false`
+&emsp;- 默认值: `ops`
 
-&emsp;- 参考选项: `false`, `true`
-
-&emsp;- 分类: `ROF`, `optimization`, `feature`
+&emsp;- 分类: `ROF`, `command`
 
 
 ## 更好的高速珍珠自加载 (enderPearlForcedTickMinSpeed)
 
-&emsp;对速度高于一定值的珍珠使用新的加载逻辑，更加稳定，需要加载的区块更少。
+&emsp;(已不建议，更好的珍珠加载票可以平替，而且效果更好)对速度高于一定值的珍珠使用新的加载逻辑，更加稳定，需要加载的区块更少。
 
 &emsp; `设置的值表示自加载速度阈值。设置为负值时，表示禁用。`
 
@@ -247,6 +273,21 @@
 &emsp;- 分类: `ROF`, `experimental`
 
 
+## 爆炸合并 (mergeExplosion)
+
+&emsp;把合并TNT产生的多次爆炸合成一次，只对实体作用一次。仅在合并TNT和爆炸优化已启用时生效。
+
+&emsp; `需要 mergeTNTNext 处于非 False 模式`
+
+&emsp; `伤害只结算一次；推力按合并次数补齐，总推力与原版一致`
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `optimization`, `tnt`, `feature`
+
+
 ## 合并TNTnext (mergeTNTNext)
 
 &emsp;更为激进的tnt合并方案, 可能会导致预期之外的结果。不能与其他tnt合并一起开。
@@ -258,6 +299,8 @@
 &emsp; `SAFE: 更安全的爆炸处理方案，让移动中的合并tnt行为与原版一致`
 
 &emsp; `AlmostVanilla: 更接近原版的tnt合并方案，只在tnt爆炸时合并，并且保tnt tick顺序`
+
+&emsp; `SafePlus: 与 AlmostVanilla 一样只在tnt爆炸时合并，但合并判定放在每tick一次的提前遍历里，只合并遍历中相邻的同点位tnt，且不改写实体tick顺序`
 
 &emsp; `理论上，AlmostVanilla 模式不会改变 TNT 行为，因此在纯原版中不应发现相关差异。若出现与原版不一致的情况，请提交 issue。`
 
@@ -280,7 +323,7 @@
 
 &emsp;- 默认值: `0.0`
 
-&emsp;- 参考选项: `0`, `0.1`
+&emsp;- 参考选项: `0`, `0.5`, `0.9`, `0.95`
 
 &emsp;- 分类: `ROF`, `optimization`
 
@@ -295,79 +338,30 @@
 
 &emsp;- 类型: `int`
 
-&emsp;- 默认值: `50`
+&emsp;- 默认值: `3`
 
-&emsp;- 参考选项: `50`, `200`
+&emsp;- 参考选项: `3`, `50`, `200`
 
 &emsp;- 分类: `ROF`, `optimization`
 
 
 ## 生物AI延迟白名单 (mobAIDelayWhitelist)
 
-&emsp;可能发生 AI 延迟的生物白名单，逗号分隔；条目可以是实体 ID（minecraft:pig）或实体类型标签（#zombies），前缀 ! 表示排除该项。列表全为排除项时表示「除这些之外的全部」；列表为空时功能不生效。
+&emsp;可能发生 AI 延迟的生物白名单，花括号包裹、逗号分隔；条目可以是实体 ID（minecraft:pig）或实体类型标签（#zombies），前缀 ! 表示排除该项。列表全为排除项时表示「除这些之外的全部」；{} 表示空列表，功能不生效。
 
-&emsp; `建议取值：!minecraft:drowned（默认，除溺尸以外的全部生物）、!minecraft:drowned,!minecraft:piglin（再排除猪灵）`
+&emsp; `建议取值：{!minecraft:drowned}（默认，除溺尸以外的全部生物）、{!minecraft:drowned,!minecraft:piglin}（再排除猪灵）`
 
-&emsp; `示例：minecraft:pig,#zombies,!#undead —— 猪与僵尸类生物，但不包括带 undead 标签的`
+&emsp; `示例：{minecraft:pig,#zombies,!#undead} —— 猪与僵尸类生物，但不包括带 undead 标签的`
 
 &emsp; `先取所有正选条目的并集，再减去所有负选条目；命中任意一个正选条目即可`
 
 &emsp;- 类型: `String`
 
-&emsp;- 默认值: `!minecraft:drowned`
+&emsp;- 默认值: `{!minecraft:drowned}`
 
-&emsp;- 参考选项: `!minecraft:drowned`, `!minecraft:drowned,!minecraft:piglin`
+&emsp;- 参考选项: `{}`, `{!minecraft:drowned}`, `{!minecraft:drowned,!minecraft:piglin}`
 
 &emsp;- 分类: `ROF`, `optimization`
-
-
-## 优化自加载态珍珠tick (optimizeForcedEnderPearlTick)
-
-&emsp;仅在更好的珍珠自加载启用时可用。让大多数情况下高速珍珠的飞行不生成新区块，可大幅度减少存档体积。在ECM未打开时，只会让世界高度外的珍珠不生成区块
-
-&emsp; `已知特性：珍珠会忽略未加载的实体碰撞箱。`
-
-&emsp; `false - 关闭优化`
-
-&emsp; `true - 开启优化,且珍珠特性符合当前版本`
-
-&emsp; `1_21_2- - 开启优化,且珍珠特性符合1.21.2及以下版本`
-
-&emsp; `1_21_2+ - 开启优化,且珍珠特性符合1.21.2以上版本`
-
-&emsp;- 类型: `String`
-
-&emsp;- 默认值: `false`
-
-&emsp;- 参考选项: `false`, `true`, `1_21_2-`, `1_21_2+`
-
-&emsp;- 分类: `ROF`, `optimization`, `experimental`
-
-
-## 物品合并优化 (optimizeItemMerge)
-
-&emsp;尽量让物品达到一组，以减轻卡顿(效果不明显)
-
-&emsp; `允许部分合并：优先把掉落物填满整组，余量留在原掉落物中`
-
-&emsp;- 类型: `boolean`
-
-&emsp;- 默认值: `false`
-
-&emsp;- 分类: `ROF`, `optimization`, `feature`
-
-
-## raycast优化 (optimizeRaycast)
-
-&emsp;通过ECM优化raycast，开启时请保证ECM已打开且已经从存档加载过
-
-&emsp; `已知特性：投掷物会忽略一些特定位置的实体碰撞箱。`
-
-&emsp;- 类型: `boolean`
-
-&emsp;- 默认值: `false`
-
-&emsp;- 分类: `ROF`, `optimization`, `experimental`
 
 
 ## 可攀爬方块标签判断缓存 (optimizedClimbableTagCheck)
@@ -379,6 +373,21 @@
 &emsp;- 默认值: `false`
 
 &emsp;- 分类: `ROF`, `optimization`
+
+
+## 优化珍珠tick (optimizedEnderPearlTick)
+
+&emsp;让大多数情况下高速珍珠的飞行不生成新区块，可大幅度减少存档体积。在ECM未打开时，只会让世界高度外的珍珠不生成区块
+
+&emsp; `已知特性：珍珠会忽略未加载的实体碰撞箱。`
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 参考选项: `false`, `true`
+
+&emsp;- 分类: `ROF`, `optimization`, `experimental`
 
 
 ## 实体推挤收集优化 (optimizedEntityCollection)
@@ -422,6 +431,32 @@
 &emsp;- 默认值: `false`
 
 &emsp;- 分类: `ROF`, `optimization`
+
+
+## 物品合并优化 (optimizedItemMerge)
+
+&emsp;尽量让物品达到一组，以减轻卡顿(效果不明显)
+
+&emsp; `允许部分合并：优先把掉落物填满整组，余量留在原掉落物中`
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `optimization`, `feature`
+
+
+## raycast优化 (optimizedRaycast)
+
+&emsp;通过ECM优化raycast，开启时请保证ECM已打开且已经从存档加载过
+
+&emsp; `已知特性：投掷物会忽略一些特定位置的实体碰撞箱。`
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `optimization`, `experimental`
 
 
 ## 粒子包发包距离 (particlesPacketsRange)
@@ -476,6 +511,23 @@
 &emsp;- 默认值: `false`
 
 &emsp;- 分类: `ROF`, `optimization`, `experimental`
+
+
+## 刷怪统计化简白名单 (spawnStatisticSimplifyWhitelist)
+
+&emsp;刷怪统计被化简的世界白名单，花括号包裹、逗号分隔的维度 ID；{} 表示任何世界都不化简。
+
+&emsp; `化简会跳过刷怪统计中的区块查找与生物群系查询`
+
+&emsp; `只有世界中任何生物群系都没有刷怪密度限制时，化简的结果才与原版完全一致`
+
+&emsp;- 类型: `String`
+
+&emsp;- 默认值: `{}`
+
+&emsp;- 参考选项: `{}`, `{minecraft:overworld}`, `{minecraft:overworld,minecraft:the_end}`
+
+&emsp;- 分类: `ROF`, `optimization`
 
 
 ## 生物生成区块延迟缓存 (spawningChunkCache)

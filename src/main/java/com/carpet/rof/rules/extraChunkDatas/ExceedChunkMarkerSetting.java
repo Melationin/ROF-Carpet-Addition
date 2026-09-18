@@ -17,7 +17,7 @@ public class ExceedChunkMarkerSetting extends BaseSetting {
     @QuickTranslations(
             name = "超高度区块标记器(ECM)",
             description = "Raycast优化前置，可能会造成额外的存储空间(一般只会增加存档的0.1%以下)",
-            extra = "在第一次启用时，务必使用/exceedChunkMarker 加载一次"
+            extra = {"在第一次启用时，务必使用/exceedChunkMarker 加载一次"}
     )
     public static boolean exceedChunkMarker = false;
 

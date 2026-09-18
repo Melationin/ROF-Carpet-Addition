@@ -92,3 +92,12 @@
 &emsp;&emsp;- `/player <name> spawn original - 召唤一个无前缀假人`
 
 
+## 加速逐tick耗时输出 (commandTickSprintFull)
+
+&emsp;为 /tick sprint 添加 full 参数，加速时输出每一个游戏刻的耗时
+
+&emsp;&emsp;- `/tick sprint <time> full - 加速指定时间，并逐gt输出耗时`
+
+&emsp;&emsp;- `加速结束时输出耗时统计（平均 / p50 / p95 / p99 / 最大 / 等效tps）`
+
+

@@ -1,5 +1,6 @@
 # Commands
 
+**Tip: use `Ctrl+F` to quickly find the command you need**
 
 ## commandEntityID
 
@@ -89,5 +90,14 @@
 &emsp;Used to summon fake players without prefix
 
 &emsp;&emsp;- `/player <name> spawn original - summon a fake player without prefix`
+
+
+## commandTickSprintFull
+
+&emsp;Adds a 'full' argument to /tick sprint that prints the duration of every game tick while sprinting
+
+&emsp;&emsp;- `/tick sprint <time> full - Sprint for the given time and print each tick's duration`
+
+&emsp;&emsp;- `Prints a duration summary (average/p50/p95/p99/max/tps) when the sprint ends`
 
 

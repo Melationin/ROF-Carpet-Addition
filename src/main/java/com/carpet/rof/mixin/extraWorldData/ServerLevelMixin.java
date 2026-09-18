@@ -14,10 +14,12 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.Holder;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerChunkCache;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.*;
+import net.minecraft.server.waypoints.ServerWaypointManager;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.entity.EntityTickList;
 import net.minecraft.world.level.entity.PersistentEntitySectionManager;
 import net.minecraft.world.level.entity.Visibility;
@@ -34,8 +36,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 
+import static com.carpet.rof.rules.enderPearl.EnderPearlSettings.blockingEnderPearlLoading;
 import static com.carpet.rof.rules.extraChunkDatas.ExceedChunkMarkerSetting.exceedChunkMarker;
 import com.carpet.rof.utils.ChunkPosHelper;
 
@@ -81,6 +85,10 @@ public abstract class ServerLevelMixin implements IExtraChunkDataAccessor
     @Shadow
     public abstract void tickNonPassenger(Entity entity);
 
+    @Shadow
+    @Final
+    private ServerWaypointManager waypointManager;
+
     @Unique
     private boolean shouldBeForceLoaded(Entity entity)
     {
@@ -95,20 +103,63 @@ public abstract class ServerLevelMixin implements IExtraChunkDataAccessor
 
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/entity/EntityTickList;forEach(Ljava/util/function/Consumer;)V"))
-    void ForceLoadedEntity(BooleanSupplier shouldKeepTicking, CallbackInfo ci){
+    void ForceLoadedEntity(BooleanSupplier haveTime, CallbackInfo ci){
 
-        var tickChunkList = ExtraWorldDatas.fromWorld((ServerLevel) (Object)this).enderPearlForcedSyncChunks;
+        ServerLevel level = (ServerLevel)(Object)this;
 
-        for(var chunkPos : tickChunkList){
-            entityManager.updateChunkStatus(ChunkPosHelper.unpack(chunkPos), Visibility.TICKING);
+        var tickChunkList = ExtraWorldDatas.fromWorld(level).enderPearlForcedSyncChunks;
+
+        MinecraftServer server = level.getServer();
+        long[] snapshot = tickChunkList .toLongArray();            // 快照迭代，避免并发修改
+        long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(blockingEnderPearlLoading);
+        ServerChunkCache chunkSource = level.getChunkSource();
+        ChunkMap chunkMap = chunkSource.chunkMap;
+        // ★ 关键前置：让票据等级真正生效（见 §三.3）
+
+        int it[] = new int[1];
+        it[0] = 0;
+        server.managedBlock(() ->
+        {
+            if (System.nanoTime() >= deadline) {
+                //ROFTool.rDEBUG("b: deadline");
+                return true;
+            }
+            level.entityManager.processPendingLoads();
+            for(;it[0] < snapshot.length; ) {
+                long key = snapshot[it[0]];
+
+                boolean simulationReady = chunkMap.getDistanceManager().inEntityTickingRange(key);
+                if (!simulationReady) {
+                    //ROFTool.rDEBUG("b: simulationReady");
+                    return true;
+                }
+                ChunkHolder holder = chunkMap.getUpdatingChunkIfPresent(key);
+                if (holder != null && holder.getFullStatus().isOrAfter(FullChunkStatus.ENTITY_TICKING)) {
+                    ChunkResult<LevelChunk> result = holder.getEntityTickingChunkFuture().getNow(null);
+
+                    if (result == null) {
+                        return false;
+                    }
+
+                }
+                boolean visibilityReady = entityManager.isTicking(ChunkPosHelper.unpack(key));
+
+                boolean entitiesLoaded = entityManager.areEntitiesLoaded(key);
+
+                if(!visibilityReady || !entitiesLoaded) return false;
+                ++it[0];
+            }
+            return true;
+        });
+
+        // 只摘掉已就绪的；未就绪的留在表里，下一 tick 再试（或按你的策略丢弃并记日志）
+        for (long key : snapshot) {
+            if (level.areEntitiesLoaded(key)) tickChunkList.remove(key);
         }
-        tickChunkList.clear();
 
         if(!this.server.tickRateManager().runsNormally()) return;
         var forcedEntitylist = ExtraWorldDatas.fromWorld((ServerLevel)(Object)this).forcedEntitylist;
-        if(!forcedEntitylist.isEmpty()){
-            ROFTool.rDEBUG("size：" + forcedEntitylist.size());
-        }
+
         forcedEntitylist.entrySet().removeIf(entry -> entry.getValue() == null||entry.getValue().isRemoved());
         forcedEntitylist.forEach((uuid,entity) -> {
             if(shouldBeForceLoaded(entity)){
@@ -116,6 +167,16 @@ public abstract class ServerLevelMixin implements IExtraChunkDataAccessor
             }
         });
     }
+
+    @Unique
+    private boolean isReadyToEntityTick(ServerLevel level, long key) {
+        ChunkPos cp = ChunkPosHelper.unpack(key);          // ChunkPosHelper.java:32 → ChunkPos.unpack(long)
+        return level.entityManager.canPositionTick(cp)                                        // A：可见性 TICKING
+                && level.getChunkSource().chunkMap.getDistanceManager().inEntityTickingRange(key) // B：模拟票 ≤31
+                && level.areEntitiesLoaded(key);                                                  // C：数据已入库
+    }
+
+
 
     @Inject(method = "<init>",
             at = @At(value = "RETURN"))
