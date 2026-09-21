@@ -8,6 +8,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 //? if >=26.1 {
 import net.minecraft.world.entity.ai.ActivityData;
 //?}
+import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.BehaviorControl;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.monster.piglin.PiglinAi;
@@ -74,8 +75,8 @@ public abstract class PiglinAiMixin2
     /*@WrapOperation(method = {"initCoreActivity","initIdleActivity"},at = @At(value = "INVOKE",
                                                         target = "Lnet/minecraft/world/entity/ai/Brain;addActivity(Lnet/minecraft/world/entity/schedule/Activity;ILcom/google/common/collect/ImmutableList;)V"))
     private static void rof$coreAndIdleWrapper(Brain<Piglin> brain, Activity activity, int priorityOfFirstBehavior,
-                                                     ImmutableList<? extends BehaviorControl<? super Piglin>> behaviorList,
-                                                     Operation<Void> original)
+                                               ImmutableList<? extends BehaviorControl<? super Piglin>> behaviorList,
+                                               Operation<Void> original)
     {
         original.call(brain, activity, priorityOfFirstBehavior, rof$wrap(behaviorList));
     }
