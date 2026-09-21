@@ -49,14 +49,14 @@ public abstract class PrimedTntMixin extends Entity implements PrimedTntAccessor
 
     @PublicField
     @Unique
-    private int rof$mergedTNTNCount = 1;
+    private int mergedTNTNCount = 1;
 
     @Unique
     private Vec3 rof$lastExplosionPos;
 
     @Override
     public void rof$addMergeCount(int mergeCount){
-        rof$mergedTNTNCount += mergeCount;
+        mergedTNTNCount += mergeCount;
     };
    // private int mergedTNTNCount2 = 1;
 
@@ -75,16 +75,17 @@ public abstract class PrimedTntMixin extends Entity implements PrimedTntAccessor
     private float explosionPower;
 
     @Override
-    public int rof$getRof$mergedTNTNCount()
+    public int rof$getMergedTNTNCount()
     {
-        return this.rof$mergedTNTNCount;
+        return this.mergedTNTNCount;
     }
 
     @Override
-    public void rof$setRof$mergedTNTNCount(int value)
+    public void rof$setMergedTNTNCount(int value)
     {
-        this.rof$mergedTNTNCount = value;
+        this.mergedTNTNCount = value;
     }
+
 
     public PrimedTntMixin(EntityType<?> type, Level world) {
         super(type, world);
@@ -99,7 +100,7 @@ public abstract class PrimedTntMixin extends Entity implements PrimedTntAccessor
             HashMap<MergeSetting.EntityPosAndVec, PrimedTnt> tntMergeMap = ExtraWorldDatas.fromWorld(world).mergeTntMap;
             tntMergeMap.compute(TntPosAndVec,(k,tnt)->{
                 if(tnt!=null){
-                    PrimedTntAccessor.of(tnt).rof$addMergeCount(rof$mergedTNTNCount);
+                    PrimedTntAccessor.of(tnt).rof$addMergeCount(mergedTNTNCount);
                     this.remove(RemovalReason.DISCARDED);
                     ci.cancel();
                     return tnt;
@@ -144,11 +145,11 @@ public abstract class PrimedTntMixin extends Entity implements PrimedTntAccessor
                     tnt.discard();
                 }
             }
-            rof$mergedTNTNCount = count;
+            mergedTNTNCount = count;
         }
 
         if(mergeTNTNext == MergeSetting.MergeTNTNextMode.SAFE || mergeTNTNext == MergeSetting.MergeTNTNextMode.ALMOST_VANILLA || mergeTNTNext == MergeSetting.MergeTNTNextMode.SAFE_PLUS) {
-            if(this.getFuse() != 1 || this.rof$mergedTNTNCount  < 2)return;
+            if(this.getFuse() != 1 || this.mergedTNTNCount  < 2)return;
             this.handlePortal();
 
             double x = this.getX();
@@ -156,7 +157,7 @@ public abstract class PrimedTntMixin extends Entity implements PrimedTntAccessor
             double z = this.getZ();
             ExplosionMergeData data = ExtraWorldDatas.fromWorld(level).explosionMergeData;
 
-            for (int i = 0; i < rof$mergedTNTNCount; i++) {
+            for (int i = 0; i < mergedTNTNCount; i++) {
                 var vec = this.getDeltaMovement();
                 this.applyGravity();
                 this.move(MoverType.SELF, this.getDeltaMovement());
@@ -168,7 +169,7 @@ public abstract class PrimedTntMixin extends Entity implements PrimedTntAccessor
                 this.setPos(x, y, z);
                 Vec3 explosionPos = new Vec3(x2, y2, z2);
                 data.explosionCount = 1;
-                data.needExplosionCount = explosionPos.equals(rof$lastExplosionPos) ? rof$mergedTNTNCount - i : 1;
+                data.needExplosionCount = explosionPos.equals(rof$lastExplosionPos) ? mergedTNTNCount - i : 1;
                 rof$lastExplosionPos = explosionPos;
                 explode2(x2, y2, z2);
                 i += data.explosionCount - 1;
@@ -214,12 +215,12 @@ public abstract class PrimedTntMixin extends Entity implements PrimedTntAccessor
 
     @Inject(method = "explode", at = @At(value = "HEAD"), cancellable = true)
     private void onExplode(CallbackInfo ci) {
-        if (rof$mergedTNTNCount > 1) {
+        if (mergedTNTNCount > 1) {
             if (!(ROFWarp.getWorld_(this) instanceof ServerLevel level)) return;
             ExplosionMergeData data = ExtraWorldDatas.fromWorld(level).explosionMergeData;
-            for (int i = 0; i < rof$mergedTNTNCount - 1; i++) {
+            for (int i = 0; i < mergedTNTNCount - 1; i++) {
                 data.explosionCount = 1;
-                data.needExplosionCount = rof$mergedTNTNCount - i;
+                data.needExplosionCount = mergedTNTNCount - i;
                 level.explode(this, this.getX(), this.getY(0.0625),
                         this.getZ(), this.explosionPower, Level.ExplosionInteraction.TNT);
                 if (data.explosionCount > 1) {
@@ -230,7 +231,7 @@ public abstract class PrimedTntMixin extends Entity implements PrimedTntAccessor
             data.explosionCount = 1;
             data.needExplosionCount = 1;
         }
-        else if (rof$mergedTNTNCount == 0) {
+        else if (mergedTNTNCount == 0) {
             ci.cancel();
         }
 
@@ -239,28 +240,28 @@ public abstract class PrimedTntMixin extends Entity implements PrimedTntAccessor
     //? >= 1.21.6 {
     @Inject(method = "addAdditionalSaveData", at = @At(value = "HEAD"))
     private void writeCustomData(ValueOutput view, CallbackInfo ci) {
-        if (rof$mergedTNTNCount > 1) {
-            view.putInt("mergedTNT", rof$mergedTNTNCount);
+        if (mergedTNTNCount > 1) {
+            view.putInt("mergedTNT", mergedTNTNCount);
         }
     }
 
     @Inject(method = "readAdditionalSaveData", at = @At(value = "HEAD"))
     private void readCustomData(ValueInput view, CallbackInfo ci) {
-        view.getInt("mergedTNT").ifPresent(integer -> rof$mergedTNTNCount = integer);
+        view.getInt("mergedTNT").ifPresent(integer -> mergedTNTNCount = integer);
     }
 
     //?} else {
 
     /*@Inject(method = "addAdditionalSaveData", at = @At(value = "HEAD"))
     private void writeCustomData(CompoundTag tag, CallbackInfo ci) {
-        if (rof$mergedTNTNCount > 1) {
-            tag.putInt("mergedTNT", rof$mergedTNTNCount);
+        if (mergedTNTNCount > 1) {
+            tag.putInt("mergedTNT", mergedTNTNCount);
         }
     }
 
     @Inject(method = "readAdditionalSaveData", at = @At(value = "HEAD"))
     private void readCustomData(CompoundTag tag, CallbackInfo ci) {
-        rof$mergedTNTNCount = tag.getIntOr("mergedTNT", rof$mergedTNTNCount);
+        mergedTNTNCount = tag.getIntOr("mergedTNT", mergedTNTNCount);
     }
     *///?}
 

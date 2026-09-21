@@ -7,4 +7,8 @@ public interface PrimedTntAccessor
         return (PrimedTntAccessor) object;
     }
     void rof$addMergeCount(int mergeCount);
+
+    int rof$getMergedTNTNCount();
+
+    void rof$setMergedTNTNCount(int value);
 }
