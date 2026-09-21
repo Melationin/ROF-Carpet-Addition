@@ -1,8 +1,8 @@
 package com.carpet.rof.mixin.rules.merge;
 
-import com.carpet.rof.rules.merge.EntityTickOrderAccessor;
+import com.carpet.rof.mixinAccessor.EntityAccessor;
+import com.carpet.rof.mixinAccessor.PrimedTntAccessor;
 import com.carpet.rof.rules.merge.MergeSetting;
-import com.carpet.rof.rules.merge.MergedEntityAccessor;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -51,7 +51,7 @@ public class ServerLevelMixin
                         new Vec3(tnt.getX(), tnt.getY(), tnt.getZ()), tnt.getDeltaMovement(), tnt.getFuse());
                 if (leader[0] != null && key.equals(leaderKey[0]))
                 {
-                    ((MergedEntityAccessor) leader[0]).ROF$addMergeCount(1);
+                    PrimedTntAccessor.of(leader[0]).rof$addMergeCount(1);
                     tnt.remove(Entity.RemovalReason.DISCARDED);
                 }
                 else
@@ -67,12 +67,12 @@ public class ServerLevelMixin
         this.entityTickList.forEach(entity -> {
             if (rof$willTick(entity))
             {
-                ((EntityTickOrderAccessor)(Object)entity).rof$setTickOrder(tickOrder.get());
+                EntityAccessor.of(entity).rof$setTickOrder(tickOrder.get());
                 tickOrder.getAndIncrement();
             }
             else
             {
-                ((EntityTickOrderAccessor)(Object)entity).rof$setTickOrder(-1);
+                EntityAccessor.of(entity).rof$setTickOrder(-1);
             }
         });
     }

@@ -38,6 +38,12 @@ public final class AsyncNaturalSpawner
     {
     }
 
+    public static void collect(LevelChunk chunk, List<MobCategory> categories)
+    {
+        if (AsyncSettings.asyncNaturalSpawning && !categories.isEmpty())
+            BATCH.add(new Work(chunk, List.copyOf(categories)));
+    }
+
     public static boolean consume(ServerLevel level, LevelChunk chunk, NaturalSpawner.SpawnState state, List<MobCategory> categories)
     {
         SpawnResult result = ((AsyncNaturalSpawnerChunk) chunk).rof$getAsyncSpawnResult();
@@ -47,8 +53,6 @@ public final class AsyncNaturalSpawner
             DebugStats.recordNaturalSpawnDecision(consumed);
         if (consumed)
             consumePlan(level, chunk, state, categories, result.candidates());
-        if (AsyncSettings.asyncNaturalSpawning && !categories.isEmpty())
-            BATCH.add(new Work(chunk, List.copyOf(categories)));
         return consumed;
     }
 

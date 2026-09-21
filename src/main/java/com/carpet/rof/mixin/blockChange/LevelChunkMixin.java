@@ -1,7 +1,8 @@
 package com.carpet.rof.mixin.blockChange;
 
-import com.carpet.rof.blockChange.ChunkBlockChangeAccess;
-import com.carpet.rof.blockChange.LevelBlockChangeAccess;
+import com.carpet.rof.annotation.PublicField;
+import com.carpet.rof.mixinAccessor.LevelAccessor;
+import com.carpet.rof.mixinAccessor.LevelChunkAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -15,16 +16,18 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LevelChunk.class)
-public abstract class LevelChunkMixin implements ChunkBlockChangeAccess
+public abstract class LevelChunkMixin implements  LevelChunkAccessor
 {
     @Shadow
     @Final
     private Level level;
+
+    @PublicField(mutable = false)
     @Unique
     private int rof$blockChangeStamp = 0;
 
     @Override
-    public int rof$getBlockChangeStamp()
+    public int rof$getRof$blockChangeStamp()
     {
         return this.rof$blockChangeStamp;
     }
@@ -33,6 +36,6 @@ public abstract class LevelChunkMixin implements ChunkBlockChangeAccess
     private void rof$bumpBlockChangeStamp(BlockPos pos, BlockState state, int flags, CallbackInfoReturnable<BlockState> cir)
     {
         this.rof$blockChangeStamp++;
-        ((LevelBlockChangeAccess)this.level).rof$blockChangeStampAdd();
+        LevelAccessor.of(level).rof$blockChangeStampAdd();
     }
 }

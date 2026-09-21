@@ -1,7 +1,7 @@
 package com.carpet.rof.mixin.rules.mobAi;
 
+import com.carpet.rof.mixinAccessor.MobAccessor;
 import com.carpet.rof.rules.betterNoAi.BetterNoAiSettings;
-import com.carpet.rof.rules.betterNoAi.NoBrainAiAccess;
 import com.carpet.rof.rules.mobAi.MobAiSettings;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -84,7 +84,7 @@ public class MobMixin
             this.rof$mobAiRemaining = MobAiSettings.KEEP_AI;
             return;
         }
-        if (BetterNoAiSettings.betterNoAiNbt && this instanceof NoBrainAiAccess access && access.rof$hasNoBrainAi()) {
+        if (BetterNoAiSettings.betterNoAiNbt && this instanceof MobAccessor access && access.rof$getNoBrainAi()) {
             // 由 betterNoAi 取消 AI，保持其 noActionTime 语义。
             return;
         }

@@ -22,5 +22,6 @@ public class NaturalSpawnerMixin
     {
         if (AsyncNaturalSpawner.consume(level, chunk, state, categories))
             ci.cancel();
+        AsyncNaturalSpawner.collect(chunk,categories);
     }
 }

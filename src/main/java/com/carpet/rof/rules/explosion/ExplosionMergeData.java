@@ -1,7 +1,8 @@
 package com.carpet.rof.rules.explosion;
 
-import com.carpet.rof.blockChange.LevelBlockChangeAccess;
 import com.carpet.rof.debug.OptimizedExplosionStats;
+import com.carpet.rof.mixinAccessor.EntityAccessor;
+import com.carpet.rof.mixinAccessor.LevelAccessor;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -81,12 +82,12 @@ public class ExplosionMergeData
 
     public void captureBlockStamp()
     {
-        this.levelStamp = ((LevelBlockChangeAccess) this.level).rof$getBlockChangeStamp();
+        this.levelStamp = LevelAccessor.of(this.level).rof$getBlockChangeStamp();
     }
 
     public boolean isBlockVerdictValid()
     {
-        return this.levelStamp == ((LevelBlockChangeAccess) this.level).rof$getBlockChangeStamp();
+        return this.levelStamp == LevelAccessor.of(this.level).rof$getBlockChangeStamp();
     }
 
     public void clear()
@@ -151,7 +152,7 @@ public class ExplosionMergeData
      */
     public float cachedExposure(Entity entity)
     {
-        ExposureCacheAccess access = (ExposureCacheAccess) entity;
+        EntityAccessor access = EntityAccessor.of(entity);
         int stamp = access.rof$getExposureStamp();
         if (stamp != this.exposureStamp)
         {
@@ -173,7 +174,7 @@ public class ExplosionMergeData
         int index = this.entities.indexOf(entity);
         if (index < 0) return;
         this.exposures.set(index, value);
-        ExposureCacheAccess access = (ExposureCacheAccess) entity;
+        EntityAccessor access = EntityAccessor.of(entity);
         access.rof$setExposureIndex(index);
         access.rof$setExposureStamp(this.exposureStamp);
     }

@@ -1,6 +1,7 @@
 package com.carpet.rof.mixin.rules.piglinRules;
 
-import com.carpet.rof.rules.piglinRules.PiglinEntityAccessor;
+import com.carpet.rof.annotation.PublicField;
+import com.carpet.rof.mixinAccessor.PiglinAccessor;
 import com.carpet.rof.utils.ROFTool;
 import com.carpet.rof.utils.ROFWarp;
 
@@ -29,22 +30,29 @@ import net.minecraft.world.level.storage.ValueOutput;
 import static com.carpet.rof.rules.piglinRules.PiglinRulesSettings.piglinStackingAISuppression;
 
 @Mixin(Piglin.class)
-public abstract class PiglinMixin extends AbstractPiglin implements PiglinEntityAccessor
+public abstract class PiglinMixin extends AbstractPiglin implements PiglinAccessor
 {
 
-    @Unique public int nearPiglinCount = 0;
-    @Unique public boolean suppressingAI = false;
+    @Unique
+    private int nearPiglinCount = 0;
+
+    @PublicField(mutable = false)
+    @Unique
+    private boolean suppressingAI = false;
+
+    @Override
+    public boolean rof$getSuppressingAI()
+    {
+        return this.suppressingAI;
+    }
+
+
+
 
     public PiglinMixin(EntityType<? extends AbstractPiglin> entityType, Level world)
     {
         super(entityType, world);
     }
-
-    public boolean rof$getSuppressingAI()
-    {
-        return suppressingAI;
-    }
-
 
 
     @Inject(method = "customServerAiStep", at = @At(value = "HEAD"))
@@ -82,6 +90,7 @@ public abstract class PiglinMixin extends AbstractPiglin implements PiglinEntity
     {
         view.getInt("nearPiglinCount").ifPresent(integer -> nearPiglinCount = integer);
     }
+
     //?} else {
 
     /*@Inject(method = "addAdditionalSaveData", at = @At(value = "HEAD"))

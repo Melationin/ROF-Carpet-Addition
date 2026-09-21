@@ -1,16 +1,17 @@
 package com.carpet.rof.mixin.rules.merge;
 
 
+import com.carpet.rof.annotation.PublicField;
 import com.carpet.rof.extraWorldData.ExtraWorldDatas;
+import com.carpet.rof.mixinAccessor.EntityAccessor;
+import com.carpet.rof.mixinAccessor.PrimedTntAccessor;
 import com.carpet.rof.rules.explosion.ExplosionMergeData;
-import com.carpet.rof.rules.merge.EntityTickOrderAccessor;
 import com.carpet.rof.rules.merge.MergeSetting;
-import com.carpet.rof.rules.merge.MergedEntityAccessor;
+
 import com.carpet.rof.utils.ROFWarp;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
 
 import net.minecraft.server.level.ServerLevel;
@@ -25,7 +26,6 @@ import net.minecraft.world.level.storage.ValueOutput;
 *///?}
 
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -41,12 +41,13 @@ import java.util.HashMap;
 import static com.carpet.rof.rules.merge.MergeSetting.mergeTNTNext;
 
 @Mixin(PrimedTnt.class)
-public abstract class PrimedTntMixin extends Entity implements MergedEntityAccessor
+public abstract class PrimedTntMixin extends Entity implements PrimedTntAccessor
 {
 
 
 
 
+    @PublicField
     @Unique
     private int rof$mergedTNTNCount = 1;
 
@@ -54,7 +55,7 @@ public abstract class PrimedTntMixin extends Entity implements MergedEntityAcces
     private Vec3 rof$lastExplosionPos;
 
     @Override
-    public void ROF$addMergeCount(int mergeCount){
+    public void rof$addMergeCount(int mergeCount){
         rof$mergedTNTNCount += mergeCount;
     };
    // private int mergedTNTNCount2 = 1;
@@ -73,6 +74,18 @@ public abstract class PrimedTntMixin extends Entity implements MergedEntityAcces
     @Shadow
     private float explosionPower;
 
+    @Override
+    public int rof$getRof$mergedTNTNCount()
+    {
+        return this.rof$mergedTNTNCount;
+    }
+
+    @Override
+    public void rof$setRof$mergedTNTNCount(int value)
+    {
+        this.rof$mergedTNTNCount = value;
+    }
+
     public PrimedTntMixin(EntityType<?> type, Level world) {
         super(type, world);
     }
@@ -86,9 +99,7 @@ public abstract class PrimedTntMixin extends Entity implements MergedEntityAcces
             HashMap<MergeSetting.EntityPosAndVec, PrimedTnt> tntMergeMap = ExtraWorldDatas.fromWorld(world).mergeTntMap;
             tntMergeMap.compute(TntPosAndVec,(k,tnt)->{
                 if(tnt!=null){
-                    ((MergedEntityAccessor) tnt).ROF$addMergeCount(rof$mergedTNTNCount);
-                    MergedEntityAccessor thisAccessor = this;
-                    thisAccessor.ROF$addMergeCount(rof$mergedTNTNCount);
+                    PrimedTntAccessor.of(tnt).rof$addMergeCount(rof$mergedTNTNCount);
                     this.remove(RemovalReason.DISCARDED);
                     ci.cancel();
                     return tnt;
@@ -116,16 +127,16 @@ public abstract class PrimedTntMixin extends Entity implements MergedEntityAcces
                 if(this.getX() != tnt.getX() || this.getY() != tnt.getY() || this.getZ() != tnt.getZ()) return false;
                 if(!this.getDeltaMovement().equals(tnt.getDeltaMovement())) return false;
                 if(
-                        ((EntityTickOrderAccessor)(Object)(this)).rof$getTickOrder()>=((EntityTickOrderAccessor)(Object)(tnt)).rof$getTickOrder()
+                        EntityAccessor.of(this).rof$getTickOrder()>=EntityAccessor.of(tnt).rof$getTickOrder()
                 ) return false;
                 return true;
             });
 
-            list.sort(Comparator.comparingLong(tnt -> ((EntityTickOrderAccessor) (Object) (tnt)).rof$getTickOrder()));
-            long now = ((EntityTickOrderAccessor)(Object)(this)).rof$getTickOrder();
+            list.sort(Comparator.comparingLong(tnt -> EntityAccessor.of(tnt).rof$getTickOrder()));
+            long now = EntityAccessor.of(this).rof$getTickOrder();
             int count = 1;
             for(var tnt : list){
-                if(((EntityTickOrderAccessor) (Object) (tnt)).rof$getTickOrder() != now +1){
+                if(EntityAccessor.of(tnt).rof$getTickOrder()!= now +1){
                     break;
                 }else {
                     now++;

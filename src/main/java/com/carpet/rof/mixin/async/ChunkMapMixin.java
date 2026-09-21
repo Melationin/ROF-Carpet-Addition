@@ -1,7 +1,7 @@
 package com.carpet.rof.mixin.async;
 
 import com.carpet.rof.extraWorldData.ExtraWorldDatas;
-import com.carpet.rof.extraWorldData.asyncWorldgen.AsyncWorldgenCacheData;
+import com.carpet.rof.extraWorldData.asyncWorldgen.DelayedChunkSnapshot;
 import com.carpet.rof.rules.asyncWorldgen.AsyncSettings;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
@@ -27,17 +27,15 @@ public class ChunkMapMixin
             cancellable = true)
     private void rof$useCachedSpawningChunks(List<LevelChunk> out, CallbackInfo ci)
     {
-        AsyncWorldgenCacheData cache = ExtraWorldDatas.fromWorld(level).asyncWorldgenCache;
-        boolean enabled = AsyncSettings.spawningChunkCache;
-        if (cache.spawningCacheWasEnabled != enabled) {
-            cache.spawningCacheWasEnabled = enabled;
-            cache.invalidateSpawning();
-        }
-        if (!enabled)
+        DelayedChunkSnapshot snapshot = ExtraWorldDatas.fromWorld(level).spawningChunks;
+        if (!AsyncSettings.spawningChunkCache)
+        {
+            snapshot.clear();
             return;
-        long tick = level.getServer().getTickCount();
-        if (cache.spawningChunksTick >= 0 && tick - cache.spawningChunksTick < AsyncWorldgenCacheData.REFRESH_INTERVAL) {
-            out.addAll(cache.spawningChunks);
+        }
+        if (snapshot.isFresh(level.getServer().getTickCount()))
+        {
+            out.addAll(snapshot.chunks());
             ci.cancel();
         }
     }
@@ -46,12 +44,9 @@ public class ChunkMapMixin
             at = @At("TAIL"))
     private void rof$cacheSpawningChunks(List<LevelChunk> result, CallbackInfo ci)
     {
-        AsyncWorldgenCacheData cache = ExtraWorldDatas.fromWorld(level).asyncWorldgenCache;
         if (!AsyncSettings.spawningChunkCache)
             return;
-        cache.spawningChunks.clear();
-        cache.spawningChunks.addAll(result);
-        cache.spawningChunksTick = level.getServer().getTickCount();
-        cache.spawningCacheWasEnabled = true;
+        ExtraWorldDatas.fromWorld(level).spawningChunks
+                .beginRefresh(level.getServer().getTickCount()).addAll(result);
     }
 }

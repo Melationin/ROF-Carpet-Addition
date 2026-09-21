@@ -1,15 +1,13 @@
 package com.carpet.rof.mixin.rules.piglinRules;
 
+import com.carpet.rof.mixinAccessor.PiglinAccessor;
 import com.carpet.rof.rules.piglinRules.PiglinBCWrapper;
-import com.carpet.rof.rules.piglinRules.PiglinEntityAccessor;
-import com.carpet.rof.utils.ROFTool;
 import com.google.common.collect.ImmutableList;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 //? if >=26.1 {
 import net.minecraft.world.entity.ai.ActivityData;
 //?}
-import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.BehaviorControl;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.monster.piglin.PiglinAi;
@@ -22,8 +20,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import static com.carpet.rof.rules.piglinRules.PiglinRulesSettings.piglinStackingAISuppression;
 
 
 @Mixin(PiglinAi.class)
@@ -38,7 +34,7 @@ public abstract class PiglinAiMixin2
         if (stack.getItem() == Items.GOLD_INGOT) {
             return;
         }
-        if (((PiglinEntityAccessor) piglin).rof$getSuppressingAI()) {
+        if (PiglinAccessor.of(piglin).rof$getSuppressingAI()) {
             cir.setReturnValue(false);
             cir.cancel();
         }

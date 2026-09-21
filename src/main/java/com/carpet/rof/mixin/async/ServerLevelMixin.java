@@ -18,8 +18,8 @@ public class ServerLevelMixin
             cancellable = true)
     private void rof$asyncRandomTick(LevelChunk chunk, int speed, CallbackInfo ci)
     {
-        AsyncRandomTick.collect(chunk, speed);
         if (AsyncRandomTick.consume((ServerLevel) (Object) this, chunk))
             ci.cancel();
+        AsyncRandomTick.collect(chunk, speed);
     }
 }

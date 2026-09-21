@@ -1,7 +1,7 @@
 package com.carpet.rof.mixin.async;
 
 import com.carpet.rof.extraWorldData.ExtraWorldDatas;
-import com.carpet.rof.extraWorldData.asyncWorldgen.AsyncWorldgenCacheData;
+import com.carpet.rof.extraWorldData.asyncWorldgen.DelayedChunkSnapshot;
 import com.carpet.rof.rules.asyncWorldgen.AsyncSettings;
 import com.carpet.rof.rules.asyncWorldgen.spawner.AsyncNaturalSpawner;
 import com.carpet.rof.rules.asyncWorldgen.randomTick.AsyncRandomTick;
@@ -36,22 +36,17 @@ public class ServerChunkCacheMixin
                        target = "Lnet/minecraft/server/level/ChunkMap;forEachBlockTickingChunk(Ljava/util/function/Consumer;)V"))
     private void rof$cacheBlockTickingChunks(ChunkMap map, Consumer<LevelChunk> consumer, Operation<Void> original)
     {
-        AsyncWorldgenCacheData cache = ExtraWorldDatas.fromWorld(level).asyncWorldgenCache;
-        boolean enabled = AsyncSettings.randomTickChunkCache;
-        if (cache.randomTickingCacheWasEnabled != enabled) {
-            cache.randomTickingCacheWasEnabled = enabled;
-            cache.invalidateRandomTicking();
-        }
-        long tick = level.getServer().getTickCount();
-        if (!enabled) {
+        DelayedChunkSnapshot snapshot = ExtraWorldDatas.fromWorld(level).randomTickingChunks;
+        if (!AsyncSettings.randomTickChunkCache)
+        {
+            snapshot.clear();
             original.call(map, consumer);
-        } else {
-            if (cache.randomTickingChunksTick < 0 || tick - cache.randomTickingChunksTick >= AsyncWorldgenCacheData.REFRESH_INTERVAL) {
-                cache.randomTickingChunks.clear();
-                original.call(map, (Consumer<LevelChunk>) cache.randomTickingChunks::add);
-                cache.randomTickingChunksTick = tick;
-            }
-            cache.randomTickingChunks.forEach(consumer);
+
+        }else {
+            long tick = level.getServer().getTickCount();
+            if (!snapshot.isFresh(tick))
+                original.call(map, (Consumer<LevelChunk>) snapshot.beginRefresh(tick)::add);
+            snapshot.chunks().forEach(consumer);
         }
         AsyncRandomTick.submitBatch(level.getServer());
     }

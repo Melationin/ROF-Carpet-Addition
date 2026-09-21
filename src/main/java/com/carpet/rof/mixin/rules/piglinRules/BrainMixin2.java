@@ -1,8 +1,7 @@
 package com.carpet.rof.mixin.rules.piglinRules;
 
 
-import com.carpet.rof.rules.piglinRules.PiglinEntityAccessor;
-import com.carpet.rof.utils.ROFTool;
+import com.carpet.rof.mixinAccessor.PiglinAccessor;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.entity.ai.Brain;
@@ -18,8 +17,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Map;
 import java.util.Set;
-
-import static com.carpet.rof.rules.piglinRules.PiglinRulesSettings.piglinStackingAISuppression;
 
 
 @Mixin(value = Brain.class,
@@ -37,7 +34,7 @@ public class BrainMixin2<E extends LivingEntity>
     public void tickSensors(ServerLevel world, E entity, CallbackInfo ci)
     {
         if (entity instanceof Piglin piglin) {
-            if (((PiglinEntityAccessor) piglin).rof$getSuppressingAI())
+            if (PiglinAccessor.of(piglin).rof$getSuppressingAI())
                 ci.cancel();
         }
     }

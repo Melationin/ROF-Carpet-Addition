@@ -4,6 +4,7 @@ import carpet.CarpetServer;
 import carpet.api.settings.Rule;
 import com.carpet.rof.annotation.QuickTranslations;
 import com.carpet.rof.annotation.ROFRule;
+import com.carpet.rof.mixinAccessor.ServerLevelAccessor;
 import com.carpet.rof.rules.BaseSetting;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -42,7 +43,7 @@ public class SpawnStatisticSimplifySettings extends BaseSetting
             return;
         }
         for (ServerLevel world : server.getAllLevels()) {
-            ((SpawnStatisticSimplifyAccess)world).rof$setSpawnStatisticSimplified(isSimplified(world));
+            ServerLevelAccessor.of(world).rof$setSpawnStatisticSimplified(isSimplified(world));
         }
     }
 

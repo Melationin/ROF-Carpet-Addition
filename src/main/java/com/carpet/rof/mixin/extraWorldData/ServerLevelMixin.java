@@ -2,8 +2,9 @@ package com.carpet.rof.mixin.extraWorldData;
 
 
 
-import com.carpet.rof.accessor.IExtraChunkDataAccessor;
+import com.carpet.rof.annotation.PublicField;
 import com.carpet.rof.extraWorldData.ExtraWorldDatas;
+import com.carpet.rof.mixinAccessor.ServerLevelAccessor;
 import com.carpet.rof.utils.ROFIO;
 import com.carpet.rof.utils.ROFTool;
 
@@ -38,7 +39,7 @@ import static com.carpet.rof.rules.extraChunkDatas.ExceedChunkMarkerSetting.exce
 import com.carpet.rof.utils.ChunkPosHelper;
 
 @Mixin(ServerLevel.class)
-public abstract class ServerLevelMixin implements IExtraChunkDataAccessor
+public abstract class ServerLevelMixin implements  ServerLevelAccessor
 {
 
 
@@ -47,14 +48,13 @@ public abstract class ServerLevelMixin implements IExtraChunkDataAccessor
     @Shadow
     @Final
     private MinecraftServer server;
-    @Unique
-    ExtraWorldDatas ROFextraWorldDatas;
 
-    @Override
-    public ExtraWorldDatas getExtraChunkDatas()
-    {
-        return ROFextraWorldDatas;
-    }
+    @PublicField(mutable = false)
+    @Unique
+    private ExtraWorldDatas ROFextraWorldDatas;
+
+
+
 
 
     @Inject(method = "save",
@@ -75,6 +75,12 @@ public abstract class ServerLevelMixin implements IExtraChunkDataAccessor
     @Shadow
     @Final
     private PersistentEntitySectionManager<Entity> entityManager;
+
+    @Override
+    public ExtraWorldDatas rof$getROFextraWorldDatas()
+    {
+        return this.ROFextraWorldDatas;
+    }
 
     @Shadow
     public abstract void tickNonPassenger(Entity entity);

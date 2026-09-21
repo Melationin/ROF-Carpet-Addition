@@ -55,7 +55,6 @@
     "rules.oec.lithium.WorldHelperMixin",
     "rules.particlesPacketsRange.ServerLevelMixin",
     "rules.piglinRules.BrainMixin2",
-    "rules.piglinRules.EntityMixin",
     "rules.piglinRules.MobMixin",
     "rules.piglinRules.PiglinAiMixin2",
     "rules.piglinRules.PiglinMixin",
