@@ -56,13 +56,13 @@ public abstract class MobMixin implements  MobAccessor
     /*@Inject(method = "readAdditionalSaveData", at = @At(value = "HEAD"))
     private void rof$readNoBrainAi(CompoundTag tag, CallbackInfo ci)
     {
-        this.rof$noBrainAi = tag.getBooleanOr("NoBrainAI", false);
+        this.noBrainAi = tag.getBooleanOr("NoBrainAI", false);
     }
 
     @Inject(method = "addAdditionalSaveData", at = @At(value = "HEAD"))
     private void rof$writeNoBrainAi(CompoundTag tag, CallbackInfo ci)
     {
-        if (this.rof$noBrainAi) {
+        if (this.noBrainAi) {
             tag.putBoolean("NoBrainAI", true);
         }
     }
