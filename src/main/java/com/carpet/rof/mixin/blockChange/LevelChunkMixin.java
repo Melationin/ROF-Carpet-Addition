@@ -24,18 +24,18 @@ public abstract class LevelChunkMixin implements  LevelChunkAccessor
 
     @PublicField(mutable = false)
     @Unique
-    private int rof$blockChangeStamp = 0;
+    private int blockChangeStamp = 0;
 
     @Override
-    public int rof$getRof$blockChangeStamp()
+    public int rof$getBlockChangeStamp()
     {
-        return this.rof$blockChangeStamp;
+        return this.blockChangeStamp;
     }
 
     @Inject(method = "setBlockState", at = @At("HEAD"))
     private void rof$bumpBlockChangeStamp(BlockPos pos, BlockState state, int flags, CallbackInfoReturnable<BlockState> cir)
     {
-        this.rof$blockChangeStamp++;
+        this.blockChangeStamp++;
         LevelAccessor.of(level).rof$blockChangeStampAdd();
     }
 }

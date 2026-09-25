@@ -1,5 +1,6 @@
 package com.carpet.rof.rules.asyncWorldgen.spawner;
 
+import com.carpet.rof.mixinAccessor.LevelChunkAccessor;
 import com.carpet.rof.rules.asyncWorldgen.AsyncSettings;
 import com.carpet.rof.utils.ROFTool;
 import com.carpet.rof.rules.asyncWorldgen.DebugStats;
@@ -46,7 +47,7 @@ public final class AsyncNaturalSpawner
 
     public static boolean consume(ServerLevel level, LevelChunk chunk, NaturalSpawner.SpawnState state, List<MobCategory> categories)
     {
-        SpawnResult result = ((AsyncNaturalSpawnerChunk) chunk).rof$getAsyncSpawnResult();
+        SpawnResult result = LevelChunkAccessor.of(chunk).rof$getSpawnResult();
         boolean consumed = AsyncSettings.asyncNaturalSpawning && result != null && result.epoch() == level.getServer()
                 .getTickCount();
         if (ROFTool.DEBUG)
@@ -219,7 +220,7 @@ public final class AsyncNaturalSpawner
                     }
                 }
             }
-            ((AsyncNaturalSpawnerChunk) chunk).rof$setAsyncSpawnResult(new SpawnResult(epoch, List.copyOf(out)));
+            LevelChunkAccessor.of(chunk).rof$setSpawnResult(new SpawnResult(epoch, List.copyOf(out)));
             if (stats != null)
                 stats.recordNaturalSpawnResult(out.size());
         } catch (Throwable error) {

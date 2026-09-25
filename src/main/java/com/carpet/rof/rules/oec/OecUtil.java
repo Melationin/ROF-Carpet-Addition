@@ -72,7 +72,7 @@ public final class OecUtil {
     // 实体移动时只把"新接触的 cell"写进自己 section 的网格，脱离的 cell 留给查询时的实时 AABB 淘汰。
     public static void registerNewCells(Entity entity) {
         OecEntityAccess access = (OecEntityAccess) entity;
-        OecSectionAccess section = access.rof$entitySection();
+        OecSectionAccess section = access.rof$getEntitySection();
         if (section == null) return;
         SectionEntityGrid grid = section.rof$grid();
         if (grid == null || !grid.isValid()) return;
@@ -92,11 +92,11 @@ public final class OecUtil {
         int maxZ = Math.min(cell(box.maxZ), sectionCellZ + SectionEntityGrid.SECTION_CELL_COUNT - 1);
         if (minX > maxX || minY > maxY || minZ > maxZ) return;
 
-        int old = access.rof$registeredCells();
+        int old = access.rof$getRegisteredCells();
         int range = packRange(minX & 7, minY & 7, minZ & 7, maxX & 7, maxY & 7, maxZ & 7);
         if (range == old) return;
 
-        boolean pushable = access.rof$pushableBit();
+        boolean pushable = access.rof$getPushableBit();
         for (int y = minY; y <= maxY; y++) {
             for (int z = minZ; z <= maxZ; z++) {
                 for (int x = minX; x <= maxX; x++) {

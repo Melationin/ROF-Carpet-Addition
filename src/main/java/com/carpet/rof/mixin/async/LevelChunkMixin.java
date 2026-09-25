@@ -1,7 +1,7 @@
 package com.carpet.rof.mixin.async;
 
-import com.carpet.rof.rules.asyncWorldgen.spawner.AsyncNaturalSpawnerChunk;
-import com.carpet.rof.rules.asyncWorldgen.randomTick.AsyncRandomTickChunk;
+import com.carpet.rof.annotation.PublicField;
+import com.carpet.rof.mixinAccessor.LevelChunkAccessor;
 import com.carpet.rof.rules.asyncWorldgen.spawner.SpawnResult;
 import com.carpet.rof.rules.asyncWorldgen.randomTick.RandomTickResult;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -9,30 +9,38 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(LevelChunk.class)
-public abstract class LevelChunkMixin implements AsyncRandomTickChunk, AsyncNaturalSpawnerChunk
+public abstract class LevelChunkMixin implements LevelChunkAccessor
 {
+    @PublicField
     @Unique
-    private volatile RandomTickResult rof$randomTickResult;
+    private volatile RandomTickResult randomTickResult;
+
+    @PublicField
     @Unique
-    private volatile SpawnResult rof$spawnResult;
+    private volatile SpawnResult spawnResult;
 
-    public RandomTickResult rof$getAsyncRandomTickResult()
+    @Override
+    public RandomTickResult rof$getRandomTickResult()
     {
-        return rof$randomTickResult;
+        return this.randomTickResult;
     }
 
-    public void rof$setAsyncRandomTickResult(RandomTickResult result)
+    @Override
+    public void rof$setRandomTickResult(RandomTickResult value)
     {
-        rof$randomTickResult = result;
+        this.randomTickResult = value;
     }
 
-    public SpawnResult rof$getAsyncSpawnResult()
+    @Override
+    public SpawnResult rof$getSpawnResult()
     {
-        return rof$spawnResult;
+        return this.spawnResult;
     }
 
-    public void rof$setAsyncSpawnResult(SpawnResult result)
+    @Override
+    public void rof$setSpawnResult(SpawnResult value)
     {
-        rof$spawnResult = result;
+        this.spawnResult = value;
     }
+
 }

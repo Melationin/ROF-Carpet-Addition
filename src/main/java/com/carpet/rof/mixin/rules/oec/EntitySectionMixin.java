@@ -70,7 +70,7 @@ public abstract class EntitySectionMixin<T extends EntityAccess> implements OecS
     private void rof$onEntityRemoved(T entityLike, CallbackInfoReturnable<Boolean> cir) {
         if (Boolean.TRUE.equals(cir.getReturnValue()) && entityLike instanceof Entity entity) {
             OecEntityAccess access = (OecEntityAccess) entity;
-            if (access.rof$entitySection() == this) access.rof$setEntitySection(null);
+            if (access.rof$getEntitySection() == this) access.rof$setEntitySection(null);
         }
     }
 }

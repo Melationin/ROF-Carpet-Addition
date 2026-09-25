@@ -5,7 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-// 只驱动 IDE 代码生成（Mixin Accessor 插件），不产生运行时行为。
+
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.FIELD)
 public @interface PublicField {

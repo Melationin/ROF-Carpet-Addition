@@ -62,7 +62,7 @@ public final class LithiumPushCollector {
                             bits &= bits - 1L;
                             if (entity == null) continue;
                             OecEntityAccess access = (OecEntityAccess) entity;
-                            if (access.rof$pushStamp() == stamp) continue;
+                            if (access.rof$getPushStamp() == stamp) continue;
                             access.rof$setPushStamp(stamp);
                             if (metrics) OecMetrics.CANDIDATES.increment();
                             if (entity == except || entity.isSpectator() || entity instanceof EnderDragon) continue;

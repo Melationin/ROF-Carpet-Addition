@@ -1,5 +1,6 @@
 package com.carpet.rof.rules.asyncWorldgen.randomTick;
 
+import com.carpet.rof.mixinAccessor.LevelChunkAccessor;
 import com.carpet.rof.rules.asyncWorldgen.AsyncSettings;
 import com.carpet.rof.utils.ROFTool;
 import com.carpet.rof.rules.asyncWorldgen.DebugStats;
@@ -99,8 +100,9 @@ public final class AsyncRandomTick
                     }
                 }
             }
-            ((AsyncRandomTickChunk) chunk).rof$setAsyncRandomTickResult(
-                    new RandomTickResult(epoch, precipitation, positions.toIntArray()));
+            LevelChunkAccessor.of(chunk).rof$setRandomTickResult(
+                    new RandomTickResult(epoch, precipitation, positions.toIntArray())
+            );
             if (ROFTool.DEBUG && stats != null)
                 stats.recordRandomTickResult(positions.size());
         } catch (Throwable error) {
@@ -113,7 +115,7 @@ public final class AsyncRandomTick
     //执行预计算出的随机刻：方块与流体分别判定并 tick，与原版 tickChunk 行为一致。
     public static boolean consume(ServerLevel level, LevelChunk chunk)
     {
-        RandomTickResult result = ((AsyncRandomTickChunk) chunk).rof$getAsyncRandomTickResult();
+        RandomTickResult result = LevelChunkAccessor.of(chunk).rof$getRandomTickResult();
         boolean usedAsync = AsyncSettings.asyncRandomTick && result != null && result.epoch() == level.getServer().getTickCount();
         if (ROFTool.DEBUG)
             DebugStats.recordRandomTickDecision(usedAsync);

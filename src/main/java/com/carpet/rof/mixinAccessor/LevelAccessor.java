@@ -11,5 +11,5 @@ public interface LevelAccessor
 
     void rof$setBlockChangeStamp(int value);
 
-    public void rof$blockChangeStampAdd();
+    void rof$blockChangeStampAdd();
 }
