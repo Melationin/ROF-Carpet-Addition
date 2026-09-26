@@ -42,7 +42,6 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
     {
 
         ROFCarpetServer.loadExtension();
-        ClimbableBlockStateCache.registerLifecycleEvents();
         AutoMixinAuditExecutor.run();
 
     }

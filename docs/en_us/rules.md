@@ -366,7 +366,7 @@
 
 ## optimizedClimbableTagCheck
 
-&emsp;Caches the CLIMBABLE block-tag lookup used by Lithium entity pushability checks, reducing repeated tag lookups in LivingEntity.onClimbable. The cache is invalidated after data-pack reloads.
+&emsp;Caches the CLIMBABLE block-tag lookup used by Lithium entity pushability checks, reducing repeated tag lookups in LivingEntity.onClimbable.
 
 &emsp;- Type: `boolean`
 

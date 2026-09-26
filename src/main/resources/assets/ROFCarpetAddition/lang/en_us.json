@@ -3,7 +3,7 @@
   "carpet.category.ROF": "ROF",
   "carpet.category.PACKET": "PACKET",
   "carpet.rule.optimizedEntityCollection.desc": "Uses a section-local spatial index to optimize Lithium push candidate collection. Entity iteration order may change.",
-  "carpet.rule.optimizedClimbableTagCheck.desc": "Caches the CLIMBABLE block-tag lookup used by Lithium entity pushability checks, reducing repeated tag lookups in LivingEntity.onClimbable. The cache is invalidated after data-pack reloads.",
+  "carpet.rule.optimizedClimbableTagCheck.desc": "Caches the CLIMBABLE block-tag lookup used by Lithium entity pushability checks, reducing repeated tag lookups in LivingEntity.onClimbable.",
   "carpet.rule.betterNoAiNbt.desc": "Skips AI logic (Mob.serverAiStep) for entities carrying the NoBrainAI NBT tag, while keeping passive motion such as gravity, fluids, entity pushing, crush damage, explosion knockback, pistons and riding. Unlike vanilla NoAI, the entity does not freeze in mid-air.",
   "carpet.rule.betterNoAiNbt.extra.0": "/data merge entity <target> {NoBrainAI:1b} to set, {NoBrainAI:0b} or /data remove entity <target> NoBrainAI to clear; the tag is saved with the entity and can also be written in /summon NBT",
   "carpet.rule.betterNoAiNbt.extra.1": "Skipped: target selector, goal selector, navigation, sensing, brain, and movement/look/jump controls",

@@ -1,6 +1,6 @@
 package com.carpet.rof.rules.oec.lithium;
 
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+
 
 public final class ClimbableBlockStateCache
 {
@@ -8,15 +8,6 @@ public final class ClimbableBlockStateCache
 
     private ClimbableBlockStateCache()
     {
-    }
-
-    public static void registerLifecycleEvents()
-    {
-        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, resourceManager, success) -> {
-            if (success) {
-                invalidate();
-            }
-        });
     }
 
     public static int epoch()

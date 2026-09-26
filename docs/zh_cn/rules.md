@@ -366,7 +366,7 @@
 
 ## 可攀爬方块标签判断缓存 (optimizedClimbableTagCheck)
 
-&emsp;缓存 Lithium 实体推挤判断中的 CLIMBABLE 方块标签查询，减少 LivingEntity.onClimbable 的重复标签查找。数据包重载后自动失效缓存。
+&emsp;缓存 Lithium 实体推挤判断中的 CLIMBABLE 方块标签查询，减少 LivingEntity.onClimbable 的重复标签查找。
 
 &emsp;- 类型: `boolean`
 

@@ -13,7 +13,7 @@ public class ClimbableTagCacheSettings extends BaseSetting
     @Rule(categories = {ROF, OPTIMIZATION})
     @QuickTranslations(
             name = "可攀爬方块标签判断缓存",
-            description = "缓存 Lithium 实体推挤判断中的 CLIMBABLE 方块标签查询，减少 LivingEntity.onClimbable 的重复标签查找。数据包重载后自动失效缓存。"
+            description = "缓存 Lithium 实体推挤判断中的 CLIMBABLE 方块标签查询，减少 LivingEntity.onClimbable 的重复标签查找。"
     )
     public static boolean optimizedClimbableTagCheck = false;
 }
