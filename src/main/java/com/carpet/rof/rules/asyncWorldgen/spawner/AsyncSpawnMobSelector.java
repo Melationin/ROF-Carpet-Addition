@@ -13,6 +13,7 @@ import net.minecraft.util.random.WeightedList;
 //?} else {
 /*import net.minecraft.util.random.WeightedRandomList;
  *///?}
+//? >=26.3
 import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ChunkPos;
