@@ -13,6 +13,7 @@ import net.minecraft.util.random.WeightedList;
 //?} else {
 /*import net.minecraft.util.random.WeightedRandomList;
  *///?}
+import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
@@ -100,7 +101,13 @@ final class AsyncSpawnMobSelector
                     return override.spawns();
             }
         }
-        return biome.value().getMobSettings().getMobs(category);
+        //? if >=26.3 {
+        /*MobSpawnSettings settings = biome.value().getAttributes().applyModifier(EnvironmentAttributes.NATURAL_MOB_SPAWNS, MobSpawnSettings.EMPTY);
+        return settings.getMobsToSpawn(category);
+        *///?} else{
+        MobSpawnSettings settings = biome.value().getMobSettings();
+        return settings.getMobs(category);
+        //?}
     }
 
     private static Boolean fortress(ServerLevel level, MobCategory category, BlockPos pos)

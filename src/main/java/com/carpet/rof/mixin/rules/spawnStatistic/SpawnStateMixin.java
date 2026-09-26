@@ -8,6 +8,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LocalMobCapCalculator;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -41,6 +42,9 @@ public abstract class SpawnStateMixin implements SpawnStateSimplifyAccess
 
     // 原版取不到刷怪密度成本时就是这个结果，化简路径直接跳过生物群系查询。
     @Inject(method = "canSpawn", at = @At("HEAD"), cancellable = true)
+    //? >=26.3
+    //private void rof$spawnStatisticCanSpawn(EntityType<?> type, Level level, BlockPos testPos, ChunkAccess chunk, CallbackInfoReturnable<Boolean> cir)
+    //? <26.3
     private void rof$spawnStatisticCanSpawn(EntityType<?> type, BlockPos testPos, ChunkAccess chunk, CallbackInfoReturnable<Boolean> cir)
     {
         if (this.rof$spawnStatisticSimplified) {

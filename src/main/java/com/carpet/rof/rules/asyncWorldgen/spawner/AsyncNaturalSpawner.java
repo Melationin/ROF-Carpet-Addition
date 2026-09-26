@@ -124,7 +124,7 @@ public final class AsyncNaturalSpawner
             } else if (!NaturalSpawner.isValidSpawnPostitionForType(level, category, structureManager, generator,
                     spawnData, mutable, distance))
                 continue;
-            if (!state.canSpawn(spawnData.type(), mutable, chunk))
+            if (!state.canSpawn(spawnData.type(),/*? if>=26.3 {*//*level,*//*? }*/mutable, chunk))
                 continue;
             Mob mob = NaturalSpawner.getMobForSpawn(level, spawnData.type());
             if (mob == null) {
@@ -191,6 +191,9 @@ public final class AsyncNaturalSpawner
                             if (selection.isEmpty())
                                 break;
                             current = selection.get();
+                            //? if>=26.3
+                            //max = current.count().minInclusive() + random.nextInt(1 + current.count().maxInclusive() - current.count().minInclusive());
+                            //? if<26.3
                             max = current.minCount() + random.nextInt(1 + current.maxCount() - current.minCount());
                         }
                         boolean staticPassed = false, placementPassed = false;

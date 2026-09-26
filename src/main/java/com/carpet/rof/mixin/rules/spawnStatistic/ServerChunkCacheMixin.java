@@ -23,11 +23,34 @@ public abstract class ServerChunkCacheMixin
     @Shadow
     @Final
     private ServerLevel level;
+    //? if>=26.3 {
+    /*@WrapOperation(method = "tickChunks(Lnet/minecraft/util/profiling/ProfilerFiller;)V",
+                   at = @At(value = "INVOKE",
+                            target = "Lnet/minecraft/world/level/NaturalSpawner;createState(ILnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/NaturalSpawner$ChunkGetter;Lnet/minecraft/world/level/LocalMobCapCalculator;)Lnet/minecraft/world/level/NaturalSpawner$SpawnState;"
+                   ))
+    private  NaturalSpawner.SpawnState rof$simplifySpawnStatistic(int spawnableChunkCount, ServerLevel level, NaturalSpawner.ChunkGetter chunkGetter, LocalMobCapCalculator localMobCapCalculator, Operation<NaturalSpawner.SpawnState> original)
+    {
+        Iterable<Entity> entities = level.getAllEntities();
+        if (ServerLevelAccessor.of(level).rof$getSpawnStatisticSimplified()) {
+            return original.call(spawnableChunkCount, level, chunkGetter, localMobCapCalculator);
+        }
+        // 用一个空列表让原版只负责造出 SpawnState，计数与局部上限统计由化简路径自己填。
+        NaturalSpawner.SpawnState state = original.call(spawnableChunkCount,level, chunkGetter, localMobCapCalculator);
+        ((SpawnStateSimplifyAccess)state).rof$simplifySpawnStatistic(SpawnStatisticSimplifyUtil.countMobs(entities, localMobCapCalculator));
+        return state;
+    }
 
+
+
+    *///?}else{
     @WrapOperation(method = "tickChunks(Lnet/minecraft/util/profiling/ProfilerFiller;J)V",
                    at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/NaturalSpawner;createState(ILjava/lang/Iterable;Lnet/minecraft/world/level/NaturalSpawner$ChunkGetter;Lnet/minecraft/world/level/LocalMobCapCalculator;)Lnet/minecraft/world/level/NaturalSpawner$SpawnState;"))
+                    target = "Lnet/minecraft/world/level/NaturalSpawner;createState(ILjava/lang/Iterable;Lnet/minecraft/world/level/NaturalSpawner$ChunkGetter;Lnet/minecraft/world/level/LocalMobCapCalculator;)Lnet/minecraft/world/level/NaturalSpawner$SpawnState;"
+
+                   ))
     private  NaturalSpawner.SpawnState rof$simplifySpawnStatistic(int spawnableChunkCount, Iterable<Entity> entities, NaturalSpawner.ChunkGetter chunkGetter, LocalMobCapCalculator localMobCapCalculator, Operation<NaturalSpawner.SpawnState> original)
+
+
     {
         ServerLevel level = this.level;
         if (ServerLevelAccessor.of(level).rof$getSpawnStatisticSimplified()) {
@@ -38,4 +61,6 @@ public abstract class ServerChunkCacheMixin
         ((SpawnStateSimplifyAccess)state).rof$simplifySpawnStatistic(SpawnStatisticSimplifyUtil.countMobs(entities, localMobCapCalculator));
         return state;
     }
+    //? }
+
 }

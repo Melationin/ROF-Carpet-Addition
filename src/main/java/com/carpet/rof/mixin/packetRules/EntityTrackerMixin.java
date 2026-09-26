@@ -10,6 +10,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+//? >=26.3
+//import net.minecraft.world.entity.UpdateInterval;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -41,6 +43,9 @@ public abstract class EntityTrackerMixin implements TrackedEntityRecoveryAccesso
     @Unique private boolean rof$spawnLimitedBySeconds;
 
     @Inject(method = "<init>", at = @At(value = "TAIL"))
+    //?>=26.3
+    //void init(ChunkMap serverChunkLoadingManager, Entity entity, int maxDistance, UpdateInterval tickInterval, boolean alwaysUpdateVelocity, CallbackInfo ci){
+    //?<26.3
     void init(ChunkMap serverChunkLoadingManager, Entity entity, int maxDistance, int tickInterval, boolean alwaysUpdateVelocity, CallbackInfo ci){
        if(! (ROFWarp.getWorld_(entity) instanceof ServerLevel)) return ;
        if(entitySpawnPacketLimitTicks>=0 ) {

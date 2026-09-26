@@ -31,6 +31,7 @@ public class ServerChunkCacheMixin
     @Final
     private ServerLevel level;
 
+    //~ if >= 26.3 'tickChunks(Lnet/minecraft/util/profiling/ProfilerFiller;J)V'->'tickChunks(Lnet/minecraft/util/profiling/ProfilerFiller;)V'
     @WrapOperation(method = "tickChunks(Lnet/minecraft/util/profiling/ProfilerFiller;J)V",
               at = @At(value = "INVOKE",
                        target = "Lnet/minecraft/server/level/ChunkMap;forEachBlockTickingChunk(Ljava/util/function/Consumer;)V"))
@@ -51,11 +52,15 @@ public class ServerChunkCacheMixin
         AsyncRandomTick.submitBatch(level.getServer());
     }
 
+    //~ if >= 26.3 'tickChunks(Lnet/minecraft/util/profiling/ProfilerFiller;J)V'->'tickChunks(Lnet/minecraft/util/profiling/ProfilerFiller;)V'
     @Inject(method = "tickChunks(Lnet/minecraft/util/profiling/ProfilerFiller;J)V",
             at = @At(value = "CONSTANT",
                      args = "stringValue=tickTickingChunks",
                      shift = At.Shift.BEFORE))
-    private void rof$submitSpawningBatch(ProfilerFiller profiler, long timeDiff, CallbackInfo ci)
+    private void rof$submitSpawningBatch(ProfilerFiller profiler,
+                                          //? <26.3
+                                          long timeDiff,
+                                         CallbackInfo ci)
     {
         AsyncNaturalSpawner.submitBatch(level.getServer());
     }
