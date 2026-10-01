@@ -3,18 +3,21 @@ package com.carpet.rof.mixin.rules.enderPearl;
 // Minecraft 相关导入
 
 import com.carpet.rof.extraWorldData.ExtraWorldDatas;
-import com.carpet.rof.rules.enderPearl.BetterEnderPearlTicket;
+import com.carpet.rof.extraWorldData.extraChunkDatas.ExceedChunkMarker;
 import com.carpet.rof.utils.ROFWarp;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.*;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrowableItemProjectile;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.entity.Visibility;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -40,8 +43,10 @@ public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
 
     // 是否启用同步状态（冻结 or 物理更新）
     @Unique
-    public boolean syncMode = true;
+    private boolean syncMode = true;
 
+    @Unique
+    private long chunkPos2 = 0;
     // 必须定义的构造函数，调用父类
     protected ThrownEnderpearlMixin(EntityType<?extends ThrowableItemProjectile> entityType, Level world) {
         super(entityType, world);
@@ -51,9 +56,9 @@ public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
     // 注入 tick() 方法的开头，覆盖默认逻辑
     @Inject(method = "tick", at = @At(value = "HEAD"), cancellable = true)
     private void EndPearlHead(CallbackInfo ci) {
-
         Level world = ROFWarp.getWorld_(this);
         if (world instanceof ServerLevel serverWorld) {
+            chunkPos2 = ChunkPosHelper.pack(this.chunkPosition());
             var forcedEntitylist = ExtraWorldDatas.fromWorld(serverWorld ).forcedEntitylist;
             if (syncMode) {
                 if ((MinSpeed > 0) && (Math.abs(this.getDeltaMovement().x) > MinSpeed || Math.abs(this.getDeltaMovement().z) > MinSpeed)) {//大于最高速度，切换加载逻辑
@@ -121,17 +126,44 @@ public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
         }
     }
 
-
+    //? if >= 1.21.9 {
+    public static final TicketType TYPE = new TicketType(40L, TicketType.FLAG_SIMULATION | TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
+    //? }else{
+    /*public static final TicketType TYPE = new TicketType(40L, false, TicketType.TicketUse.SIMULATION);
+     *///?}
+    public static final int LEVEL = ChunkLevel.byStatus(FullChunkStatus.ENTITY_TICKING);
 
     @WrapOperation(method = "tick",
                    at = @At(value = "INVOKE",
                             target = "Lnet/minecraft/server/level/ServerPlayer;registerAndUpdateEnderPearlTicket(Lnet/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl;)J"))
     private long rof$betterEnderPearlTicket(ServerPlayer player, ThrownEnderpearl pearl, Operation<Long> original)
     {
-        if(BetterEnderPearlTicket.tryReplaceTicket(pearl, player))
-        {
-            return BetterEnderPearlTicket.vanillaTicketTimer();
+        if(!(this.level() instanceof ServerLevel serverLevel)) return original.call(player, pearl);
+        boolean canUseBetterTicker = ChunkPosHelper.pack(this.chunkPosition())!= chunkPos2;
+        ServerChunkCache chunkSource = serverLevel.getChunkSource();
+        canUseBetterTicker = canUseBetterTicker && chunkSource.getChunkNow(ChunkPosHelper.x(chunkPosition()),ChunkPosHelper.z(chunkPosition())) != null;
+        canUseBetterTicker = canUseBetterTicker && isSafe();
+        if(canUseBetterTicker) {
+            player.registerEnderPearl(pearl);
+            serverLevel.resetEmptyTime();
+            serverLevel.getChunkSource().addTicket(new Ticket(TYPE, LEVEL), pearl.chunkPosition());
+            serverLevel.entityManager.updateChunkStatus(pearl.chunkPosition(), Visibility.TICKING);
+            return TYPE.timeout()-1;
+        }else {
+            return original.call(player, pearl);
         }
-        return original.call(player, pearl);
+    }
+
+    @Unique
+    private  boolean isSafe()
+    {
+        for(BlockPos blockPos : ROFWarp.getBlockPosIt(this.getBoundingBox()))
+        {
+            if(!ExceedChunkMarker.mustBeAir((ServerLevel) this.level(), blockPos))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 }

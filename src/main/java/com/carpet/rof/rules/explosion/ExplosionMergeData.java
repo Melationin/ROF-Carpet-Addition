@@ -11,10 +11,7 @@ import net.minecraft.world.phys.AABB;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 同一世界、同一点、同一威力的连续爆炸的合并元数据。
- * 只在当前游戏刻内有效（世界 tick 开始时清空）；方块判定在世界方块戳记未变化前可以复用。
- */
+
 public class ExplosionMergeData
 {
     // 实体移动与实体生成的热路径快速查找入口，仅在启用优化期间非空
@@ -145,7 +142,7 @@ public class ExplosionMergeData
         return snapshot;
     }
 
-    /**
+    /*
      * 复用暴露度的条件只有一个：这个实体在本组里算过、而且算完之后没有动过。
      * 实体自己记着算缓存时的批次号（ExposureCacheAccess），而 setPosRaw / setBoundingBox
      * 会把有效批次号改成 -1，所以这里只要比一个 int；位置或碰撞箱一变就自动重算，不用比较 AABB。
