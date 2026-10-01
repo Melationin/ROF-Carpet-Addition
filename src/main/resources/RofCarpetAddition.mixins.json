@@ -33,7 +33,6 @@
     "rules.explosion.EntityMixin",
     "rules.explosion.ServerExplosionMixin",
     "rules.explosion.ServerLevelMixin",
-    "rules.fakePlayerTick.ChunkMap$TrackedEntityMixin",
     "rules.fakePlayerTick.EntityPlayerMPFakeMixin",
     "rules.fakePlayerTick.InventoryMixin",
     "rules.fakePlayerTick.ServerPlayerTickMixin",
