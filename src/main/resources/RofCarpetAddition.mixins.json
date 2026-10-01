@@ -10,6 +10,7 @@
     "async.ServerLevelMixin",
     "blockChange.LevelChunkMixin",
     "blockChange.LevelMixin",
+    "carpet.SettingsManagerSetting",
     "debug.ChunkStatusTasksMixin",
     "debug.ServerTickRateManagerMixin",
     "debug.ThrownEnderpearlDebugMixin",
