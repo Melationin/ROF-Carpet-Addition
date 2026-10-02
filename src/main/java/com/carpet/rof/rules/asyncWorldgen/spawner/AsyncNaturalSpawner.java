@@ -1,5 +1,6 @@
 package com.carpet.rof.rules.asyncWorldgen.spawner;
 
+import com.carpet.rof.mixinAccessor.EntityTypeAccessor;
 import com.carpet.rof.mixinAccessor.LevelChunkAccessor;
 import com.carpet.rof.rules.asyncWorldgen.AsyncSettings;
 import com.carpet.rof.utils.ROFTool;
@@ -26,6 +27,10 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import com.carpet.rof.rules.asyncWorldgen.LoadedBlockGetter;
+import net.caffeinemc.mods.lithium.common.entity.LithiumEntityCollisions;
+import net.minecraft.world.Difficulty;
+import net.minecraft.world.entity.monster.Monster;
 
 
 public final class AsyncNaturalSpawner
@@ -118,11 +123,14 @@ public final class AsyncNaturalSpawner
             double x = pos.getX() + .5, z = pos.getZ() + .5;
             Player player = level.getNearestPlayer(x, pos.getY(), z, -1.0, false);
             double distance = player == null ? Double.MAX_VALUE : player.distanceToSqr(x, pos.getY(), z);
-            if (candidate.staticChecksPassed()) {
-                if (!remainingPositionChecks(level, spawnData, mutable, candidate.placementChecksPassed()))
+            if (!candidate.staticChecksPassed()) {
+                var type = spawnData.type();
+                int despawn = type.getCategory().getDespawnDistance();
+                if (type.getCategory() == MobCategory.MISC || !type.canSpawnFarFromPlayer() && distance > (double) despawn * despawn
+                        || !type.canSummon() || !NaturalSpawner.canSpawnMobAt(level, structureManager, generator, category, spawnData, pos))
                     continue;
-            } else if (!NaturalSpawner.isValidSpawnPostitionForType(level, category, structureManager, generator,
-                    spawnData, mutable, distance))
+            }
+            if (!remainingPositionChecks(level, spawnData, pos, candidate.placementChecksPassed(), candidate.collision()))
                 continue;
             if (!state.canSpawn(spawnData.type(),/*? if>=26.3 {*//*level,*//*? }*/mutable, chunk))
                 continue;
@@ -147,13 +155,25 @@ public final class AsyncNaturalSpawner
         }
     }
 
-    private static boolean remainingPositionChecks(ServerLevel level, MobSpawnSettings.SpawnerData data, BlockPos pos, boolean placementPassed)
+    private static boolean remainingPositionChecks(ServerLevel level, MobSpawnSettings.SpawnerData data, BlockPos pos,
+                                                   boolean placementPassed, SpawnCandidate.Collision collision)
     {
         if (!placementPassed && !SpawnPlacements.isSpawnPositionOk(data.type(), level, pos))
             return false;
-        return SpawnPlacements.checkSpawnRules(data.type(), level, EntitySpawnReason.NATURAL, pos,
-                level.getRandom()) && level.noCollision(
-                data.type().getSpawnAABB(pos.getX() + .5, pos.getY(), pos.getZ() + .5));
+        if (!EntityTypeAccessor.of(data.type()).rof$getAsyncSpawnRule() && !SpawnPlacements.checkSpawnRules(data.type(), level, EntitySpawnReason.NATURAL, pos, level.getRandom()))
+            return false;
+        var box = collision == null ? data.type().getSpawnAABB(pos.getX() + .5, pos.getY(), pos.getZ() + .5) : collision.box();
+        if (collision != null && collision.blockChangeStampSum() == blockChangeStampSum(collision.chunks()))
+            return !LithiumEntityCollisions.doesBoxCollideWithHardEntities(level, null, box);
+        return level.noCollision(box);
+    }
+
+    private static long blockChangeStampSum(LevelChunk[] chunks)
+    {
+        long sum = 0;
+        for (LevelChunk chunk : chunks)
+            sum += Integer.toUnsignedLong(LevelChunkAccessor.of(chunk).rof$getBlockChangeStamp());
+        return sum;
     }
 
     private static void compute(LevelChunk chunk, int epoch, List<MobCategory> categories, DebugStats.Recording stats)
@@ -218,8 +238,26 @@ public final class AsyncNaturalSpawner
                             if (placement == AsyncSpawnPlacementValidator.Result.ALLOWED)
                                 placementPassed = true;
                         }
+                        if (EntityTypeAccessor.of(type).rof$getAsyncSpawnRule()) {
+                            LoadedBlockGetter blocks = new LoadedBlockGetter(level);
+                            BlockPos below = pos.below();
+                            var belowState = blocks.getBlockState(below);
+                            if (!blocks.isAvailable() || level.getDifficulty() == Difficulty.PEACEFUL
+                                    || !Monster.isDarkEnoughToSpawn(level, pos, random) || !belowState.isValidSpawn(blocks, below, type))
+                                continue;
+                        }
+                        var box = type.getSpawnAABB(xx, y, zz);
+                        List<LevelChunk> collisionChunks = new ArrayList<>();
+                        LoadedBlockGetter blocks = new LoadedBlockGetter(level, collisionChunks);
+                        boolean clear = blocks.noBlockCollision(null, box);
+                        SpawnCandidate.Collision collision = null;
+                        if (blocks.isAvailable()) {
+                            if (!clear)
+                                continue;
+                            collision = new SpawnCandidate.Collision(box,collisionChunks.toArray(LevelChunk[]::new),blocks.blockChangeStampSum);
+                        }
                         out.add(new SpawnCandidate(category, group, pos.immutable(), current, staticPassed,
-                                placementPassed));
+                                placementPassed, collision));
                     }
                 }
             }

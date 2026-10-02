@@ -14,13 +14,45 @@ import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import org.jspecify.annotations.NonNull;
+import com.carpet.rof.mixinAccessor.LevelChunkAccessor;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.CollisionGetter;
+import net.minecraft.world.level.border.WorldBorder;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import java.util.List;
 
-public final class LoadedBlockGetter implements BlockGetter
+public final class LoadedBlockGetter implements CollisionGetter
 {
     private final ServerLevel level;
     private boolean available = true;
     private LevelChunk chunkCache = null;
     private long chunkPosCache = 0;
+    private List<LevelChunk> collisionChunks;
+    public long blockChangeStampSum;
+
+
+    public LoadedBlockGetter(ServerLevel level, List<LevelChunk> collisionChunks)
+    {
+        this(level);
+        this.collisionChunks = collisionChunks;
+    }
+
+    public BlockGetter getChunkForCollisions(int x, int z)
+    {
+        return chunk(new BlockPos(x << 4, level.getMinY(), z << 4)) == null ? null : this;
+    }
+
+    public WorldBorder getWorldBorder()
+    {
+        return level.getWorldBorder();
+    }
+
+    public List<VoxelShape> getEntityCollisions(Entity entity, AABB box)
+    {
+        return List.of();
+    }
 
     public LoadedBlockGetter(ServerLevel level)
     {
@@ -76,6 +108,10 @@ public final class LoadedBlockGetter implements BlockGetter
         }
         ChunkAccess chunk = findChunk(level, pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.FULL);
         if (chunk instanceof LevelChunk levelChunk) {
+            if (collisionChunks != null && !collisionChunks.contains(levelChunk)) {
+                collisionChunks.add(levelChunk);
+                blockChangeStampSum += LevelChunkAccessor.of(levelChunk).rof$getBlockChangeStamp();
+            }
             chunkCache = levelChunk;
             chunkPosCache = ChunkPosHelper.pack(pos);
             return levelChunk;
