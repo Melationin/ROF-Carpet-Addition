@@ -9,6 +9,7 @@ import com.carpet.rof.mixinAccessor.ServerLevelAccessor;
 import com.carpet.rof.rules.explosion.ExplosionMergeData;
 import com.carpet.rof.rules.extraChunkDatas.ExceedChunkMarkerSetting;
 import com.carpet.rof.rules.merge.MergeSetting;
+import com.carpet.rof.rules.portal.NetherPortalCache;
 import com.carpet.rof.utils.NBTData;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.world.entity.Entity;
@@ -47,6 +48,8 @@ public class ExtraWorldDatas implements NBTData
     public final DelayedChunkSnapshot spawningChunks = new DelayedChunkSnapshot();
 
     public final ExplosionMergeData explosionMergeData = new ExplosionMergeData();
+
+    public final NetherPortalCache netherPortalCache = new NetherPortalCache();
 
     public static ExtraWorldDatas fromWorld(ServerLevel world){
         return  ServerLevelAccessor.of(world).rof$getROFextraWorldDatas();

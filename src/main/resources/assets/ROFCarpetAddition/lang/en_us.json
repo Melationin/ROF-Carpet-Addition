@@ -1,4 +1,13 @@
 {
+  "carpet.rule.netherPortalCacheDistance.name": "Nether portal exit search cache distance",
+  "carpet.rule.netherPortalCacheDistance.desc": "Caches exit portal positions per entrance portal block while entities remain within this distance of the last actual search position and the exit chunk has not changed.",
+  "carpet.rule.netherPortalCacheDistance.extra.0": "0 disables caching; distance is measured as the three-dimensional Euclidean distance in the source world.",
+  "carpet.rule.optimizedEquipmentDrops.name": "Equipment drop optimization",
+  "carpet.rule.optimizedEquipmentDrops.desc": "Skips equipment drop enchantment calculations for empty mob equipment slots and context creation for enchantments without equipment drop effects.",
+  "carpet.rule.optimizedEquipmentDrops.extra.0": "Empty equipment slots no longer run equipment drop enchantment effects, which may change random number consumption for custom random enchantment effects",
+  "carpet.rule.optimizedExperienceOrbMerge.name": "Experience orb spawn merge query optimization",
+  "carpet.rule.optimizedExperienceOrbMerge.desc": "Stops the experience orb spawn merge query after the first orb matching vanilla merge conditions.",
+  "carpet.rule.optimizedExperienceOrbMerge.extra.0": "Preserves vanilla query order, random grouping, experience value matching, and merge logic",
 
   "carpet.category.ROF": "ROF",
   "carpet.category.PACKET": "PACKET",

@@ -13,6 +13,7 @@ accessible field net/minecraft/world/entity/Entity ENTITY_COUNTER Ljava/util/con
 #?}
 accessible field net/minecraft/world/level/chunk/LevelChunk$RebindableTickingBlockEntityWrapper ticker Lnet/minecraft/world/level/block/entity/TickingBlockEntity;
 accessible class net/minecraft/server/level/ChunkMap$TrackedEntity
+accessible class net/minecraft/world/item/enchantment/EnchantmentHelper$EnchantmentInSlotVisitor
 accessible class net/minecraft/world/level/chunk/LevelChunk$BoundTickingBlockEntity
 accessible class net/minecraft/world/level/chunk/LevelChunk$RebindableTickingBlockEntityWrapper
 accessible field net/minecraft/world/level/chunk/LevelChunk$BoundTickingBlockEntity blockEntity Lnet/minecraft/world/level/block/entity/BlockEntity;

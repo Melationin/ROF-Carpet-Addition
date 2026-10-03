@@ -2,6 +2,21 @@
 
 **Tip: use `Ctrl+F` to quickly find the rule you need**
 
+## netherPortalCacheDistance
+
+&emsp;Caches exit portal positions per entrance portal block while entities remain within this distance of the last actual search position and the exit chunk has not changed.
+
+&emsp; `Distance is measured in three dimensions in the source world. 0 disables caching. Only finite nonnegative values are accepted.`
+
+&emsp;- Type: `double`
+
+&emsp;- Default: `0.0`
+
+&emsp;- Options: `0`, `0.1`, `0.5`
+
+&emsp;- Categories: `ROF`, `optimization`, `experimental`
+
+
 ## asyncNaturalSpawning
 
 &emsp;Precomputes natural-spawning candidates off-thread; entity creation and counting stay on the main thread
@@ -399,6 +414,32 @@
 &emsp;- Default: `false`
 
 &emsp;- Categories: `ROF`, `optimization`, `experimental`
+
+
+## optimizedEquipmentDrops
+
+&emsp;Skips equipment drop enchantment calculations for empty mob equipment slots and context creation for enchantments without equipment drop effects.
+
+&emsp; `Empty equipment slots no longer run equipment drop enchantment effects, which may change random number consumption for custom random enchantment effects`
+
+&emsp;- Type: `boolean`
+
+&emsp;- Default: `false`
+
+&emsp;- Categories: `ROF`, `optimization`, `experimental`
+
+
+## optimizedExperienceOrbMerge
+
+&emsp;Stops the experience orb spawn merge query after the first orb matching vanilla merge conditions.
+
+&emsp; `Preserves vanilla query order, random grouping, experience value matching, and merge logic`
+
+&emsp;- Type: `boolean`
+
+&emsp;- Default: `false`
+
+&emsp;- Categories: `ROF`, `optimization`
 
 
 ## optimizedExplosion

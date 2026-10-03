@@ -2,6 +2,21 @@
 
 **提示：可以使用`Ctrl+F`快速查找自己想要的规则**
 
+## 地狱门出口搜索缓存距离 (netherPortalCacheDistance)
+
+&emsp;按入口门方块缓存出口门位置；实体距上次实际搜索位置不超过此距离，且出口区块未变化时复用结果。
+
+&emsp; `距离按来源世界的三维欧氏距离计算.0 表示禁用；只接受有限的非负数。`
+
+&emsp;- 类型: `double`
+
+&emsp;- 默认值: `0.0`
+
+&emsp;- 参考选项: `0`, `0.1`, `0.5`
+
+&emsp;- 分类: `ROF`, `optimization`, `experimental`
+
+
 ## 生物生成异步 (asyncNaturalSpawning)
 
 &emsp;异步预计算自然生成候选；实体创建和数量统计仍在主线程执行。
@@ -399,6 +414,32 @@
 &emsp;- 默认值: `false`
 
 &emsp;- 分类: `ROF`, `optimization`, `experimental`
+
+
+## 装备掉落优化 (optimizedEquipmentDrops)
+
+&emsp;跳过生物死亡时空装备槽的掉落附魔计算，以及没有装备掉落效果的附魔上下文创建。
+
+&emsp; `空装备槽不再执行装备掉落附魔效果，可能改变自定义随机附魔效果的随机数消耗顺序`
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `optimization`, `experimental`
+
+
+## 经验球生成合并查询优化 (optimizedExperienceOrbMerge)
+
+&emsp;生成经验球时找到第一个符合原版合并条件的经验球就停止查询。
+
+&emsp; `保留原版查询顺序、随机分组、经验值匹配和合并逻辑`
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `optimization`
 
 
 ## 爆炸优化 (optimizedExplosion)

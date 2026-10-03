@@ -33,6 +33,9 @@
     "packetRules.EntityTrackerMixin",
     "packetRules.ServerEntityMixin",
     "rules.betterNoAi.MobMixin",
+    "rules.drops.EnchantmentHelperMixin",
+    "rules.drops.ExperienceOrbMixin",
+    "rules.drops.MobMixin",
     "rules.enderPearl.EntityMixin",
     "rules.enderPearl.ThrownEnderpearlMixin",
     "rules.explosion.EntityMixin",
@@ -63,6 +66,7 @@
     "rules.piglinRules.MobMixin",
     "rules.piglinRules.PiglinAiMixin2",
     "rules.piglinRules.PiglinMixin",
+    "rules.portal.NetherPortalBlockMixin",
     "rules.spawnStatistic.ServerChunkCacheMixin",
     "rules.spawnStatistic.ServerLevelMixin",
     "rules.spawnStatistic.SpawnStateMixin"
