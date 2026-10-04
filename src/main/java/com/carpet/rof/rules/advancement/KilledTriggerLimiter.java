@@ -8,6 +8,7 @@ public final class KilledTriggerLimiter
         calls = 0;
     }
     public boolean canTriggered(){
+        calls ++;
         return calls <= AdvancementSettings.killedTriggerLimitPerTick;
     }
 }
