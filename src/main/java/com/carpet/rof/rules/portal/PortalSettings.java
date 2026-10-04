@@ -15,7 +15,7 @@ import static carpet.api.settings.RuleCategory.OPTIMIZATION;
 @ROFRule
 public class PortalSettings extends BaseSetting
 {
-    @Rule(categories = {ROF, OPTIMIZATION, EXPERIMENTAL}, options = {"0", "1", "2", "4"},
+    @Rule(categories = {ROF, OPTIMIZATION, EXPERIMENTAL}, options = {"0", "0.1", "0.5"},
             strict = false, validators = CacheDistanceValidator.class)
     @QuickTranslations(
             name = "地狱门出口搜索缓存距离",

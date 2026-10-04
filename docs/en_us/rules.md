@@ -288,6 +288,21 @@
 &emsp;- Categories: `ROF`, `experimental`
 
 
+## killedTriggerLimitPerTick
+
+&emsp;Limits KilledTrigger.trigger executions per tick with one shared budget for all entities.
+
+&emsp; `0 means unlimited`
+
+&emsp;- Type: `int`
+
+&emsp;- Default: `0`
+
+&emsp;- Options: `0`, `1`, `10`, `100`
+
+&emsp;- Categories: `ROF`, `optimization`, `feature`
+
+
 ## mergeExplosion
 
 &emsp;Merges the multiple explosions produced by one merged TNT into a single explosion, so entities are affected only once. Only applies when TNT merging and explosion optimization are both enabled.

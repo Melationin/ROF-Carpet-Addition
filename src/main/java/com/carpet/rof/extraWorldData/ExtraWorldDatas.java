@@ -6,6 +6,7 @@ import com.carpet.rof.extraWorldData.extraChunkDatas.ChunkLoadedFinder;
 import com.carpet.rof.extraWorldData.extraChunkDatas.ExceedChunkMarker;
 import com.carpet.rof.extraWorldData.asyncWorldgen.DelayedChunkSnapshot;
 import com.carpet.rof.mixinAccessor.ServerLevelAccessor;
+import com.carpet.rof.rules.advancement.KilledTriggerLimiter;
 import com.carpet.rof.rules.explosion.ExplosionMergeData;
 import com.carpet.rof.rules.extraChunkDatas.ExceedChunkMarkerSetting;
 import com.carpet.rof.rules.merge.MergeSetting;
@@ -50,6 +51,8 @@ public class ExtraWorldDatas implements NBTData
     public final ExplosionMergeData explosionMergeData = new ExplosionMergeData();
 
     public final NetherPortalCache netherPortalCache = new NetherPortalCache();
+
+    public final KilledTriggerLimiter killedTriggerLimiter = new KilledTriggerLimiter();
 
     public static ExtraWorldDatas fromWorld(ServerLevel world){
         return  ServerLevelAccessor.of(world).rof$getROFextraWorldDatas();

@@ -1,0 +1,13 @@
+package com.carpet.rof.rules.advancement;
+
+public final class KilledTriggerLimiter
+{
+    private int calls;
+
+    public void clear(){
+        calls = 0;
+    }
+    public boolean canTriggered(){
+        return calls <= AdvancementSettings.killedTriggerLimitPerTick;
+    }
+}

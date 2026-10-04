@@ -288,6 +288,21 @@
 &emsp;- 分类: `ROF`, `experimental`
 
 
+## 每游戏刻击杀进度触发次数上限 (killedTriggerLimitPerTick)
+
+&emsp;限制每 tick 内 KilledTrigger.trigger 的执行次数，所有实体共用一个额度。
+
+&emsp; `0 表示不限制.`
+
+&emsp;- 类型: `int`
+
+&emsp;- 默认值: `0`
+
+&emsp;- 参考选项: `0`, `1`, `10`, `100`
+
+&emsp;- 分类: `ROF`, `optimization`, `feature`
+
+
 ## 爆炸合并 (mergeExplosion)
 
 &emsp;把合并TNT产生的多次爆炸合成一次，只对实体作用一次。仅在合并TNT和爆炸优化已启用时生效。

@@ -1,4 +1,8 @@
 {
+  "carpet.rule.killedTriggerLimitPerTick.name": "Killed advancement trigger limit per tick",
+  "carpet.rule.killedTriggerLimitPerTick.desc": "Limits KilledTrigger.trigger executions per tick with one shared budget for all entities.",
+  "carpet.rule.killedTriggerLimitPerTick.extra.0": "0 means unlimited; all dimensions, players and KilledTrigger types share the budget",
+  "carpet.rule.killedTriggerLimitPerTick.extra.1": "Calls exceeding the limit are skipped rather than deferred; their advancement checks and completion rewards do not run",
   "carpet.rule.netherPortalCacheDistance.name": "Nether portal exit search cache distance",
   "carpet.rule.netherPortalCacheDistance.desc": "Caches exit portal positions per entrance portal block while entities remain within this distance of the last actual search position and the exit chunk has not changed.",
   "carpet.rule.netherPortalCacheDistance.extra.0": "0 disables caching; distance is measured as the three-dimensional Euclidean distance in the source world.",

@@ -20,7 +20,11 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.world.level.storage.LevelResource;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import static com.carpet.rof.commands.RequirementModifyCommand.requirementModifyMap;
 
@@ -61,6 +65,7 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
             ExtraWorldDatas.fromWorld(world).mergeTntMap.clear();
             ExtraWorldDatas.fromWorld(world).mergeTntMapAv.clear();
             ExtraWorldDatas.fromWorld(world).chunkEntitySpawnLogger.run(world);
+            ExtraWorldDatas.fromWorld(world).killedTriggerLimiter.clear();
         });
 
         ROFEvents.ServerSave.register(server2 -> {

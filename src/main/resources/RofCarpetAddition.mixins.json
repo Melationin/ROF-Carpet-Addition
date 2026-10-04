@@ -32,6 +32,7 @@
     "packetRules.ChunkMapMixin",
     "packetRules.EntityTrackerMixin",
     "packetRules.ServerEntityMixin",
+    "rules.advancement.KilledTriggerMixin",
     "rules.betterNoAi.MobMixin",
     "rules.drops.EnchantmentHelperMixin",
     "rules.drops.ExperienceOrbMixin",
