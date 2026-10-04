@@ -141,10 +141,11 @@ public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
                             target = "Lnet/minecraft/server/level/ServerPlayer;registerAndUpdateEnderPearlTicket(Lnet/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl;)J"))
     private long rof$betterEnderPearlTicket(ServerPlayer player, ThrownEnderpearl pearl, Operation<Long> original)
     {
+        if(!betterEnderPearlTicket) return original.call(player, pearl);
         if(!(this.level() instanceof ServerLevel serverLevel)) return original.call(player, pearl);
         boolean canUseBetterTicker = ChunkPosHelper.pack(this.chunkPosition())!= chunkPos2;
         ServerChunkCache chunkSource = serverLevel.getChunkSource();
-        canUseBetterTicker = canUseBetterTicker && chunkSource.getChunkNow(ChunkPosHelper.x(chunkPosition()),ChunkPosHelper.z(chunkPosition())) != null;
+        canUseBetterTicker = canUseBetterTicker && chunkSource.getChunkNow(ChunkPosHelper.x(chunkPosition()),ChunkPosHelper.z(chunkPosition())) == null;
         canUseBetterTicker = canUseBetterTicker && isSafe();
         if(canUseBetterTicker) {
             player.registerEnderPearl(pearl);

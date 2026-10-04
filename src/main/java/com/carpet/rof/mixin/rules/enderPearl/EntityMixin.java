@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.carpet.rof.rules.enderPearl.EnderPearlSettings.optimizedEnderPearlTick;
 
 @Mixin(Entity.class)
-public abstract class EntityMixin
+public abstract class   EntityMixin
 {
     @Shadow
     public abstract AABB getBoundingBox();
