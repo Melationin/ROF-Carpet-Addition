@@ -18,10 +18,4 @@ public class DropSettings extends BaseSetting
     )
     public static boolean optimizedEquipmentDrops = false;
 
-    @Rule(categories = {ROF, OPTIMIZATION})
-    @QuickTranslations(
-            name = "经验球生成合并查询优化",
-            description = "生成经验球时找到第一个符合原版合并条件的经验球就停止查询。"
-    )
-    public static boolean optimizedExperienceOrbMerge = false;
 }

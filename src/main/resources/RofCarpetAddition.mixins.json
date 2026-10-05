@@ -16,6 +16,7 @@
     "world.blockChange.LevelChunkMixin",
     "world.blockChange.LevelMixin",
     "carpet.SettingsManagerSetting",
+    "carpet.ParsedRuleMixin",
     "debug.ChunkStatusTasksMixin",
     "debug.ServerTickRateManagerMixin",
     "debug.ThrownEnderpearlDebugMixin",

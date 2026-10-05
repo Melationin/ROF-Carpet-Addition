@@ -4,11 +4,11 @@
 
 ## 前置模组
 
-| 名称          | 类型 | 链接                                                                                                                                                                       | 备注 |
-|-------------|----|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----|
-| Carpet      | 必须 | [MC百科](https://www.mcmod.cn/class/2361.html) &#124; [Modrinth](https://modrinth.com/mod/carpet) | -  |
-| Fabric API  | 必须 | [MC百科](https://www.mcmod.cn/class/3124.html) &#124; [官方](https://fabricmc.net/)                                                                                          | - |
-| Lithium     | 必须 | [Modrinth](https://modrinth.com/mod/lithium) | - |
+| 名称          | 类型 | 链接                                                                               | 备注     |
+|-------------|----|----------------------------------------------------------------------------------|--------|
+| Carpet      | 必须 | [MC百科](https://www.mcmod.cn/class/2361.html) &#124; [Modrinth](https://modrinth.com/mod/carpet) | -      |
+| Fabric API  | 必须 | [MC百科](https://www.mcmod.cn/class/3124.html) &#124; [官方](https://fabricmc.net/)  | 1.5.0- |
+| Lithium     | 必须 | [Modrinth](https://modrinth.com/mod/lithium) | -      |
 
 ## 版本支持
 
@@ -23,11 +23,9 @@
 
 ## 文档
 
-- [项目结构](docs/zh_cn/project-structure.md)
-- [NBT 多版本包装](docs/zh_cn/nbt-helper.md)
 - [规则](docs/zh_cn/rules.md)
 - [命令](docs/zh_cn/command.md)
-
+- 
 English(Using LLM Translation):
 - [Rules](docs/en_us/rules.md)
 - [Commands](docs/en_us/command.md)

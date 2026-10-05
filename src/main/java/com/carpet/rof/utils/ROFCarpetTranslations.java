@@ -2,6 +2,7 @@ package com.carpet.rof.utils;
 
 import carpet.api.settings.Rule;
 import com.carpet.rof.annotation.QuickTranslations;
+import com.carpet.rof.carpet.composite.CompositeRuleManager;
 import com.carpet.rof.ROFSettings;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -35,8 +36,14 @@ public class ROFCarpetTranslations
 
         for (Class<?> clazz : ROFSettings.ruleClasses) {
             for (Field field : clazz.getDeclaredFields()) {
-                if (!field.isAnnotationPresent(Rule.class)) continue;
-                String n1 = "carpet.rule." + field.getName();
+                Rule rule = field.getAnnotation(Rule.class);
+                if (rule == null) continue;
+                String parent = "";
+                for (String category : rule.categories()) {
+                    if (category.startsWith(CompositeRuleManager.PARENT_PREFIX))
+                        parent = category.substring(CompositeRuleManager.PARENT_PREFIX.length());
+                }
+                String n1 = "carpet.rule." + (parent.isEmpty() ? "" : parent + ".") + field.getName();
                 if (!tempMap.containsKey(n1 + ".desc") && lang.equals("en_us")) {
                     tempMap.put(n1 + ".desc", "");
                 }
@@ -55,6 +62,10 @@ public class ROFCarpetTranslations
                             }
                         }
                     }
+                }
+                if (!parent.isEmpty()) {
+                    tempMap.putIfAbsent("carpet.rule." + field.getName() + ".desc",
+                            tempMap.getOrDefault(n1 + ".desc", ""));
                 }
             }
         }
