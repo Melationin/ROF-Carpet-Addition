@@ -1,7 +1,7 @@
 package com.carpet.rof.mixinAccessor;
 
-import com.carpet.rof.rules.asyncWorldgen.randomTick.RandomTickResult;
-import com.carpet.rof.rules.asyncWorldgen.spawner.SpawnResult;
+import com.carpet.rof.world.chunkTick.async.randomTick.RandomTickResult;
+import com.carpet.rof.world.chunkTick.async.spawner.SpawnResult;
 
 public interface LevelChunkAccessor
 {

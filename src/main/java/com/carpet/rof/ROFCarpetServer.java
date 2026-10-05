@@ -2,17 +2,17 @@ package com.carpet.rof;
 
 import carpet.CarpetExtension;
 import carpet.CarpetServer;
-import com.carpet.rof.commands.RequirementModifyCommand;
+import com.carpet.rof.command.RequirementModifyCommand;
 import com.carpet.rof.event.ROFEvents;
-import com.carpet.rof.extraWorldData.ExtraWorldDatas;
+import com.carpet.rof.world.extraWorldData.ExtraWorldDatas;
 import com.carpet.rof.utils.AutoMixinAuditExecutor;
 import com.carpet.rof.utils.ROFConfig;
 import com.carpet.rof.utils.ROFCarpetTranslations;
 import com.carpet.rof.utils.ROFTool;
 import com.carpet.rof.utils.singleTaskWorker.SingleTaskWorker;
-import com.carpet.rof.rules.asyncWorldgen.AsyncExecutor;
-import com.carpet.rof.rules.oec.OecUtil;
-import com.carpet.rof.rules.oec.lithium.ClimbableBlockStateCache;
+import com.carpet.rof.world.chunkTick.async.AsyncExecutor;
+import com.carpet.rof.entity.oec.OecUtil;
+import com.carpet.rof.entity.oec.lithium.ClimbableBlockStateCache;
 import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.commands.CommandBuildContext;
@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-import static com.carpet.rof.commands.RequirementModifyCommand.requirementModifyMap;
+import static com.carpet.rof.command.RequirementModifyCommand.requirementModifyMap;
 
 public class ROFCarpetServer implements CarpetExtension, ModInitializer
 {

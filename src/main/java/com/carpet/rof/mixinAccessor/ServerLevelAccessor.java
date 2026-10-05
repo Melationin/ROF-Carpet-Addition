@@ -1,6 +1,6 @@
 package com.carpet.rof.mixinAccessor;
 
-import com.carpet.rof.extraWorldData.ExtraWorldDatas;
+import com.carpet.rof.world.extraWorldData.ExtraWorldDatas;
 
 public interface ServerLevelAccessor
 {

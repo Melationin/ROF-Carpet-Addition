@@ -1,0 +1,123 @@
+package com.carpet.rof.world.chunkTick.async;
+
+import com.carpet.rof.utils.ChunkPosHelper;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import org.jspecify.annotations.NonNull;
+import com.carpet.rof.mixinAccessor.LevelChunkAccessor;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.CollisionGetter;
+import net.minecraft.world.level.border.WorldBorder;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import java.util.List;
+
+public final class LoadedBlockGetter implements CollisionGetter
+{
+    private final ServerLevel level;
+    private boolean available = true;
+    private LevelChunk chunkCache = null;
+    private long chunkPosCache = 0;
+    private List<LevelChunk> collisionChunks;
+    public long blockChangeStampSum;
+
+
+    public LoadedBlockGetter(ServerLevel level, List<LevelChunk> collisionChunks)
+    {
+        this(level);
+        this.collisionChunks = collisionChunks;
+    }
+
+    public BlockGetter getChunkForCollisions(int x, int z)
+    {
+        return chunk(new BlockPos(x << 4, level.getMinY(), z << 4)) == null ? null : this;
+    }
+
+    public WorldBorder getWorldBorder()
+    {
+        return level.getWorldBorder();
+    }
+
+    public List<VoxelShape> getEntityCollisions(Entity entity, AABB box)
+    {
+        return List.of();
+    }
+
+    public LoadedBlockGetter(ServerLevel level)
+    {
+        this.level = level;
+    }
+
+    public static ChunkAccess findChunk(ServerLevel level, int x, int z, ChunkStatus status)
+    {
+        ChunkHolder holder = level.getChunkSource().chunkMap.getVisibleChunkIfPresent(ChunkPosHelper.pack(x, z));
+        return holder == null ? null : holder.getChunkIfPresent(status);
+    }
+
+
+    public BlockEntity getBlockEntity(BlockPos pos)
+    {
+        LevelChunk chunk = chunk(pos);
+        return chunk == null ? null : chunk.getBlockEntity(pos);
+    }
+
+    public @NonNull BlockState getBlockState(BlockPos pos)
+    {
+        LevelChunk chunk = chunk(pos);
+        return chunk == null ? Blocks.VOID_AIR.defaultBlockState() : chunk.getBlockState(pos);
+    }
+
+    public @NonNull FluidState getFluidState(BlockPos pos)
+    {
+        LevelChunk chunk = chunk(pos);
+        return chunk == null ? Fluids.EMPTY.defaultFluidState() : chunk.getFluidState(pos);
+    }
+
+    public int getHeight()
+    {
+        return level.getHeight();
+    }
+
+    public int getMinY()
+    {
+        return level.getMinY();
+    }
+
+    public boolean isAvailable()
+    {
+        return available;
+    }
+
+    private LevelChunk chunk(BlockPos pos)
+    {
+        if (pos.getY() < level.getMinY() || pos.getY() >= level.getMaxY())
+            return null;
+        if (ChunkPosHelper.pack(pos) == chunkPosCache && chunkCache != null) {
+            return chunkCache;
+        }
+        ChunkAccess chunk = findChunk(level, pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.FULL);
+        if (chunk instanceof LevelChunk levelChunk) {
+            if (collisionChunks != null && !collisionChunks.contains(levelChunk)) {
+                collisionChunks.add(levelChunk);
+                blockChangeStampSum += LevelChunkAccessor.of(levelChunk).rof$getBlockChangeStamp();
+            }
+            chunkCache = levelChunk;
+            chunkPosCache = ChunkPosHelper.pack(pos);
+            return levelChunk;
+        }
+        ;
+        available = false;
+        return null;
+    }
+}

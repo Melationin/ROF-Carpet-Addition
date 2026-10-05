@@ -1,6 +1,6 @@
 package com.carpet.rof.mixin.debug;
 
-import com.carpet.rof.extraWorldData.ExtraWorldDatas;
+import com.carpet.rof.world.extraWorldData.ExtraWorldDatas;
 import com.carpet.rof.utils.ChunkPosHelper;
 import com.carpet.rof.utils.ROFTool;
 import net.minecraft.server.level.GenerationChunkHolder;

@@ -23,6 +23,8 @@
 
 ## 文档
 
+- [项目结构](docs/zh_cn/project-structure.md)
+- [NBT 多版本包装](docs/zh_cn/nbt-helper.md)
 - [规则](docs/zh_cn/rules.md)
 - [命令](docs/zh_cn/command.md)
 

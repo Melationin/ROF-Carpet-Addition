@@ -1,9 +1,9 @@
 package com.carpet.rof.mixin.packetRules;
 
 
-import com.carpet.rof.extraWorldData.ExtraWorldDatas;
-import com.carpet.rof.rules.packerRules.PacketRulesSettings;
-import com.carpet.rof.rules.packerRules.TrackedEntityRecoveryAccessor;
+import com.carpet.rof.world.extraWorldData.ExtraWorldDatas;
+import com.carpet.rof.packetRules.PacketRulesSettings;
+import com.carpet.rof.mixinAccessor.TrackedEntityRecoveryAccessor;
 import com.carpet.rof.utils.ROFTool;
 import com.carpet.rof.utils.ROFWarp;
 import net.minecraft.world.entity.Entity;
@@ -23,9 +23,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 
-import static com.carpet.rof.rules.packerRules.PacketRulesSettings.entitySpawnPacketLimitSeconds;
-import static com.carpet.rof.rules.packerRules.PacketRulesSettings.entitySpawnPacketLimitSecondsRecoverTime;
-import static com.carpet.rof.rules.packerRules.PacketRulesSettings.entitySpawnPacketLimitTicks;
+import static com.carpet.rof.packetRules.PacketRulesSettings.entitySpawnPacketLimitSeconds;
+import static com.carpet.rof.packetRules.PacketRulesSettings.entitySpawnPacketLimitSecondsRecoverTime;
+import static com.carpet.rof.packetRules.PacketRulesSettings.entitySpawnPacketLimitTicks;
 import com.carpet.rof.utils.ChunkPosHelper;
 
 @Mixin(ChunkMap.TrackedEntity.class)

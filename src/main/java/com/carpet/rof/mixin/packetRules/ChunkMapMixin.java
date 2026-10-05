@@ -1,6 +1,6 @@
 package com.carpet.rof.mixin.packetRules;
 
-import com.carpet.rof.rules.packerRules.TrackedEntityRecoveryAccessor;
+import com.carpet.rof.mixinAccessor.TrackedEntityRecoveryAccessor;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.server.level.ChunkMap;
 import org.spongepowered.asm.mixin.Final;
@@ -10,8 +10,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static com.carpet.rof.rules.packerRules.PacketRulesSettings.entitySpawnPacketLimitSeconds;
-import static com.carpet.rof.rules.packerRules.PacketRulesSettings.entitySpawnPacketLimitSecondsRecoverTime;
+import static com.carpet.rof.packetRules.PacketRulesSettings.entitySpawnPacketLimitSeconds;
+import static com.carpet.rof.packetRules.PacketRulesSettings.entitySpawnPacketLimitSecondsRecoverTime;
 
 @Mixin(ChunkMap.class)
 public class ChunkMapMixin

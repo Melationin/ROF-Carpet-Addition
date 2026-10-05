@@ -1,6 +1,6 @@
 package com.carpet.rof.utils;
 
-import com.carpet.rof.commands.RequirementModifyCommand;
+import com.carpet.rof.command.RequirementModifyCommand;
 import com.carpet.rof.event.ROFEvents;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.carpet.rof.commands.RequirementModifyCommand.requirementModifyMap;
+import static com.carpet.rof.command.RequirementModifyCommand.requirementModifyMap;
 
 /**
  * 轻量级 JSON 配置管理器。

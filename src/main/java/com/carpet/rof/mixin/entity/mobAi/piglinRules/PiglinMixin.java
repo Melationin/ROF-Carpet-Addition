@@ -1,0 +1,91 @@
+package com.carpet.rof.mixin.entity.mobAi.piglinRules;
+
+import com.carpet.rof.annotation.PublicField;
+import com.carpet.rof.mixinAccessor.PiglinAccessor;
+import com.carpet.rof.utils.ROFTool;
+import com.carpet.rof.utils.ROFWarp;
+import com.carpet.rof.utils.NBTHelper;
+
+import net.minecraft.world.entity.EntityType;
+//? >=26.2 {
+/*import net.minecraft.world.entity.EntityTypes;
+ *///?}
+import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
+import net.minecraft.world.entity.monster.piglin.Piglin;
+import net.minecraft.server.level.ServerLevel;
+
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.level.Level;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Coerce;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import static com.carpet.rof.entity.mobAi.piglinRules.PiglinRulesSettings.piglinStackingAISuppression;
+
+@Mixin(Piglin.class)
+public abstract class PiglinMixin extends AbstractPiglin implements PiglinAccessor
+{
+
+    @Unique
+    private int nearPiglinCount = 0;
+
+    @PublicField(mutable = false)
+    @Unique
+    private boolean suppressingAI = false;
+
+    @Override
+    public boolean rof$getSuppressingAI()
+    {
+        return this.suppressingAI;
+    }
+
+
+
+
+    public PiglinMixin(EntityType<? extends AbstractPiglin> entityType, Level world)
+    {
+        super(entityType, world);
+    }
+
+
+    @Inject(method = "customServerAiStep", at = @At(value = "HEAD"))
+    private void piglinTick(ServerLevel level, CallbackInfo ci)
+    {
+        if(piglinStackingAISuppression == 10000){
+            suppressingAI = false;
+            return;
+        }
+        suppressingAI = !ROFTool.canLoadAi(this.getId(), nearPiglinCount, piglinStackingAISuppression);
+        if ((this.tickCount + this.getId() % 801) % 400 == 0) {
+            nearPiglinCount = level.getEntities(
+                    //? <26.2 {
+                    EntityType.PIGLIN,
+                    //?} else {
+                    /*EntityTypes.PIGLIN,
+                     *///?}
+                    new AABB(ROFWarp.getPos_(this).add(0.5, 0.5, 0.5),ROFWarp.getPos_(this).add(-0.5, -0.5, -0.5)),
+                    piglin -> true).size();
+        }
+
+    }
+
+    @Inject(method = "addAdditionalSaveData", at = @At(value = "HEAD"))
+    private void writeCustomData(@Coerce Object output, CallbackInfo ci)
+    {
+        if (nearPiglinCount > piglinStackingAISuppression) {
+            NBTHelper.putInt(output, "nearPiglinCount", nearPiglinCount);
+        }
+    }
+
+    @Inject(method = "readAdditionalSaveData", at = @At(value = "HEAD"))
+    private void readCustomData(@Coerce Object input, CallbackInfo ci)
+    {
+        nearPiglinCount = NBTHelper.getIntOr(input, "nearPiglinCount", nearPiglinCount);
+    }
+
+
+
+}
