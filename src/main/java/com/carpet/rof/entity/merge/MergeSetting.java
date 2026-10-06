@@ -4,7 +4,6 @@ import carpet.api.settings.Rule;
 import com.carpet.rof.annotation.QuickTranslations;
 import com.carpet.rof.carpet.BaseSetting;
 import com.carpet.rof.annotation.ROFRule;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 import static carpet.api.settings.RuleCategory.*;
@@ -64,26 +63,6 @@ public class MergeSetting extends BaseSetting {
     )
     public static boolean mergeFallingBlock = false;
 */
-    @Rule(
-            categories = {ROF,OPTIMIZATION,FEATURE}
-    )
-    @QuickTranslations(
-            name = "物品合并优化",
-            description = "尽量让物品达到一组，以减轻卡顿(效果不明显)",
-            extra = {"允许部分合并：优先把掉落物填满整组，余量留在原掉落物中"}
-    )
-    public static boolean optimizedItemMerge = false;
-
-
-
-    // 规则开启时放宽原版"装满才合并"的限制：同物品同组件、两边都未满即可合并，余量由原版 merge 留在对方。
-    public static boolean canPartialMerge(ItemStack selfStack, ItemStack otherStack)
-    {
-        return selfStack.getCount() < selfStack.getMaxStackSize()
-                && otherStack.getCount() < otherStack.getMaxStackSize()
-                && ItemStack.isSameItemSameComponents(selfStack, otherStack);
-    }
-
     public record EntityPosAndVec(
             double posX, double posY, double posZ,
             double vecX, double vecY, double vecZ,

@@ -230,13 +230,13 @@
 &emsp;- 分类: `ROF`, `optimization`, `packet`
 
 
-## 每秒实体生成发包限制恢复时间 (entitySpawnPacketLimitSecondsRecoverTime)
+## 实体生成发包限制恢复时间 (entitySpawnPacketLimitSecondsRecoverTime)
 
-&emsp;被每秒发包限制的实体在存活时间达到该tick数后恢复原版发包距离
+&emsp;被每 tick 或每秒发包限制的实体在存活时间达到该游戏刻数后，恢复限制前的追踪距离
 
 &emsp; `设置为负数表示禁用`
 
-&emsp; `对每游戏刻发包限制不生效`
+&emsp; `同时受到两种限制的实体也会恢复`
 
 &emsp;- 类型: `int`
 
@@ -394,17 +394,6 @@
 &emsp;- 分类: `ROF`, `optimization`
 
 
-## 可攀爬方块标签判断缓存 (optimizedClimbableTagCheck)
-
-&emsp;缓存 Lithium 实体推挤判断中的 CLIMBABLE 方块标签查询，减少 LivingEntity.onClimbable 的重复标签查找。
-
-&emsp;- 类型: `boolean`
-
-&emsp;- 默认值: `false`
-
-&emsp;- 分类: `ROF`, `optimization`
-
-
 ## 优化珍珠tick (optimizedEnderPearlTick)
 
 &emsp;让大多数情况下高速珍珠的飞行不生成新区块，可大幅度减少存档体积。在ECM未打开时，只会让世界高度外的珍珠不生成区块
@@ -487,19 +476,6 @@
 &emsp;- 默认值: `false`
 
 &emsp;- 分类: `ROF`, `optimization`
-
-
-## 物品合并优化 (optimizedItemMerge)
-
-&emsp;尽量让物品达到一组，以减轻卡顿(效果不明显)
-
-&emsp; `允许部分合并：优先把掉落物填满整组，余量留在原掉落物中`
-
-&emsp;- 类型: `boolean`
-
-&emsp;- 默认值: `false`
-
-&emsp;- 分类: `ROF`, `optimization`, `feature`
 
 
 ## raycast优化 (optimizedRaycast)

@@ -2,9 +2,9 @@ package com.carpet.rof.mixin.packetRules;
 
 
 import com.carpet.rof.world.extraWorldData.ExtraWorldDatas;
-import com.carpet.rof.packetRules.PacketRulesSettings;
+import com.carpet.rof.mixinAccessor.ChunkMapRecoveryAccessor;
 import com.carpet.rof.mixinAccessor.TrackedEntityRecoveryAccessor;
-import com.carpet.rof.utils.ROFTool;
+import com.carpet.rof.utils.ChunkPosHelper;
 import com.carpet.rof.utils.ROFWarp;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.server.level.ChunkMap;
@@ -23,10 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 
-import static com.carpet.rof.packetRules.PacketRulesSettings.entitySpawnPacketLimitSeconds;
-import static com.carpet.rof.packetRules.PacketRulesSettings.entitySpawnPacketLimitSecondsRecoverTime;
-import static com.carpet.rof.packetRules.PacketRulesSettings.entitySpawnPacketLimitTicks;
-import com.carpet.rof.utils.ChunkPosHelper;
+import static com.carpet.rof.packetRules.PacketRulesSettings.*;
 
 @Mixin(ChunkMap.TrackedEntity.class)
 public abstract class EntityTrackerMixin implements TrackedEntityRecoveryAccessor
@@ -38,52 +35,48 @@ public abstract class EntityTrackerMixin implements TrackedEntityRecoveryAccesso
 
     @Shadow public abstract void updatePlayers(List<ServerPlayer> players);
 
-    @Unique private boolean rof$spawnLimitedByTicks;
-
-    @Unique private boolean rof$spawnLimitedBySeconds;
+    @Unique private boolean rof$spawnLimited;
+    @Unique private int rof$originalRange;
 
     @Inject(method = "<init>", at = @At(value = "TAIL"))
     //?>=26.3
     //void init(ChunkMap serverChunkLoadingManager, Entity entity, int maxDistance, UpdateInterval tickInterval, boolean alwaysUpdateVelocity, CallbackInfo ci){
     //?<26.3
     void init(ChunkMap serverChunkLoadingManager, Entity entity, int maxDistance, int tickInterval, boolean alwaysUpdateVelocity, CallbackInfo ci){
-       if(! (ROFWarp.getWorld_(entity) instanceof ServerLevel)) return ;
-       if(entitySpawnPacketLimitTicks>=0 ) {
-
-           var data = ExtraWorldDatas.fromWorld((ServerLevel) (ROFWarp.getWorld_(entity) )).entitySpawnCountsPerTick;
-           if (data.containsKey(entity.getType())) {
-               data.put(entity.getType(), data.get(entity.getType()) + 1);
-           } else {
-               data.put(entity.getType(), 1);
-           }
-           int count = data.get(entity.getType());
-           if (count > entitySpawnPacketLimitTicks){
-               this.range = PacketRulesSettings.entitySpawnPacketLimitTicksTrackerDistance;
-               //ROFTool.rDEBUG("[EntityTrackerMixin] count: " + count);
-               this.rof$spawnLimitedByTicks = true;
-           }
-       }
-        if(entitySpawnPacketLimitSeconds>=0) {
-            var data2 = ExtraWorldDatas.fromWorld((ServerLevel) (ROFWarp.getWorld_(entity) )).chunkEntitySpawnLogger;
-            data2.add(ChunkPosHelper.pack(entity.chunkPosition()), entity.getType());
-            int count2 = data2.get(ChunkPosHelper.pack(entity.chunkPosition()), entity.getType());
-            if (Math.random()*count2 >= entitySpawnPacketLimitSeconds) {
-                this.range = 0;
-                this.rof$spawnLimitedBySeconds = true;
+        if ((entitySpawnPacketLimitTicks < 0 && entitySpawnPacketLimitSeconds < 0)
+                || !(ROFWarp.getWorld_(entity) instanceof ServerLevel level)) return;
+        rof$originalRange = range;
+        var data = ExtraWorldDatas.fromWorld(level);
+        if (entitySpawnPacketLimitTicks >= 0) {
+            int count = data.entitySpawnCountsPerTick.merge(entity.getType(), 1, Integer::sum);
+            if (count > entitySpawnPacketLimitTicks) {
+                this.range = entitySpawnPacketLimitTicksTrackerDistance;
+                rof$spawnLimited = true;
             }
         }
+        if (entitySpawnPacketLimitSeconds >= 0) {
+            long chunk = ChunkPosHelper.pack(entity.chunkPosition());
+            data.chunkEntitySpawnLogger.add(chunk, entity.getType());
+            int count = data.chunkEntitySpawnLogger.get(chunk, entity.getType());
+            if (Math.random() * count >= entitySpawnPacketLimitSeconds) {
+                this.range = 0;
+                rof$spawnLimited = true;
+            }
+        }
+        if (rof$spawnLimited) ((ChunkMapRecoveryAccessor) serverChunkLoadingManager).rof$markSpawnLimitedEntity();
     }
 
     @Override
-    public void rof$recoverSpawnLimit()
+    public boolean rof$recoverSpawnLimit()
     {
-        if (!rof$spawnLimitedBySeconds || rof$spawnLimitedByTicks) return;
-        if (entity.tickCount < entitySpawnPacketLimitSecondsRecoverTime) return;
-        rof$spawnLimitedBySeconds = false;
-        this.range = entity.getType().clientTrackingRange() * 16;
+        if (!rof$spawnLimited) return false;
+        if (entitySpawnPacketLimitSecondsRecoverTime < 0 || entity.tickCount < entitySpawnPacketLimitSecondsRecoverTime) return true;
+        rof$spawnLimited = false;
+        this.range = rof$originalRange;
         if (ROFWarp.getWorld_(entity) instanceof ServerLevel level) {
             updatePlayers(level.players());
         }
+        return false;
     }
 
 }

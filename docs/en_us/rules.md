@@ -232,11 +232,11 @@
 
 ## entitySpawnPacketLimitSecondsRecoverTime
 
-&emsp;Throttled entities regain vanilla tracking distance after surviving this many ticks
+&emsp;Entities affected by either the per-tick or per-second limit regain their pre-limit tracking distance after surviving this many ticks
 
 &emsp; `Set to a negative value to disable`
 
-&emsp; `No effect on the per-tick limit`
+&emsp; `Entities affected by both limits also recover`
 
 &emsp;- Type: `int`
 
@@ -394,17 +394,6 @@
 &emsp;- Categories: `ROF`, `optimization`
 
 
-## optimizedClimbableTagCheck
-
-&emsp;Caches the CLIMBABLE block-tag lookup used by Lithium entity pushability checks, reducing repeated tag lookups in LivingEntity.onClimbable.
-
-&emsp;- Type: `boolean`
-
-&emsp;- Default: `false`
-
-&emsp;- Categories: `ROF`, `optimization`
-
-
 ## optimizedEnderPearlTick
 
 &emsp;In most cases, stops flying high-speed pearls from generating new chunks, which can greatly reduce save size. When ECM is not enabled, only pearls outside world height will not generate chunks.
@@ -487,19 +476,6 @@
 &emsp;- Default: `false`
 
 &emsp;- Categories: `ROF`, `optimization`
-
-
-## optimizedItemMerge
-
-&emsp;Fills item stacks to a full stack to reduce lag (minor effect)
-
-&emsp; `Partial merging: drops fill up to a full stack first, the remainder stays in the original drop`
-
-&emsp;- Type: `boolean`
-
-&emsp;- Default: `false`
-
-&emsp;- Categories: `ROF`, `optimization`, `feature`
 
 
 ## optimizedRaycast

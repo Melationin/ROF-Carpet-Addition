@@ -62,10 +62,11 @@ public class PacketRulesSettings extends BaseSetting {
             options = {"-1","200","100","400"}
     )
     @QuickTranslations(
-            name = "每秒实体生成发包限制恢复时间",
-            description = "被每秒发包限制的实体在存活时间达到该tick数后恢复原版发包距离",
-            extra = {"设置为负数表示禁用","对每游戏刻发包限制不生效"}
+            name = "实体生成发包限制恢复时间",
+            description = "被每 tick 或每秒发包限制的实体在存活时间达到该游戏刻数后，恢复限制前的追踪距离",
+            extra = {"设置为负数表示禁用","同时受到两种限制的实体也会恢复"}
     )
+    // 保留旧规则名，恢复时间同时适用于每 tick 和每秒限制。
     public static int entitySpawnPacketLimitSecondsRecoverTime = 200;
 
     @Rule(
