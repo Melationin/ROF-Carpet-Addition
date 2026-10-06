@@ -12,15 +12,6 @@ import static carpet.api.settings.RuleCategory.*;
 public class MergeSetting extends BaseSetting {
 
 
-    public static class OnlySGU implements Rule.Condition{
-
-        @Override
-        public boolean shouldRegister()
-        {
-            return false;
-        }
-    }
-
     public enum MergeTNTNextMode
     {
         TRUE, FALSE, SAFE, ALMOST_VANILLA, SAFE_PLUS
