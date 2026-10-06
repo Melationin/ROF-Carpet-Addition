@@ -10,7 +10,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static com.carpet.rof.packetRules.PacketRulesSettings.tntPacketOptimization;
+import static com.carpet.rof.world.explosion.OptimizedExplosionSettings.tntExplosionOptimizations;
+import static com.carpet.rof.world.explosion.OptimizedExplosionSettings.tntPacketOptimization;
 
 @Mixin(ServerEntity.class)
 public class ServerEntityMixin
@@ -24,7 +25,7 @@ public class ServerEntityMixin
             cancellable = true)
     public void syncEntityData(CallbackInfo ci)
     {
-        if (tntPacketOptimization && entity instanceof PrimedTnt tntEntity) {
+        if (tntExplosionOptimizations && tntPacketOptimization && entity instanceof PrimedTnt tntEntity) {
             if (tntEntity.getFuse() > 1) {
                 ci.cancel();
             }

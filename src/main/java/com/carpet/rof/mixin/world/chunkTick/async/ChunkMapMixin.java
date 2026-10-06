@@ -2,7 +2,7 @@ package com.carpet.rof.mixin.world.chunkTick.async;
 
 import com.carpet.rof.world.extraWorldData.ExtraWorldDatas;
 import com.carpet.rof.world.chunkTick.async.DelayedChunkSnapshot;
-import com.carpet.rof.world.chunkTick.async.AsyncSettings;
+import com.carpet.rof.world.chunkTick.ChunkTickSettings;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -28,7 +28,7 @@ public class ChunkMapMixin
     private void rof$useCachedSpawningChunks(List<LevelChunk> out, CallbackInfo ci)
     {
         DelayedChunkSnapshot snapshot = ExtraWorldDatas.fromWorld(level).spawningChunks;
-        if (!AsyncSettings.spawningChunkCache)
+        if (!ChunkTickSettings.naturalSpawningOptimizations || !ChunkTickSettings.spawningChunkCache)
         {
             snapshot.clear();
             return;
@@ -44,7 +44,7 @@ public class ChunkMapMixin
             at = @At("TAIL"))
     private void rof$cacheSpawningChunks(List<LevelChunk> result, CallbackInfo ci)
     {
-        if (!AsyncSettings.spawningChunkCache)
+        if (!ChunkTickSettings.naturalSpawningOptimizations || !ChunkTickSettings.spawningChunkCache)
             return;
         ExtraWorldDatas.fromWorld(level).spawningChunks
                 .beginRefresh(level.getServer().getTickCount()).addAll(result);

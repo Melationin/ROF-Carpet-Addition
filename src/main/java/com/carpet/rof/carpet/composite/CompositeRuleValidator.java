@@ -4,13 +4,9 @@ import carpet.api.settings.CarpetRule;
 import carpet.api.settings.InvalidRuleValueException;
 import carpet.api.settings.RuleHelper;
 import carpet.api.settings.Validator;
-import com.google.gson.JsonElement;
+import com.carpet.rof.utils.ROFConfig;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
-import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.logging.LogUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 
@@ -19,12 +15,12 @@ import java.util.Map;
 import java.util.TreeMap;
 
 @SuppressWarnings("unchecked")
-public final class CompositeRuleValidator extends Validator<String>
+public final class CompositeRuleValidator extends Validator<Boolean>
 {
-    private CarpetRule<String> parent;
+    private CarpetRule<Boolean> parent;
     private final Map<String, CarpetRule<Object>> members = new TreeMap<>();
 
-    void register(CarpetRule<String> rule, Collection<CarpetRule<?>> parsed)
+    void register(CarpetRule<Boolean> rule, Collection<CarpetRule<?>> parsed)
     {
         parent = rule;
         for (CarpetRule<?> member : parsed) {
@@ -34,7 +30,7 @@ public final class CompositeRuleValidator extends Validator<String>
         CompositeRuleManager.of(rule.settingsManager()).register(this);
     }
 
-    public CarpetRule<String> parent()
+    public CarpetRule<Boolean> parent()
     {
         return parent;
     }
@@ -52,54 +48,55 @@ public final class CompositeRuleValidator extends Validator<String>
     }
 
     @Override
-    public String validate(CommandSourceStack source, CarpetRule<String> rule, String value, String input)
+    public Boolean validate(CommandSourceStack source, CarpetRule<Boolean> rule, Boolean value, String input)
     {
-        try {
-            JsonElement parsed = JsonParser.parseString(value);
-            if (!parsed.isJsonObject()) throw new IllegalArgumentException("复合规则必须是 JSON 对象 {...}");
-            JsonObject json = parsed.getAsJsonObject();
-            for (var entry : json.entrySet()) {
-                if (!entry.getValue().isJsonPrimitive())
-                    throw new IllegalArgumentException("子规则值必须为布尔、数字或字符串");
-                member(entry.getKey()).set(source, entry.getValue().getAsString());
+        return value;
+    }
+
+    void load(JsonObject json)
+    {
+        for (CarpetRule<Object> member : members.values()) {
+            try {
+                member.set(null, member.defaultValue());
+                if (json.has(member.name())) {
+                    if (!json.get(member.name()).isJsonPrimitive())
+                        throw new IllegalArgumentException("子规则值必须为布尔、数字或字符串");
+                    member.set(null, json.get(member.name()).getAsString());
+                }
+            } catch (InvalidRuleValueException | IllegalArgumentException | IllegalStateException e) {
+                LogUtils.getLogger().warn("[ROFConfig] Invalid subrule {}.{}", parent.name(), member.name(), e);
             }
-            for (CarpetRule<Object> member : members.values()) {
-                if (!json.has(member.name())) member.set(source, member.defaultValue());
-            }
-            return encode();
-        } catch (InvalidRuleValueException | IllegalArgumentException | JsonParseException e) {
-            if (source != null) source.sendFailure(Component.literal(e.getMessage() == null
-                    ? description() : e.getMessage()));
-            return null;
         }
     }
 
-    @Override
-    public String description()
+    public int saveMember(CommandSourceStack source, String name, String input)
     {
-        return "复合规则必须是 JSON 对象 {...}，且所有子规则值都通过校验";
+        if (ROFConfig.INSTANCE == null) {
+            source.sendFailure(Component.literal("世界配置尚未加载"));
+            return 0;
+        }
+        try {
+            member(name).set(source, input);
+        } catch (InvalidRuleValueException e) {
+            e.notifySource(name, source);
+            return 0;
+        }
+        if (!CompositeRuleManager.of(parent.settingsManager()).save(ROFConfig.INSTANCE)) {
+            source.sendFailure(Component.literal("子规则已修改，但保存 carpet-rof-addition.json 失败，请查看服务器日志"));
+            return 0;
+        }
+        source.sendSuccess(() -> Component.literal(parent.name() + "." + name + " = "
+                + RuleHelper.toRuleString(member(name).value()) + "（已保存）"), false);
+        return 1;
     }
 
-    public int saveMember(CommandDispatcher<CommandSourceStack> dispatcher, CommandSourceStack source,
-                          String name, String input) throws CommandSyntaxException
+    void write(JsonObject json)
     {
-        JsonObject json = JsonParser.parseString(encode()).getAsJsonObject();
-        json.addProperty(name, input);
-        return dispatcher.execute(parent.settingsManager().identifier() + " setDefault " + parent.name()
-                + " " + json, source);
-    }
-
-    private String encode()
-    {
-        JsonObject json = new JsonObject();
-        boolean defaults = true;
         for (var entry : members.entrySet()) {
             Object value = entry.getValue().value();
-            defaults &= value.equals(entry.getValue().defaultValue());
-            if (value instanceof Boolean bool) json.add(entry.getKey(), new JsonPrimitive(bool));
-            else if (value instanceof Number number) json.add(entry.getKey(), new JsonPrimitive(number));
+            if (value instanceof Boolean bool) json.addProperty(entry.getKey(), bool);
+            else if (value instanceof Number number) json.addProperty(entry.getKey(), number);
             else json.addProperty(entry.getKey(), RuleHelper.toRuleString(value));
         }
-        return defaults ? "{}" : json.toString();
     }
 }

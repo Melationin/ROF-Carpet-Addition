@@ -23,7 +23,8 @@ import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static com.carpet.rof.entity.mobAi.piglinRules.PiglinRulesSettings.piglinStackingAISuppression;
+import static com.carpet.rof.entity.mobAi.MobAiSettings.piglinStackingAISuppression;
+import static com.carpet.rof.entity.mobAi.MobAiSettings.mobAiOptimizations;
 
 @Mixin(Piglin.class)
 public abstract class PiglinMixin extends AbstractPiglin implements PiglinAccessor
@@ -39,7 +40,7 @@ public abstract class PiglinMixin extends AbstractPiglin implements PiglinAccess
     @Override
     public boolean rof$getSuppressingAI()
     {
-        return this.suppressingAI;
+        return mobAiOptimizations && this.suppressingAI;
     }
 
 
@@ -54,7 +55,7 @@ public abstract class PiglinMixin extends AbstractPiglin implements PiglinAccess
     @Inject(method = "customServerAiStep", at = @At(value = "HEAD"))
     private void piglinTick(ServerLevel level, CallbackInfo ci)
     {
-        if(piglinStackingAISuppression == 10000){
+        if(!mobAiOptimizations || piglinStackingAISuppression == 10000){
             suppressingAI = false;
             return;
         }

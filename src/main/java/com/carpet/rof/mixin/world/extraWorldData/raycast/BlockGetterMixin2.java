@@ -1,7 +1,6 @@
 package com.carpet.rof.mixin.world.extraWorldData.raycast;
 
 import com.carpet.rof.world.extraWorldData.extraChunkDatas.ExceedChunkMarker;
-import com.carpet.rof.world.extraWorldData.extraChunkDatas.ExceedChunkMarkerSetting;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.server.level.ServerLevel;
@@ -24,7 +23,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import static com.carpet.rof.world.extraWorldData.extraChunkDatas.ExceedChunkMarkerSetting.optimizedRaycast;
+import static com.carpet.rof.entity.enderPearl.EnderPearlSettings.enderPearlOptimizations;
+import static com.carpet.rof.entity.enderPearl.EnderPearlSettings.optimizedRaycast;
+import static com.carpet.rof.entity.enderPearl.EnderPearlSettings.exceedChunkMarker;
 
 @Mixin(BlockGetter.class)
 public interface BlockGetterMixin2
@@ -70,7 +71,7 @@ public interface BlockGetterMixin2
             cancellable = true)
     default void raycastOp(ClipContext context, CallbackInfoReturnable<BlockHitResult> cir)
     {
-        if(optimizedRaycast&& ExceedChunkMarkerSetting.exceedChunkMarker){
+        if(enderPearlOptimizations && optimizedRaycast&& exceedChunkMarker){
             if((Object)this instanceof ServerLevel serverWorld) {
                 cir.setReturnValue(
                         (BlockHitResult) traverseBlocks(context.getFrom(), context.getTo(), context, (innerContext, pos) ->

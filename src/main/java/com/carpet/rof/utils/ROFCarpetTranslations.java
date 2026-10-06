@@ -64,8 +64,11 @@ public class ROFCarpetTranslations
                     }
                 }
                 if (!parent.isEmpty()) {
-                    tempMap.putIfAbsent("carpet.rule." + field.getName() + ".desc",
-                            tempMap.getOrDefault(n1 + ".desc", ""));
+                    String nativeKey = "carpet.rule." + field.getName();
+                    tempMap.putIfAbsent(nativeKey + ".desc", tempMap.getOrDefault(n1 + ".desc", ""));
+                    for (int i = 0; tempMap.containsKey(n1 + ".extra." + i); i++) {
+                        tempMap.putIfAbsent(nativeKey + ".extra." + i, tempMap.get(n1 + ".extra." + i));
+                    }
                 }
             }
         }

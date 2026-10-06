@@ -4,6 +4,8 @@ import carpet.api.settings.CarpetRule;
 import carpet.api.settings.SettingsManager;
 import com.carpet.rof.mixinAccessor.ParsedRuleAccessor;
 import com.carpet.rof.mixinAccessor.SettingsManagerAccessor;
+import com.carpet.rof.utils.ROFConfig;
+import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +43,7 @@ public final class CompositeRuleManager
                 if (rule.categories().stream().anyMatch(category -> category.startsWith(PARENT_PREFIX))) continue;
                 for (var validator : ParsedRuleAccessor.of(rule).rof$getValidators()) {
                     if (validator instanceof CompositeRuleValidator composite)
-                        composite.register((CarpetRule<String>) rule, pending);
+                        composite.register((CarpetRule<Boolean>) rule, pending);
                 }
             }
         } finally {
@@ -62,5 +64,29 @@ public final class CompositeRuleManager
     public CompositeRuleValidator get(String name)
     {
         return groups.get(name);
+    }
+
+    public void load(ROFConfig config)
+    {
+        JsonObject json = config.get("ruleGroups", new JsonObject());
+        for (var entry : groups.entrySet()) {
+            var value = json.get(entry.getKey());
+            entry.getValue().load(value != null && value.isJsonObject() ? value.getAsJsonObject() : new JsonObject());
+        }
+        save(config);
+    }
+
+    public boolean save(ROFConfig config)
+    {
+        // 子规则仅保存到 JSON；Carpet 配置只保存各组的布尔总开关，不迁移旧的 JSON 规则值。
+        JsonObject json = config.get("ruleGroups", new JsonObject()).deepCopy();
+        for (var entry : groups.entrySet()) {
+            var value = json.get(entry.getKey());
+            JsonObject members = value != null && value.isJsonObject() ? value.getAsJsonObject() : new JsonObject();
+            entry.getValue().write(members);
+            json.add(entry.getKey(), members);
+        }
+        config.set("ruleGroups", json);
+        return config.save();
     }
 }

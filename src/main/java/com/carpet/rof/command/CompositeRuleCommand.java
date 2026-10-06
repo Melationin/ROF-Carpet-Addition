@@ -56,6 +56,9 @@ public final class CompositeRuleCommand
                     Messenger.m(context.getSource(), "wb " + RuleHelper.translatedName(rule.parent()),
                             "!" + path(rule), "^g refresh");
                     Messenger.m(context.getSource(), "w " + RuleHelper.translatedDescription(rule.parent()));
+                    Messenger.m(context.getSource(), "g 总开关: ",
+                            (rule.parent().value() ? "lb " : "nb ") + rule.parent().value(),
+                            "!/" + manager.identifier() + " " + rule.parent().name(), "^g 查看 Carpet 规则");
                     for (String name : rule.memberNames()) {
                         Messenger.m(context.getSource(), memberRow(rule, name));
                     }
@@ -99,7 +102,7 @@ public final class CompositeRuleCommand
                 .command(context -> {
                     CompositeRuleValidator rule = rule(context);
                     CarpetRule<?> member = member(context, rule);
-                    return rule.saveMember(dispatcher, context.getSource(), member.name(),
+                    return rule.saveMember(context.getSource(), member.name(),
                             StringArgumentType.getString(context, "value"));
                 });
     }

@@ -34,7 +34,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import static com.carpet.rof.entity.merge.MergeSetting.mergeTNTNext;
+import static com.carpet.rof.world.explosion.OptimizedExplosionSettings.tntExplosionOptimizations;
+import static com.carpet.rof.world.explosion.OptimizedExplosionSettings.mergeTNTNext;
 
 @Mixin(PrimedTnt.class)
 public abstract class PrimedTntMixin extends Entity implements PrimedTntAccessor
@@ -89,6 +90,7 @@ public abstract class PrimedTntMixin extends Entity implements PrimedTntAccessor
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/PrimedTnt;getFuse()I"), cancellable = true)
     private void merge(CallbackInfo ci) {
+        if (!tntExplosionOptimizations) return;
         if(!(ROFWarp.getWorld_(this)  instanceof ServerLevel world))return;
         if(mergeTNTNext != MergeSetting.MergeTNTNextMode.TRUE && mergeTNTNext != MergeSetting.MergeTNTNextMode.SAFE) return;
         if (!this.isRemoved() && getFuse() >= 2) {
@@ -112,7 +114,7 @@ public abstract class PrimedTntMixin extends Entity implements PrimedTntAccessor
     private void tick(CallbackInfo ci){
         if(!(ROFWarp.getWorld_(this)  instanceof ServerLevel level))return;
 
-        if(mergeTNTNext == MergeSetting.MergeTNTNextMode.ALMOST_VANILLA){
+        if(tntExplosionOptimizations && mergeTNTNext == MergeSetting.MergeTNTNextMode.ALMOST_VANILLA){
             if(this.isRemoved()) return;
             if(this.getFuse() != 1)return;
             var list = level.getEntitiesOfClass(PrimedTnt.class,
@@ -144,6 +146,7 @@ public abstract class PrimedTntMixin extends Entity implements PrimedTntAccessor
             mergedTNTNCount = count;
         }
 
+        // 已合并的 TNT 在关闭总开关后仍须结算其全部爆炸。
         if(mergeTNTNext == MergeSetting.MergeTNTNextMode.SAFE || mergeTNTNext == MergeSetting.MergeTNTNextMode.ALMOST_VANILLA || mergeTNTNext == MergeSetting.MergeTNTNextMode.SAFE_PLUS) {
             if(this.getFuse() != 1 || this.mergedTNTNCount  < 2)return;
             this.handlePortal();

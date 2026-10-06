@@ -43,6 +43,7 @@ public class ROFConfig {
 
     private final Path filePath;
     private JsonObject data = new JsonObject();
+    private boolean writable = true;
 
     public ROFConfig(Path filePath) {
         this.filePath = filePath;
@@ -53,28 +54,41 @@ public class ROFConfig {
 
     // 从文件加载配置；文件不存在时使用空配置。
     public void load() {
+        writable = true;
         if (!Files.exists(filePath)) {
             data = new JsonObject();
             return;
         }
         try (Reader reader = new InputStreamReader(Files.newInputStream(filePath), StandardCharsets.UTF_8)) {
             JsonElement el = JsonParser.parseReader(reader);
-            data = el.isJsonObject() ? el.getAsJsonObject() : new JsonObject();
+            if (!el.isJsonObject()) throw new JsonParseException("配置必须是 JSON 对象");
+            data = el.getAsJsonObject();
         } catch (Exception e) {
             LOGGER.error("[ROFConfig] Failed to load config from {}: {}", filePath, e.getMessage());
             data = new JsonObject();
+            writable = false;
         }
     }
 
     // 将当前配置保存到文件。
-    public void save() {
+    public boolean save() {
+        // 加载失败时保留原文件，避免覆盖其中的其他配置。
+        if (!writable) return false;
         try {
             Files.createDirectories(filePath.getParent());
-            try (Writer writer = new OutputStreamWriter(Files.newOutputStream(filePath), StandardCharsets.UTF_8)) {
+            Path temporary = filePath.resolveSibling(filePath.getFileName() + ".tmp");
+            try (Writer writer = new OutputStreamWriter(Files.newOutputStream(temporary), StandardCharsets.UTF_8)) {
                 GSON.toJson(data, writer);
             }
+            try {
+                Files.move(temporary, filePath, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            } catch (AtomicMoveNotSupportedException e) {
+                Files.move(temporary, filePath, StandardCopyOption.REPLACE_EXISTING);
+            }
+            return true;
         } catch (Exception e) {
             LOGGER.error("[ROFConfig] Failed to save config to {}: {}", filePath, e.getMessage());
+            return false;
         }
     }
 

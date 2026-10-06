@@ -9,7 +9,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static com.carpet.rof.entity.mobAi.piglinRules.PiglinRulesSettings.piglinLootItemDelay;
+import static com.carpet.rof.entity.mobAi.MobAiSettings.piglinLootItemDelay;
+import static com.carpet.rof.entity.mobAi.MobAiSettings.mobAiOptimizations;
 
 @Mixin(Mob.class)
 public class MobMixin
@@ -23,12 +24,12 @@ public class MobMixin
             //? >=1.21.4 {
     private void loot(ServerLevel world, ItemEntity itemEntity, CallbackInfo ci)
     {
-        if ((Object) this instanceof Piglin && itemEntity.getAge() <= piglinLootItemDelay)
+        if (mobAiOptimizations && (Object) this instanceof Piglin && itemEntity.getAge() <= piglinLootItemDelay)
             ci.cancel();
     }
     //?} else {
     /*private void loot(ItemEntity itemEntity, CallbackInfo ci) {
-        if( (Object)this instanceof PiglinEntity && itemEntity.getItemAge()<= piglinLootItemDelay) ci.cancel();
+        if(mobAiOptimizations && (Object)this instanceof PiglinEntity && itemEntity.getItemAge()<= piglinLootItemDelay) ci.cancel();
     }
 
     *///?}

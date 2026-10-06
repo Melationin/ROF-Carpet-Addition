@@ -2,7 +2,7 @@ package com.carpet.rof.world.chunkTick.async.spawner;
 
 import com.carpet.rof.mixinAccessor.EntityTypeAccessor;
 import com.carpet.rof.mixinAccessor.LevelChunkAccessor;
-import com.carpet.rof.world.chunkTick.async.AsyncSettings;
+import com.carpet.rof.world.chunkTick.ChunkTickSettings;
 import com.carpet.rof.utils.ROFTool;
 import com.carpet.rof.world.chunkTick.async.DebugStats;
 import com.carpet.rof.world.chunkTick.async.AsyncExecutor;
@@ -46,14 +46,14 @@ public final class AsyncNaturalSpawner
 
     public static void collect(LevelChunk chunk, List<MobCategory> categories)
     {
-        if (AsyncSettings.asyncNaturalSpawning && !categories.isEmpty())
+        if (ChunkTickSettings.naturalSpawningOptimizations && ChunkTickSettings.asyncNaturalSpawning && !categories.isEmpty())
             BATCH.add(new Work(chunk, List.copyOf(categories)));
     }
 
     public static boolean consume(ServerLevel level, LevelChunk chunk, NaturalSpawner.SpawnState state, List<MobCategory> categories)
     {
         SpawnResult result = LevelChunkAccessor.of(chunk).rof$getSpawnResult();
-        boolean consumed = AsyncSettings.asyncNaturalSpawning && result != null && result.epoch() == level.getServer()
+        boolean consumed = ChunkTickSettings.naturalSpawningOptimizations && ChunkTickSettings.asyncNaturalSpawning && result != null && result.epoch() == level.getServer()
                 .getTickCount();
         if (ROFTool.DEBUG)
             DebugStats.recordNaturalSpawnDecision(consumed);
@@ -65,7 +65,7 @@ public final class AsyncNaturalSpawner
     public static void submitBatch(MinecraftServer server)
     {
         int epoch = server.getTickCount() + 1;
-        if (!AsyncSettings.asyncNaturalSpawning || BATCH.isEmpty()) {
+        if (!ChunkTickSettings.naturalSpawningOptimizations || !ChunkTickSettings.asyncNaturalSpawning || BATCH.isEmpty()) {
             BATCH.clear();
             return;
         }

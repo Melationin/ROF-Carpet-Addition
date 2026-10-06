@@ -19,7 +19,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.Predicate;
 
-import static com.carpet.rof.world.extraWorldData.extraChunkDatas.ExceedChunkMarkerSetting.exceedChunkMarker;
+import static com.carpet.rof.entity.enderPearl.EnderPearlSettings.enderPearlOptimizations;
+import static com.carpet.rof.entity.enderPearl.EnderPearlSettings.exceedChunkMarker;
 import com.carpet.rof.utils.ChunkPosHelper;
 
 
@@ -36,7 +37,7 @@ public class HeightmapMixin
     public void SetMixin(int x, int z, int height, CallbackInfo ci){
 
         if(
-                exceedChunkMarker && chunk instanceof LevelChunk worldChunk && worldChunk.getLevel() instanceof ServerLevel serverWorld){
+                enderPearlOptimizations && exceedChunkMarker && chunk instanceof LevelChunk worldChunk && worldChunk.getLevel() instanceof ServerLevel serverWorld){
             ExceedChunkMarker heightExceedingChunk = ExtraWorldDatas.fromWorld(serverWorld).exceedChunkMarker;
             if(
                     height>=heightExceedingChunk.topY+1

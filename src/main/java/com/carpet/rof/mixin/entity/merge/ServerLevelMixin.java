@@ -22,7 +22,8 @@ import java.util.function.BooleanSupplier;
 
 import static com.carpet.rof.entity.merge.MergeSetting.MergeTNTNextMode.ALMOST_VANILLA;
 import static com.carpet.rof.entity.merge.MergeSetting.MergeTNTNextMode.SAFE_PLUS;
-import static com.carpet.rof.entity.merge.MergeSetting.mergeTNTNext;
+import static com.carpet.rof.world.explosion.OptimizedExplosionSettings.tntExplosionOptimizations;
+import static com.carpet.rof.world.explosion.OptimizedExplosionSettings.mergeTNTNext;
 
 @Mixin(ServerLevel.class)
 public class ServerLevelMixin
@@ -36,6 +37,7 @@ public class ServerLevelMixin
                      target = "Lnet/minecraft/world/level/entity/EntityTickList;forEach(Ljava/util/function/Consumer;)V"))
     private void onTick(final BooleanSupplier haveTime, final CallbackInfo ci)
     {
+        if (!tntExplosionOptimizations) return;
         if (mergeTNTNext == SAFE_PLUS)
         {
             PrimedTnt[] leader = new PrimedTnt[1];

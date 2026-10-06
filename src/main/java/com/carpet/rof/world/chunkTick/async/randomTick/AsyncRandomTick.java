@@ -1,7 +1,7 @@
 package com.carpet.rof.world.chunkTick.async.randomTick;
 
 import com.carpet.rof.mixinAccessor.LevelChunkAccessor;
-import com.carpet.rof.world.chunkTick.async.AsyncSettings;
+import com.carpet.rof.world.chunkTick.ChunkTickSettings;
 import com.carpet.rof.utils.ROFTool;
 import com.carpet.rof.world.chunkTick.async.DebugStats;
 import com.carpet.rof.world.chunkTick.async.AsyncExecutor;
@@ -35,7 +35,7 @@ public final class AsyncRandomTick
 
     public static void collect(LevelChunk chunk, int speed)
     {
-        if (AsyncSettings.asyncRandomTick && speed > 0)
+        if (ChunkTickSettings.randomTickOptimizations && ChunkTickSettings.asyncRandomTick && speed > 0)
             BATCH.add(new Work(chunk, speed));
     }
 
@@ -54,7 +54,7 @@ public final class AsyncRandomTick
     public static void submitBatch(MinecraftServer server)
     {
         int epoch = server.getTickCount() + 1;
-        if (!AsyncSettings.asyncRandomTick || BATCH.isEmpty()) {
+        if (!ChunkTickSettings.randomTickOptimizations || !ChunkTickSettings.asyncRandomTick || BATCH.isEmpty()) {
             BATCH.clear();
             return;
         }
@@ -116,7 +116,7 @@ public final class AsyncRandomTick
     public static boolean consume(ServerLevel level, LevelChunk chunk)
     {
         RandomTickResult result = LevelChunkAccessor.of(chunk).rof$getRandomTickResult();
-        boolean usedAsync = AsyncSettings.asyncRandomTick && result != null && result.epoch() == level.getServer().getTickCount();
+        boolean usedAsync = ChunkTickSettings.randomTickOptimizations && ChunkTickSettings.asyncRandomTick && result != null && result.epoch() == level.getServer().getTickCount();
         if (ROFTool.DEBUG)
             DebugStats.recordRandomTickDecision(usedAsync);
         if (!usedAsync)

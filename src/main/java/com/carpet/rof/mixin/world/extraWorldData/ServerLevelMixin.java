@@ -34,8 +34,9 @@ import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 
+import static com.carpet.rof.entity.enderPearl.EnderPearlSettings.enderPearlOptimizations;
 import static com.carpet.rof.entity.enderPearl.EnderPearlSettings.blockingEnderPearlLoading;
-import static com.carpet.rof.world.extraWorldData.extraChunkDatas.ExceedChunkMarkerSetting.exceedChunkMarker;
+import static com.carpet.rof.entity.enderPearl.EnderPearlSettings.exceedChunkMarker;
 import com.carpet.rof.utils.ChunkPosHelper;
 
 @Mixin(ServerLevel.class)
@@ -106,52 +107,56 @@ public abstract class ServerLevelMixin implements  ServerLevelAccessor
 
         var tickChunkList = ExtraWorldDatas.fromWorld(level).enderPearlForcedSyncChunks;
 
-        MinecraftServer server = level.getServer();
-        long[] snapshot = tickChunkList .toLongArray();            // 快照迭代，避免并发修改
-        long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(blockingEnderPearlLoading);
-        ServerChunkCache chunkSource = level.getChunkSource();
-        ChunkMap chunkMap = chunkSource.chunkMap;
-        // ★ 关键前置：让票据等级真正生效（见 §三.3）
+        if (!enderPearlOptimizations || blockingEnderPearlLoading <= 0) {
+            tickChunkList.clear();
+        } else if (!tickChunkList.isEmpty()) {
+            MinecraftServer server = level.getServer();
+            long[] snapshot = tickChunkList .toLongArray();            // 快照迭代，避免并发修改
+            long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(blockingEnderPearlLoading);
+            ServerChunkCache chunkSource = level.getChunkSource();
+            ChunkMap chunkMap = chunkSource.chunkMap;
+            // ★ 关键前置：让票据等级真正生效（见 §三.3）
 
-        int it[] = new int[1];
-        it[0] = 0;
-        server.managedBlock(() ->
-        {
-            if (System.nanoTime() >= deadline) {
-                //ROFTool.rDEBUG("b: deadline");
-                return true;
-            }
-            level.entityManager.processPendingLoads();
-            for(;it[0] < snapshot.length; ) {
-                long key = snapshot[it[0]];
-
-                boolean simulationReady = chunkMap.getDistanceManager().inEntityTickingRange(key);
-                if (!simulationReady) {
-                    //ROFTool.rDEBUG("b: simulationReady");
+            int it[] = new int[1];
+            it[0] = 0;
+            server.managedBlock(() ->
+            {
+                if (System.nanoTime() >= deadline) {
+                    //ROFTool.rDEBUG("b: deadline");
                     return true;
                 }
-                ChunkHolder holder = chunkMap.getUpdatingChunkIfPresent(key);
-                if (holder != null && holder.getFullStatus().isOrAfter(FullChunkStatus.ENTITY_TICKING)) {
-                    ChunkResult<LevelChunk> result = holder.getEntityTickingChunkFuture().getNow(null);
+                level.entityManager.processPendingLoads();
+                for(;it[0] < snapshot.length; ) {
+                    long key = snapshot[it[0]];
 
-                    if (result == null) {
-                        return false;
+                    boolean simulationReady = chunkMap.getDistanceManager().inEntityTickingRange(key);
+                    if (!simulationReady) {
+                        //ROFTool.rDEBUG("b: simulationReady");
+                        return true;
                     }
+                    ChunkHolder holder = chunkMap.getUpdatingChunkIfPresent(key);
+                    if (holder != null && holder.getFullStatus().isOrAfter(FullChunkStatus.ENTITY_TICKING)) {
+                        ChunkResult<LevelChunk> result = holder.getEntityTickingChunkFuture().getNow(null);
 
+                        if (result == null) {
+                            return false;
+                        }
+
+                    }
+                    boolean visibilityReady = entityManager.isTicking(ChunkPosHelper.unpack(key));
+
+                    boolean entitiesLoaded = entityManager.areEntitiesLoaded(key);
+
+                    if(!visibilityReady || !entitiesLoaded) return false;
+                    ++it[0];
                 }
-                boolean visibilityReady = entityManager.isTicking(ChunkPosHelper.unpack(key));
+                return true;
+            });
 
-                boolean entitiesLoaded = entityManager.areEntitiesLoaded(key);
-
-                if(!visibilityReady || !entitiesLoaded) return false;
-                ++it[0];
+            // 只摘掉已就绪的；未就绪的留在表里，下一 tick 再试（或按你的策略丢弃并记日志）
+            for (long key : snapshot) {
+                if (level.areEntitiesLoaded(key)) tickChunkList.remove(key);
             }
-            return true;
-        });
-
-        // 只摘掉已就绪的；未就绪的留在表里，下一 tick 再试（或按你的策略丢弃并记日志）
-        for (long key : snapshot) {
-            if (level.areEntitiesLoaded(key)) tickChunkList.remove(key);
         }
 
         if(!this.server.tickRateManager().runsNormally()) return;
@@ -166,7 +171,7 @@ public abstract class ServerLevelMixin implements  ServerLevelAccessor
     }
 
 
-    
+
     @Inject(method = "<init>",
             at = @At(value = "RETURN"))
     void loadWorld(CallbackInfo ci)
@@ -198,7 +203,7 @@ public abstract class ServerLevelMixin implements  ServerLevelAccessor
             at = @At(value = "HEAD"))
     void tick(BooleanSupplier shouldKeepTicking, CallbackInfo ci)
     {
-        if (((ServerLevel)(Object)this).tickRateManager().runsNormally()&&exceedChunkMarker) {
+        if (((ServerLevel)(Object)this).tickRateManager().runsNormally()&&enderPearlOptimizations&&exceedChunkMarker) {
             this.ROFextraWorldDatas.exceedChunkMarker.update((ServerLevel) (Object) this);
         }
     }

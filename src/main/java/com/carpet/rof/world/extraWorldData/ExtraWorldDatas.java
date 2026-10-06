@@ -8,7 +8,7 @@ import com.carpet.rof.world.chunkTick.async.DelayedChunkSnapshot;
 import com.carpet.rof.mixinAccessor.ServerLevelAccessor;
 import com.carpet.rof.advancement.KilledTriggerLimiter;
 import com.carpet.rof.world.explosion.ExplosionMergeData;
-import com.carpet.rof.world.extraWorldData.extraChunkDatas.ExceedChunkMarkerSetting;
+import com.carpet.rof.entity.enderPearl.EnderPearlSettings;
 import com.carpet.rof.entity.merge.MergeSetting;
 import com.carpet.rof.world.portal.NetherPortalCache;
 import com.carpet.rof.utils.NBTData;
@@ -62,7 +62,7 @@ public class ExtraWorldDatas implements NBTData
     @Override
     public void write(CompoundTag nbt)
     {
-        if(ExceedChunkMarkerSetting.exceedChunkMarker){
+        if(EnderPearlSettings.exceedChunkMarker){
             nbt.put(exceedChunkMarker.getName(), exceedChunkMarker.toNbt());
         }
     }
@@ -71,11 +71,11 @@ public class ExtraWorldDatas implements NBTData
     public void read(CompoundTag nbt)
     {
         //? if >1.21.4 {
-        if(ExceedChunkMarkerSetting.exceedChunkMarker) nbt.getCompound(exceedChunkMarker.getName()).ifPresent(
+        if(EnderPearlSettings.exceedChunkMarker) nbt.getCompound(exceedChunkMarker.getName()).ifPresent(
                 nbtCompound->  exceedChunkMarker.read(nbtCompound));
 
         //?} else {
-        /*if(ExceedChunkMarkerSetting.exceedChunkMarker){
+        /*if(EnderPearlSettings.exceedChunkMarker){
             if(nbt.contains(exceedChunkMarker.getName())){
                 exceedChunkMarker.read(nbt.getCompound(exceedChunkMarker.getName()));
             }

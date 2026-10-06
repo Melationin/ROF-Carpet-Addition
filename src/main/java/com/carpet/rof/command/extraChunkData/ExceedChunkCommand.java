@@ -21,7 +21,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.commands.arguments.DimensionArgument;
 
-import static com.carpet.rof.world.extraWorldData.extraChunkDatas.ExceedChunkMarkerSetting.exceedChunkMarker;
+import static com.carpet.rof.entity.enderPearl.EnderPearlSettings.enderPearlOptimizations;
+import static com.carpet.rof.entity.enderPearl.EnderPearlSettings.exceedChunkMarker;
 import static com.carpet.rof.utils.ROFTextTool.text;
 import static com.carpet.rof.utils.ROFTextTool.textS;
 
@@ -64,8 +65,8 @@ public class ExceedChunkCommand
 
     public static int loadFromWorld(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException
     {
-        if(!exceedChunkMarker){
-            ctx.getSource().sendSuccess(textS("&c未开启exceedChunkMarker!"),false);
+        if(!enderPearlOptimizations || !exceedChunkMarker){
+            ctx.getSource().sendSuccess(textS("&c需要开启 enderPearlOptimizations 和 exceedChunkMarker!"),false);
             return 0;
         }
         ServerLevel world = getWorldFromContext(ctx);
@@ -103,8 +104,8 @@ public class ExceedChunkCommand
 
     public static int setTopY(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException
     {
-        if(!exceedChunkMarker){
-            ctx.getSource().sendSuccess(textS("&c未开启exceedChunkMarker!"),false);
+        if(!enderPearlOptimizations || !exceedChunkMarker){
+            ctx.getSource().sendSuccess(textS("&c需要开启 enderPearlOptimizations 和 exceedChunkMarker!"),false);
             return 0;
         }
         final ServerLevel world = getWorldFromContext(ctx);
@@ -116,8 +117,8 @@ public class ExceedChunkCommand
     }
     public static int clear(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException
     {
-        if(!exceedChunkMarker){
-            ctx.getSource().sendSuccess(textS("&c未开启exceedChunkMarker!"),false);
+        if(!enderPearlOptimizations || !exceedChunkMarker){
+            ctx.getSource().sendSuccess(textS("&c需要开启 enderPearlOptimizations 和 exceedChunkMarker!"),false);
             return 0;
         }
         final ServerLevel world = getWorldFromContext(ctx);
@@ -130,8 +131,8 @@ public class ExceedChunkCommand
 
     public static int save(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException
     {
-        if(!exceedChunkMarker){
-            ctx.getSource().sendSuccess(textS("&c未开启exceedChunkMarker!"),false);
+        if(!enderPearlOptimizations || !exceedChunkMarker){
+            ctx.getSource().sendSuccess(textS("&c需要开启 enderPearlOptimizations 和 exceedChunkMarker!"),false);
             return 0;
         }
         ServerLevel world = getWorldFromContext(ctx);
@@ -150,8 +151,8 @@ public class ExceedChunkCommand
                 .command( ctx ->
                 {
 
-                    if(!exceedChunkMarker){
-                        ctx.getSource().sendSuccess(textS("&c未开启exceedChunkMarker!"),false);
+                    if(!enderPearlOptimizations || !exceedChunkMarker){
+                        ctx.getSource().sendSuccess(textS("&c需要开启 enderPearlOptimizations 和 exceedChunkMarker!"),false);
                         return 0;
                     }
 

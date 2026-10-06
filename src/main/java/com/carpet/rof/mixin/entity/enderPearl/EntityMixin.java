@@ -24,6 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.carpet.rof.entity.enderPearl.EnderPearlSettings.enderPearlOptimizations;
 import static com.carpet.rof.entity.enderPearl.EnderPearlSettings.optimizedEnderPearlTick;
 
 @Mixin(Entity.class)
@@ -38,7 +39,7 @@ public abstract class   EntityMixin
     @Unique
     private boolean rof$mustSkipPearlInsideBlock(BlockPos blockIntersection)
     {
-        return optimizedEnderPearlTick
+        return enderPearlOptimizations && optimizedEnderPearlTick
                 && (Object) this instanceof ThrownEnderpearl
                 && this.level instanceof ServerLevel serverLevel
                 && ExceedChunkMarker.mustBeAir(serverLevel, blockIntersection);
@@ -86,7 +87,7 @@ public abstract class   EntityMixin
     //? if<26.1{
     /*@Inject(method = "updateFluidOnEyes", at = @At(value = "HEAD"), cancellable = true)
     private void cancelGetBlockState(CallbackInfo ci){
-        if(optimizedEnderPearlTick
+        if(enderPearlOptimizations && optimizedEnderPearlTick
                 && (Object) this instanceof ThrownEnderpearl
                 && this.level instanceof ServerLevel serverLevel) ci.cancel();
     }

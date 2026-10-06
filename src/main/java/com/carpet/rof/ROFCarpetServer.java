@@ -7,12 +7,12 @@ import com.carpet.rof.event.ROFEvents;
 import com.carpet.rof.world.extraWorldData.ExtraWorldDatas;
 import com.carpet.rof.utils.AutoMixinAuditExecutor;
 import com.carpet.rof.utils.ROFConfig;
+import com.carpet.rof.carpet.composite.CompositeRuleManager;
 import com.carpet.rof.utils.ROFCarpetTranslations;
 import com.carpet.rof.utils.ROFTool;
 import com.carpet.rof.utils.singleTaskWorker.SingleTaskWorker;
 import com.carpet.rof.world.chunkTick.async.AsyncExecutor;
 import com.carpet.rof.entity.oec.OecUtil;
-import com.carpet.rof.entity.oec.lithium.ClimbableBlockStateCache;
 import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.commands.CommandBuildContext;
@@ -77,7 +77,6 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
     @Override
     public void onServerClosed(MinecraftServer server) {
         OecUtil.releaseAllGrids();
-        ClimbableBlockStateCache.invalidate();
         AsyncExecutor.stop();
         SingleTaskWorker.INSTANCE.stop();
     }
@@ -93,6 +92,7 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
         AsyncExecutor.start();
         ROFConfig.INSTANCE = new ROFConfig(server.getWorldPath(LevelResource.ROOT).resolve("carpet-rof-addition.json"));
         ROFConfig.INSTANCE.load();
+        CompositeRuleManager.of(CarpetServer.settingsManager).load(ROFConfig.INSTANCE);
         RequirementModifyCommand.initialization(server,ROFConfig.INSTANCE);
     }
 

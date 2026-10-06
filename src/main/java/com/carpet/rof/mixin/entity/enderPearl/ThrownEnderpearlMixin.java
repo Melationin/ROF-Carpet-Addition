@@ -28,7 +28,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static com.carpet.rof.entity.enderPearl.EnderPearlSettings.*;
 import com.carpet.rof.utils.ChunkPosHelper;
-//import static com.carpet.rof.world.extraWorldData.extraChunkDatas.ExceedChunkMarkerSetting.optimizedForcedEnderPearlTick;
 
 
 // Java 标准库
@@ -37,9 +36,6 @@ import com.carpet.rof.utils.ChunkPosHelper;
 @Mixin(ThrownEnderpearl.class)
 public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
 {
-
-    @Unique
-    final double MinSpeed = enderPearlForcedTickMinSpeed;
 
     // 是否启用同步状态（冻结 or 物理更新）
     @Unique
@@ -59,9 +55,11 @@ public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
         Level world = ROFWarp.getWorld_(this);
         if (world instanceof ServerLevel serverWorld) {
             chunkPos2 = ChunkPosHelper.pack(this.chunkPosition());
+            if (syncMode && (!enderPearlOptimizations || enderPearlForcedTickMinSpeed <= 0)) return;
             var forcedEntitylist = ExtraWorldDatas.fromWorld(serverWorld ).forcedEntitylist;
+            double minSpeed = enderPearlForcedTickMinSpeed;
             if (syncMode) {
-                if ((MinSpeed > 0) && (Math.abs(this.getDeltaMovement().x) > MinSpeed || Math.abs(this.getDeltaMovement().z) > MinSpeed)) {//大于最高速度，切换加载逻辑
+                if ((minSpeed > 0) && (Math.abs(this.getDeltaMovement().x) > minSpeed || Math.abs(this.getDeltaMovement().z) > minSpeed)) {//大于最高速度，切换加载逻辑
                     syncMode = false;
                     forcedEntitylist.put(this.getUUID(), this);
                 }
@@ -69,8 +67,8 @@ public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
             else {
                 //? >=1.21.2 {
 
-                if ((Math.abs(this.getDeltaMovement().x) <= MinSpeed && Math.abs(
-                        this.getDeltaMovement().z) <= MinSpeed)) {
+                if (!enderPearlOptimizations || minSpeed <= 0 || (Math.abs(this.getDeltaMovement().x) <= minSpeed && Math.abs(
+                        this.getDeltaMovement().z) <= minSpeed)) {
                     forcedEntitylist.put(this.getUUID(), null);
                     this.setPos(ROFWarp.getPos_(this));
                     ServerPlayer.placeEnderPearlTicket(serverWorld, chunkPosition());
@@ -103,7 +101,7 @@ public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
                      shift = At.Shift.AFTER))
     private void EndPearlForcedSync(CallbackInfo ci)
     {
-        if (blockingEnderPearlLoading >0 && this.level() instanceof ServerLevel serverLevel) {
+        if (enderPearlOptimizations && blockingEnderPearlLoading >0 && this.level() instanceof ServerLevel serverLevel) {
             var chunkPos = this.chunkPosition();
             //serverLevel.getChunk(ChunkPosHelper.x(chunkPos), ChunkPosHelper.z(chunkPos), ChunkStatus.FULL, true);
             ExtraWorldDatas.fromWorld(serverLevel)
@@ -141,7 +139,7 @@ public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
                             target = "Lnet/minecraft/server/level/ServerPlayer;registerAndUpdateEnderPearlTicket(Lnet/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl;)J"))
     private long rof$betterEnderPearlTicket(ServerPlayer player, ThrownEnderpearl pearl, Operation<Long> original)
     {
-        if(!betterEnderPearlTicket) return original.call(player, pearl);
+        if(!enderPearlOptimizations || !betterEnderPearlTicket) return original.call(player, pearl);
         if(!(this.level() instanceof ServerLevel serverLevel)) return original.call(player, pearl);
         boolean canUseBetterTicker = ChunkPosHelper.pack(this.chunkPosition())!= chunkPos2;
         ServerChunkCache chunkSource = serverLevel.getChunkSource();

@@ -2,6 +2,23 @@
 
 **提示：可以使用`Ctrl+F`快速查找自己想要的规则**
 
+各组的 Carpet 规则是默认 `false` 的布尔总开关，按原生方式显示并保存到 `carpet.conf`。子规则通过 `/carpet group` 管理，修改后立即以格式化 JSON 保存到世界根目录的 `carpet-rof-addition.json`，位于 `ruleGroups.<组名>`；文件中的其他配置保持不变。手动编辑 JSON 后重启服务器加载，缺省子规则使用声明默认值。
+
+```json
+{
+  "requirementModifyMap": {},
+  "ruleGroups": {
+    "packetLimits": {
+      "entitySpawnLimitPerTick": 512,
+      "limitedEntityTrackingRange": 16,
+      "entitySpawnLimitPerSecond": 256,
+      "entityTrackingRecoveryTicks": 200,
+      "particlePacketRange": 2.0
+    }
+  }
+}
+```
+
 ## 地狱门出口搜索缓存距离 (netherPortalCacheDistance)
 
 &emsp;按入口门方块缓存出口门位置；实体距上次实际搜索位置不超过此距离，且出口区块未变化时复用结果。
@@ -17,76 +34,117 @@
 &emsp;- 分类: `ROF`, `optimization`, `experimental`
 
 
-## 生物生成异步 (asyncNaturalSpawning)
+## 生物生成优化 (naturalSpawningOptimizations)
 
-&emsp;异步预计算自然生成候选；实体创建和数量统计仍在主线程执行。
+控制自然生成区块缓存、异步预计算和刷怪统计化简；须同时开启总开关和相应子规则。
 
-&emsp; `数据不可用或结果过期时自动回退原版。`
+- 类型：`boolean`（总开关）
+- 默认值：`false`；子规则默认值如下
+- 分类：`ROF`、`optimization`、`experimental`
 
-&emsp;- 类型: `boolean`
+| 子规则 | 类型 | 默认值 | 作用 |
+| --- | --- | --- | --- |
+| `spawningChunkCache` | `boolean` | `false` | 每 40 gt 刷新自然生成候选区块列表；关闭时使用原版遍历 |
+| `asyncNaturalSpawning` | `boolean` | `false` | 异步预计算自然生成候选；实体创建与数量统计仍在主线程，数据不可用或过期时回退原版 |
+| `spawnStatisticSimplifyWhitelist` | `String` | `{}` | 指定刷怪统计化简的维度，如 `{minecraft:overworld,minecraft:the_end}`；`{}` 表示不化简 |
 
-&emsp;- 默认值: `false`
+刷怪统计化简保留原有校验器，修改白名单后会更新已有世界，之后创建的世界也按白名单初始化。化简跳过统计中的区块查找与生物群系查询；只有维度内所有生物群系都没有刷怪密度限制时，结果才与原版完全一致。
 
-&emsp;- 分类: `ROF`, `optimization`, `experimental`
+使用 `/carpet group naturalSpawningOptimizations` 查看子规则。修改后立即保存到 JSON，例如：
 
-
-## 随机刻异步 (asyncRandomTick)
-
-&emsp;异步预计算下一游戏刻的随机刻候选；结果失效时自动回退原版。
-
-&emsp;- 类型: `boolean`
-
-&emsp;- 默认值: `false`
-
-&emsp;- 分类: `ROF`, `optimization`, `experimental`
-
-
-## 更好的珍珠加载票 (betterEnderPearlTicket)
-
-&emsp;用一种特殊的加载票替代某些情况下原有的加载票。在ECM未打开时，只对世界高度外的珍珠有效
-
-&emsp;- 类型: `boolean`
-
-&emsp;- 默认值: `false`
-
-&emsp;- 参考选项: `false`, `true`
-
-&emsp;- 分类: `ROF`, `optimization`, `experimental`
+```text
+/carpet setDefault naturalSpawningOptimizations true
+/carpet group naturalSpawningOptimizations asyncNaturalSpawning true
+/carpet group naturalSpawningOptimizations spawnStatisticSimplifyWhitelist {minecraft:overworld}
+```
 
 
-## 更好的NoAI NBT (betterNoAiNbt)
+## 随机刻优化 (randomTickOptimizations)
 
-&emsp;实体带有 NoBrainAI NBT 时跳过其 AI 逻辑（Mob.serverAiStep），但保留重力、流体流动、实体推挤、挤压伤害、爆炸击退、活塞推动与骑乘等被动运动。与原版 NoAI 不同，实体不会悬空静止。
+控制随机刻区块缓存与异步预计算；须同时开启总开关和相应子规则。
 
-&emsp; `用法：/data merge entity <目标> {NoBrainAI:1b} 设置，{NoBrainAI:0b} 或 /data remove entity <目标> NoBrainAI 移除；标签随实体存档保存，也支持 /summon 时直接写入`
+- 类型：`boolean`（总开关）
+- 默认值：`false`；子规则默认值如下
+- 分类：`ROF`、`optimization`、`experimental`
 
-&emsp; `被跳过的：目标选择器、goal 选择器、寻路导航、传感器(sensing)、大脑(brain)、移动/视角/跳跃控制器`
+| 子规则 | 类型 | 默认值 | 作用 |
+| --- | --- | --- | --- |
+| `randomTickChunkCache` | `boolean` | `false` | 每 40 gt 刷新随机刻区块列表；关闭时使用原版遍历 |
+| `asyncRandomTick` | `boolean` | `false` | 异步预计算下一游戏刻的随机刻候选；结果失效时回退原版 |
 
-&emsp; `保留的：重力与落地摩擦、水流/气泡柱、实体互推与挤压伤害、爆炸击退、活塞推动、骑乘（玩家仍可操控坐骑）、燃烧、捡装备、距离消失检查`
+使用 `/carpet setDefault randomTickOptimizations true` 开启并保存总开关。使用 `/carpet group randomTickOptimizations` 查看子规则，使用 `/carpet group randomTickOptimizations asyncRandomTick true` 修改并立即保存到 JSON。
 
-&emsp; `注意：与 AI 无关的 noActionTime 不再累加，因此在玩家附近也不会因 600 tick 无动作而消失（与原版 NoAI 行为一致）；末影龙/凋灵等 Boss 若打上该标签将停止相位推进`
+原来的五个独立规则现为上述子规则，名称和默认值保持不变。运行时仍直接读取静态字段，不解析 JSON。
 
-&emsp;- 类型: `boolean`
+## 珍珠优化 (enderPearlOptimizations)
 
-&emsp;- 默认值: `false`
+控制珍珠 tick、加载票、高速自加载、加载等待时间、ECM 和 raycast 优化；须同时开启总开关和相应子规则。
 
-&emsp;- 分类: `ROF`, `feature`
+- 类型：`boolean`（总开关）
+- 默认值：`false`；子规则默认值如下
+- 分类：`ROF`、`optimization`、`experimental`
 
+| 子规则 | 类型 | 默认值 | 作用 |
+| --- | --- | --- | --- |
+| `enderPearlForcedTickMinSpeed` | `double` | `-1.0` | 高速珍珠自加载的速度阈值；负数禁用。此旧方案已不建议使用，优先使用更好的珍珠加载票 |
+| `optimizedEnderPearlTick` | `boolean` | `false` | 尽量不让高速珍珠飞行生成新区块；ECM 未开启时只影响世界高度外的珍珠 |
+| `betterEnderPearlTicket` | `boolean` | `false` | 使用特殊加载票；ECM 未开启时只影响世界高度外的珍珠 |
+| `blockingEnderPearlLoading` | `int` | `0` | 珍珠加载等待的最大时间，单位为毫秒；0 禁用 |
+| `exceedChunkMarker` | `boolean` | `false` | 超高度区块标记器（ECM），为 raycast 优化提供数据，可能增加少量存储空间 |
+| `optimizedRaycast` | `boolean` | `false` | 使用 ECM 优化 raycast；要求 ECM 已启用且已从存档加载 |
 
-## 珍珠加载堵塞主线程 (blockingEnderPearlLoading)
+高速自加载方案与原版加载逻辑有较大差异；优化珍珠 tick 时，珍珠会忽略未加载的实体碰撞箱。加载等待会堵塞主线程，以减少珍珠 tick 和世界 tick 不同步的问题。
 
-&emsp;让珍珠的区块加载堵塞主线程，减少珍珠tick和世界tick不同步的问题。
+ECM 原有命令、权限设置和世界数据格式保持不变。首次启用后，在需要使用的维度执行 `/exceedChunkMarker [dimension] loadFromWorld` 加载数据，再启用 raycast 优化，例如：
 
-&emsp; `此处为最大堵塞时间，设置为0表示禁用。`
+```text
+/carpet setDefault enderPearlOptimizations true
+/carpet group enderPearlOptimizations exceedChunkMarker true
+/exceedChunkMarker minecraft:overworld loadFromWorld
+/carpet group enderPearlOptimizations optimizedRaycast true
+```
 
-&emsp;- 类型: `int`
+raycast 优化仍可能使投掷物忽略某些特定位置的实体碰撞箱；ECM 可能增加额外存储空间，原说明估计通常低于存档的 0.1%。
 
-&emsp;- 默认值: `0`
+使用 `/carpet group enderPearlOptimizations` 查看子规则。例如 `/carpet group enderPearlOptimizations betterEnderPearlTicket true` 会修改并立即保存到 JSON。
 
-&emsp;- 参考选项: `0`, `50`, `100`, `1000`
+子规则名称、默认值与校验保持不变。运行时仍直接读取静态字段。
 
-&emsp;- 分类: `ROF`, `optimization`, `feature`
+## 生物 AI 优化 (mobAiOptimizations)
 
+控制生物 AI 延迟、更好的 NoAI NBT 和猪灵 AI 优化；须同时开启总开关和相应子规则。
+
+- 类型：`boolean`（总开关）
+- 默认值：`false`；子规则默认值如下
+- 分类：`ROF`、`optimization`、`feature`
+
+| 子规则 | 类型 | 默认值 | 作用 |
+| --- | --- | --- | --- |
+| `mobAIDelayChance` | `double` | `0.0` | 白名单内生物发生 AI 延迟的概率，范围为 0 到 1；0 禁用 AI 延迟 |
+| `mobAIDelayWhitelist` | `String` | `{!minecraft:drowned}` | 允许 AI 延迟的实体 ID 或类型标签列表；`{}` 表示空列表 |
+| `mobAIDelayTicks` | `int` | `3` | AI 延迟持续的游戏刻数，必须为正数 |
+| `betterNoAiNbt` | `boolean` | `false` | 让带 `NoBrainAI` NBT 的实体跳过 AI，同时保留被动运动 |
+| `piglinLootItemDelay` | `int` | `0` | 猪灵只捡起存在时间超过此游戏刻数的掉落物 |
+| `piglinStackingAISuppression` | `int` | `10000` | 堆叠猪灵 AI 抑制阈值；10000 保留原有禁用行为 |
+
+AI 延迟的概率、白名单和持续时间保留原有校验器。白名单用花括号包裹、逗号分隔，可使用实体 ID（`minecraft:pig`）、实体类型标签（`#zombies`）和排除项（`!minecraft:drowned`、`!#undead`）。先取正选项的并集，再减去排除项；全部为排除项时表示除这些之外的全部生物。未加载的标签按空集合匹配。概率为 0 或白名单为空时，AI 延迟不生效，其他子规则仍按各自条件生效。
+
+AI 延迟的判定结果与剩余时间仍保存在实体的 `MobAi` NBT 中。剩余时间为负数表示已经判定并保留 AI；未命中白名单时不写入该字段，重载后仍允许匹配。
+
+开启 `betterNoAiNbt` 后，使用 `/data merge entity <目标> {NoBrainAI:1b}` 设置标签，使用 `{NoBrainAI:0b}` 或 `/data remove entity <目标> NoBrainAI` 移除，也可在 `/summon` 时写入。标签随实体存档保存。此模式跳过目标选择器、goal 选择器、导航、感知、大脑和移动/视角/跳跃控制器，保留重力、落地摩擦、水流/气泡柱、实体推挤、挤压伤害、爆炸击退、活塞推动、骑乘、燃烧、捡装备和距离消失检查。`noActionTime` 不再累加，因此不会因玩家附近的 600 tick 无动作而消失；带此标签的末影龙、凋灵等 Boss 会停止相位推进。
+
+使用 `/carpet group mobAiOptimizations` 查看子规则。例如：
+
+```text
+/carpet setDefault mobAiOptimizations true
+/carpet group mobAiOptimizations mobAIDelayChance 0.5
+/carpet group mobAiOptimizations mobAIDelayWhitelist {!minecraft:drowned,!minecraft:piglin}
+/carpet group mobAiOptimizations betterNoAiNbt true
+```
+
+命令支持补全，修改后立即保存到 JSON。
+
+子规则名称、默认值和原有生效条件保持不变。运行时仍直接读取静态字段和已解析的白名单，不解析 JSON。
 
 ## 实体ID命令 (commandEntityID)
 
@@ -187,23 +245,6 @@
 &emsp;- 分类: `ROF`, `command`
 
 
-## 更好的高速珍珠自加载 (enderPearlForcedTickMinSpeed)
-
-&emsp;(已不建议，更好的珍珠加载票可以平替，而且效果更好)对速度高于一定值的珍珠使用新的加载逻辑，更加稳定，需要加载的区块更少。
-
-&emsp; `设置的值表示自加载速度阈值。设置为负值时，表示禁用。`
-
-&emsp; `对于新加载逻辑的珍珠，其加载逻辑与原版有较大差异。`
-
-&emsp;- 类型: `double`
-
-&emsp;- 默认值: `-1.0`
-
-&emsp;- 参考选项: `16.0`, `-1.0`
-
-&emsp;- 分类: `ROF`, `optimization`, `feature`
-
-
 ## 实体ID溢出周期 (entityIDOverflowPeriod)
 
 &emsp;设置为0表示禁用
@@ -215,78 +256,32 @@
 &emsp;- 分类: `ROF`, `feature`, `creative`
 
 
-## 每秒实体生成发包限制 (entitySpawnPacketLimitSeconds)
+## 发包限制 (packetLimits)
 
-&emsp;在同一秒同区块生成过多的同种实体时，按概率阻止该种实体的追踪与发包。
+统一管理实体生成发包限制、追踪恢复时间和普通粒子发包范围。父规则为 boolean 总开关，默认值为 `false`，类别为 `ROF`、`optimization`、`packet`。子规则通过 `/carpet group packetLimits` 查看和配置，修改子规则后立即保存到 JSON。
 
-&emsp; `设置为负数表示禁用`
+| 子规则 | 默认值 | 旧名称 |
+|---|---|---|
+| `entitySpawnLimitPerTick` | `512` | `entitySpawnPacketLimitTicks` |
+| `limitedEntityTrackingRange` | `16` | `entitySpawnPacketLimitTicksTrackerDistance` |
+| `entitySpawnLimitPerSecond` | `256` | `entitySpawnPacketLimitSeconds` |
+| `entityTrackingRecoveryTicks` | `200` | `entitySpawnPacketLimitSecondsRecoverTime` |
+| `particlePacketRange` | `2.0` | `particlesPacketsRange` |
 
-&emsp;- 类型: `int`
+只有 `packetLimits=true` 时才启用实体生成限制和粒子范围限制。每 tick 阈值按同一世界的同种实体计数，超过阈值的实体使用 `limitedEntityTrackingRange` 方块的追踪范围。每秒阈值根据同一区块、同种实体上一秒的生成数量，按概率阻止追踪；一秒按 20 个游戏刻计算。这两个阈值均可用负数单独禁用。
 
-&emsp;- 默认值: `-1`
+两种限制共用 `entityTrackingRecoveryTicks`：受限实体存活时间达到该游戏刻数时，恢复限制前的追踪范围并刷新玩家追踪。同时受到两种限制的实体也会恢复。负数禁用自动恢复；关闭总开关时，下一次追踪器 tick 仍会恢复受限实体。
 
-&emsp;- 参考选项: `-1`, `100`
+`particlePacketRange` 只控制普通、非强制粒子，单位为方块。关闭总开关时使用原版的 32 方块范围，强制粒子始终使用原版的 512 方块范围。两个距离参数必须非负。TNT 发包优化由 `tntExplosionOptimizations` 中的 `tntPacketOptimization` 子规则独立控制。
 
-&emsp;- 分类: `ROF`, `optimization`, `packet`
+```text
+/carpet group packetLimits
+/carpet setDefault packetLimits true
+/carpet group packetLimits entityTrackingRecoveryTicks 200
+/carpet group packetLimits particlePacketRange 2
+```
 
-
-## 每秒实体生成发包限制恢复时间 (entitySpawnPacketLimitSecondsRecoverTime)
-
-&emsp;被每秒发包限制的实体在存活时间达到该tick数后恢复原版发包距离
-
-&emsp; `设置为负数表示禁用`
-
-&emsp; `对每游戏刻发包限制不生效`
-
-&emsp;- 类型: `int`
-
-&emsp;- 默认值: `200`
-
-&emsp;- 参考选项: `-1`, `200`, `100`, `400`
-
-&emsp;- 分类: `ROF`, `optimization`, `packet`
-
-
-## 每游戏刻实体生成发包限制 (entitySpawnPacketLimitTicks)
-
-&emsp;在同一tick生成过多的同种实体时，减少过多的实体的发包距离。用于大当量珍珠炮的优化
-
-&emsp; `设置为负数表示禁用`
-
-&emsp;- 类型: `int`
-
-&emsp;- 默认值: `-1`
-
-&emsp;- 参考选项: `-1`, `100`, `1000`
-
-&emsp;- 分类: `ROF`, `optimization`, `packet`
-
-
-## 每游戏刻实体生成发包限制发包距离 (entitySpawnPacketLimitTicksTrackerDistance)
-
-&emsp;设置发包限制的实体的发包距离
-
-&emsp;- 类型: `int`
-
-&emsp;- 默认值: `16`
-
-&emsp;- 参考选项: `2`, `16`, `64`
-
-&emsp;- 分类: `ROF`, `optimization`, `packet`
-
-
-## 超高度区块标记器(ECM) (exceedChunkMarker)
-
-&emsp;Raycast优化前置，可能会造成额外的存储空间(一般只会增加存档的0.1%以下)
-
-&emsp; `在第一次启用时，务必使用/exceedChunkMarker 加载一次`
-
-&emsp;- 类型: `boolean`
-
-&emsp;- 默认值: `false`
-
-&emsp;- 分类: `ROF`, `experimental`
-
+关闭 `packetLimits` 总开关会停止限制并恢复追踪，但保留 JSON 中的子规则配置。
 
 ## 每游戏刻击杀进度触发次数上限 (killedTriggerLimitPerTick)
 
@@ -303,122 +298,37 @@
 &emsp;- 分类: `ROF`, `optimization`, `feature`
 
 
-## 爆炸合并 (mergeExplosion)
+## TNT 与爆炸优化 (tntExplosionOptimizations)
 
-&emsp;把合并TNT产生的多次爆炸合成一次，只对实体作用一次。仅在合并TNT和爆炸优化已启用时生效。
+控制 TNT 合并模式、爆炸合并、爆炸优化阈值和 TNT 发包优化；须同时开启总开关和相应子规则。
 
-&emsp; `需要 mergeTNTNext 处于非 False 模式`
+- 类型：`boolean`（总开关）
+- 默认值：`false`；子规则默认值如下
+- 分类：`ROF`、`optimization`、`tnt`、`experimental`
 
-&emsp; `伤害只结算一次；推力按合并次数补齐，总推力与原版一致`
+| 子规则 | 类型 | 默认值 | 作用 |
+| --- | --- | --- | --- |
+| `mergeTNTNext` | `MergeTNTNextMode` | `FALSE` | 选择 TNT 合并模式，不能与其他 TNT 合并规则同时开启 |
+| `mergeExplosion` | `boolean` | `false` | 合并 TNT 产生的多次爆炸，伤害只结算一次；推力按合并次数补齐 |
+| `optimizedExplosion` | `int` | `0` | 同一 tick、坐标和威力完全相同的连续爆炸达到此次数后，若最坏情况判断确认不可能破坏方块，则跳过方块计算；0 或负数禁用 |
+| `tntPacketOptimization` | `boolean` | `false` | 去掉不必要的 TNT Fuse 包并减少发包频率，可能造成客户端显示错误 |
 
-&emsp;- 类型: `boolean`
+`mergeExplosion` 仍要求 TNT 合并与爆炸优化已启用，保留原有生效条件。`tntPacketOptimization` 在本组中独立控制，不受 `packetLimits` 控制。
 
-&emsp;- 默认值: `false`
+`mergeTNTNext` 的命令选项为 `false`、`true`、`safe`、`almost_vanilla`、`safe_plus`。`true` 使用旧爆炸处理，移动 TNT 可能出现非原版行为；`safe` 使用更安全的爆炸处理；`almost_vanilla` 只在爆炸时合并并保留 tick 顺序；`safe_plus` 在每 tick 的提前遍历中只合并相邻的同点位 TNT，不改写实体 tick 顺序。理论上 `almost_vanilla` 不改变 TNT 行为，如发现原版差异请提交 issue。
 
-&emsp;- 分类: `ROF`, `optimization`, `tnt`, `feature`
+使用 `/carpet group tntExplosionOptimizations` 查看子规则，例如：
 
+```text
+/carpet setDefault tntExplosionOptimizations true
+/carpet group tntExplosionOptimizations mergeTNTNext almost_vanilla
+/carpet group tntExplosionOptimizations optimizedExplosion 4
+/carpet group tntExplosionOptimizations mergeExplosion true
+```
 
-## 合并TNTnext (mergeTNTNext)
+每次修改都立即保存到 JSON。
 
-&emsp;更为激进的tnt合并方案, 可能会导致预期之外的结果。不能与其他tnt合并一起开。
-
-&emsp; `False:关闭合并`
-
-&emsp; `TRUE: 旧版的爆炸处理方案，会使移动中的合并tnt发生不原版的行为`
-
-&emsp; `SAFE: 更安全的爆炸处理方案，让移动中的合并tnt行为与原版一致`
-
-&emsp; `AlmostVanilla: 更接近原版的tnt合并方案，只在tnt爆炸时合并，并且保tnt tick顺序`
-
-&emsp; `SafePlus: 与 AlmostVanilla 一样只在tnt爆炸时合并，但合并判定放在每tick一次的提前遍历里，只合并遍历中相邻的同点位tnt，且不改写实体tick顺序`
-
-&emsp; `理论上，AlmostVanilla 模式不会改变 TNT 行为，因此在纯原版中不应发现相关差异。若出现与原版不一致的情况，请提交 issue。`
-
-&emsp;- 类型: `MergeTNTNextMode`
-
-&emsp;- 默认值: `FALSE`
-
-&emsp;- 分类: `ROF`, `optimization`, `tnt`, `feature`
-
-
-## 生物AI延迟概率 (mobAIDelayChance)
-
-&emsp;白名单内的生物发生 AI 延迟、暂时停止 AI 行为的概率。
-
-&emsp; `概率为 0，或实体列表为空时，功能完全不生效`
-
-&emsp; `掷骰结果随实体存档保存（实体 NBT 的 MobAi 字段）`
-
-&emsp;- 类型: `double`
-
-&emsp;- 默认值: `0.0`
-
-&emsp;- 参考选项: `0`, `0.5`, `0.9`, `0.95`
-
-&emsp;- 分类: `ROF`, `optimization`
-
-
-## 生物AI延迟时间 (mobAIDelayTicks)
-
-&emsp;生物 AI 延迟持续的 tick 数，结束后恢复 AI，必须是正数。
-
-&emsp; `剩余时间随实体存档保存；小于 0 表示「已判定且不关闭 AI」`
-
-&emsp; `必须是正数`
-
-&emsp;- 类型: `int`
-
-&emsp;- 默认值: `3`
-
-&emsp;- 参考选项: `3`, `50`, `200`
-
-&emsp;- 分类: `ROF`, `optimization`
-
-
-## 生物AI延迟白名单 (mobAIDelayWhitelist)
-
-&emsp;可能发生 AI 延迟的生物白名单，花括号包裹、逗号分隔；条目可以是实体 ID（minecraft:pig）或实体类型标签（#zombies），前缀 ! 表示排除该项。列表全为排除项时表示「除这些之外的全部」；{} 表示空列表，功能不生效。
-
-&emsp; `建议取值：{!minecraft:drowned}（默认，除溺尸以外的全部生物）、{!minecraft:drowned,!minecraft:piglin}（再排除猪灵）`
-
-&emsp; `示例：{minecraft:pig,#zombies,!#undead} —— 猪与僵尸类生物，但不包括带 undead 标签的`
-
-&emsp; `先取所有正选条目的并集，再减去所有负选条目；命中任意一个正选条目即可`
-
-&emsp;- 类型: `String`
-
-&emsp;- 默认值: `{!minecraft:drowned}`
-
-&emsp;- 参考选项: `{}`, `{!minecraft:drowned}`, `{!minecraft:drowned,!minecraft:piglin}`
-
-&emsp;- 分类: `ROF`, `optimization`
-
-
-## 可攀爬方块标签判断缓存 (optimizedClimbableTagCheck)
-
-&emsp;缓存 Lithium 实体推挤判断中的 CLIMBABLE 方块标签查询，减少 LivingEntity.onClimbable 的重复标签查找。
-
-&emsp;- 类型: `boolean`
-
-&emsp;- 默认值: `false`
-
-&emsp;- 分类: `ROF`, `optimization`
-
-
-## 优化珍珠tick (optimizedEnderPearlTick)
-
-&emsp;让大多数情况下高速珍珠的飞行不生成新区块，可大幅度减少存档体积。在ECM未打开时，只会让世界高度外的珍珠不生成区块
-
-&emsp; `已知特性：珍珠会忽略未加载的实体碰撞箱。`
-
-&emsp;- 类型: `boolean`
-
-&emsp;- 默认值: `false`
-
-&emsp;- 参考选项: `false`, `true`
-
-&emsp;- 分类: `ROF`, `optimization`, `experimental`
-
+子规则名称、默认值与校验保持不变。运行时仍直接读取静态字段。
 
 ## 实体推挤收集优化 (optimizedEntityCollection)
 
@@ -457,23 +367,6 @@
 &emsp;- 分类: `ROF`, `optimization`
 
 
-## 爆炸优化 (optimizedExplosion)
-
-&emsp;同一游戏刻内同一点的连续爆炸达到该次数后，先按最坏情况判断这次爆炸是否可能破坏方块；只有不可能破坏方块时才跳过方块计算，只影响实体。
-
-&emsp; `设置为 0 或负数表示禁用`
-
-&emsp; `只对同一游戏刻内、坐标与威力完全相同的连续爆炸生效`
-
-&emsp;- 类型: `int`
-
-&emsp;- 默认值: `0`
-
-&emsp;- 参考选项: `0`, `4`, `8`, `16`
-
-&emsp;- 分类: `ROF`, `optimization`, `experimental`
-
-
 ## 假人tick精简 (optimizedFakePlayerTick)
 
 &emsp;精简Carpet假人的客户端同步/进度/统计/Waypoint等每tick逻辑，保留主手物品tick与行为模拟
@@ -487,126 +380,5 @@
 &emsp;- 默认值: `false`
 
 &emsp;- 分类: `ROF`, `optimization`
-
-
-## 物品合并优化 (optimizedItemMerge)
-
-&emsp;尽量让物品达到一组，以减轻卡顿(效果不明显)
-
-&emsp; `允许部分合并：优先把掉落物填满整组，余量留在原掉落物中`
-
-&emsp;- 类型: `boolean`
-
-&emsp;- 默认值: `false`
-
-&emsp;- 分类: `ROF`, `optimization`, `feature`
-
-
-## raycast优化 (optimizedRaycast)
-
-&emsp;通过ECM优化raycast，开启时请保证ECM已打开且已经从存档加载过
-
-&emsp; `已知特性：投掷物会忽略一些特定位置的实体碰撞箱。`
-
-&emsp;- 类型: `boolean`
-
-&emsp;- 默认值: `false`
-
-&emsp;- 分类: `ROF`, `optimization`, `experimental`
-
-
-## 粒子包发包距离 (particlesPacketsRange)
-
-&emsp;此距离只能影响非forced的粒子发包。大部分粒子都是非forced
-
-&emsp; `原版默认为32`
-
-&emsp; `force的粒子发包距离固定为512，不受此规则影响`
-
-&emsp;- 类型: `double`
-
-&emsp;- 默认值: `32.0`
-
-&emsp;- 参考选项: `32.0`, `1.0`, `8.0`
-
-&emsp;- 分类: `ROF`, `optimization`, `packet`
-
-
-## 猪灵捡掉落物延迟 (piglinLootItemDelay)
-
-&emsp;只有出现一定时间的掉落物才会被猪灵捡起
-
-&emsp;- 类型: `int`
-
-&emsp;- 默认值: `0`
-
-&emsp;- 参考选项: `0`, `20`
-
-&emsp;- 分类: `ROF`, `optimization`, `feature`
-
-
-## 堆叠猪灵AI抑制 (piglinStackingAISuppression)
-
-&emsp;对于堆叠到一定量的猪灵，抑制其中部分猪灵的ai。
-
-&emsp;- 类型: `int`
-
-&emsp;- 默认值: `10000`
-
-&emsp;- 参考选项: `100`, `10000`
-
-&emsp;- 分类: `ROF`, `optimization`, `feature`
-
-
-## 随机刻区块延迟缓存 (randomTickChunkCache)
-
-&emsp;每40gt刷新一次随机刻区块列表。关闭时完全使用原版遍历。
-
-&emsp;- 类型: `boolean`
-
-&emsp;- 默认值: `false`
-
-&emsp;- 分类: `ROF`, `optimization`, `experimental`
-
-
-## 刷怪统计化简白名单 (spawnStatisticSimplifyWhitelist)
-
-&emsp;刷怪统计被化简的世界白名单，花括号包裹、逗号分隔的维度 ID；{} 表示任何世界都不化简。
-
-&emsp; `化简会跳过刷怪统计中的区块查找与生物群系查询`
-
-&emsp; `只有世界中任何生物群系都没有刷怪密度限制时，化简的结果才与原版完全一致`
-
-&emsp;- 类型: `String`
-
-&emsp;- 默认值: `{}`
-
-&emsp;- 参考选项: `{}`, `{minecraft:overworld}`, `{minecraft:overworld,minecraft:the_end}`
-
-&emsp;- 分类: `ROF`, `optimization`
-
-
-## 生物生成区块延迟缓存 (spawningChunkCache)
-
-&emsp;每40gt刷新一次自然生成候选区块列表。关闭时完全使用原版遍历。
-
-&emsp;- 类型: `boolean`
-
-&emsp;- 默认值: `false`
-
-&emsp;- 分类: `ROF`, `optimization`, `experimental`
-
-
-## tnt实体发包优化 (tntPacketOptimization)
-
-&emsp;通过去掉不必要的tnt实体发包(Fuse)与减少发包频率，优化tnt实体
-
-&emsp; `可能会造成客户端显示错误`
-
-&emsp;- 类型: `boolean`
-
-&emsp;- 默认值: `false`
-
-&emsp;- 分类: `ROF`, `optimization`, `packet`
 
 

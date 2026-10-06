@@ -1,6 +1,5 @@
 package com.carpet.rof.mixin.entity.mobAi;
 
-import com.carpet.rof.entity.mobAi.betterNoAi.BetterNoAiSettings;
 import com.carpet.rof.entity.mobAi.MobAiSettings;
 import com.carpet.rof.utils.NBTHelper;
 import net.minecraft.world.entity.LivingEntity;
@@ -68,7 +67,7 @@ public class MobMixin
             this.rof$mobAiRemaining = MobAiSettings.KEEP_AI;
             return;
         }
-        if (BetterNoAiSettings.betterNoAiNbt && this.noBrainAi) {
+        if (MobAiSettings.betterNoAiNbt && this.noBrainAi) {
             return;
         }
         LivingEntity self = (LivingEntity) (Object) this;
@@ -104,7 +103,7 @@ public class MobMixin
             cancellable = true)
     private void rof$suppressAi(CallbackInfo ci)
     {
-        if (!BetterNoAiSettings.betterNoAiNbt || !this.noBrainAi) {
+        if (!MobAiSettings.mobAiOptimizations || !MobAiSettings.betterNoAiNbt || !this.noBrainAi) {
             return;
         }
         LivingEntity self = (LivingEntity) (Object) this;

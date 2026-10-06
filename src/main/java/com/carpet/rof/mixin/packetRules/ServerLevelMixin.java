@@ -5,7 +5,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
-import static com.carpet.rof.packetRules.PacketRulesSettings.particlesPacketsRange;
+import static com.carpet.rof.packetRules.PacketRulesSettings.packetLimits;
+import static com.carpet.rof.packetRules.PacketRulesSettings.particlePacketRange;
 
 @Mixin(ServerLevel.class)
 public class ServerLevelMixin
@@ -15,6 +16,6 @@ public class ServerLevelMixin
             constant = @Constant(doubleValue = 32.0)
     )
     private double modifyNearbyDistance(double original) {
-        return particlesPacketsRange;
+        return packetLimits ? particlePacketRange : original;
     }
 }

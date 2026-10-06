@@ -46,3 +46,5 @@ replay_*.log
 /tool/
 /compile_263.log
 /docs/zh_cn/compositeRules.md
+/docs/zh_cn/nbt-helper.md
+/docs/zh_cn/project-structure.md

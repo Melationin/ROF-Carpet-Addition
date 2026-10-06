@@ -4,7 +4,7 @@ import com.carpet.rof.debug.OptimizedExplosionStats;
 import com.carpet.rof.world.extraWorldData.ExtraWorldDatas;
 import com.carpet.rof.world.explosion.ExplosionMergeData;
 import com.carpet.rof.world.explosion.OptimizedExplosionUtil;
-import com.carpet.rof.entity.merge.MergeSetting;
+import com.carpet.rof.world.explosion.OptimizedExplosionSettings;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -39,7 +39,7 @@ public abstract class ServerExplosionMixin
         OptimizedExplosionStats.onExplosion();
         ExplosionMergeData data = ExtraWorldDatas.fromWorld(instance.level()).explosionMergeData;
         // TNT 合并侧写在本次爆炸前的预期合并次数；begin() 会把它复位，所以先取出并消费掉
-        int mergeCount = MergeSetting.mergeExplosion ? data.needExplosionCount : 1;
+        int mergeCount = OptimizedExplosionSettings.tntExplosionOptimizations && OptimizedExplosionSettings.mergeExplosion ? data.needExplosionCount : 1;
         data.needExplosionCount = 1;
         data.explosionCount = 1;
         if (OptimizedExplosionUtil.shouldSkipBlockCalculation(instance, this.damageCalculator))

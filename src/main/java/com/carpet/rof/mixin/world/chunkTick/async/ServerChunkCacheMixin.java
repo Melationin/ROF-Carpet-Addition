@@ -2,7 +2,7 @@ package com.carpet.rof.mixin.world.chunkTick.async;
 
 import com.carpet.rof.world.extraWorldData.ExtraWorldDatas;
 import com.carpet.rof.world.chunkTick.async.DelayedChunkSnapshot;
-import com.carpet.rof.world.chunkTick.async.AsyncSettings;
+import com.carpet.rof.world.chunkTick.ChunkTickSettings;
 import com.carpet.rof.world.chunkTick.async.spawner.AsyncNaturalSpawner;
 import com.carpet.rof.world.chunkTick.async.randomTick.AsyncRandomTick;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -38,7 +38,7 @@ public class ServerChunkCacheMixin
     private void rof$cacheBlockTickingChunks(ChunkMap map, Consumer<LevelChunk> consumer, Operation<Void> original)
     {
         DelayedChunkSnapshot snapshot = ExtraWorldDatas.fromWorld(level).randomTickingChunks;
-        if (!AsyncSettings.randomTickChunkCache)
+        if (!ChunkTickSettings.randomTickOptimizations || !ChunkTickSettings.randomTickChunkCache)
         {
             snapshot.clear();
             original.call(map, consumer);

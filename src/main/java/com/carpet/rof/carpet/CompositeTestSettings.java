@@ -10,10 +10,10 @@ import com.carpet.rof.utils.ROFTool;
 @ROFRule
 public class CompositeTestSettings extends BaseSetting
 {
-    @Rule(categories = {ROF}, strict = false, options = {"{}"}, validators = CompositeRuleValidator.class,
+    @Rule(categories = {ROF}, validators = CompositeRuleValidator.class,
             conditions = DevelopmentOnly.class)
     @QuickTranslations(name = "复合规则数值测试", description = "仅开发环境注册，不改变游戏行为")
-    public static String compositeTestNumbers = "{}";
+    public static boolean compositeTestNumbers = false;
 
     @Rule(categories = {"SubRule:compositeTestNumbers"})
     @QuickTranslations(name = "测试开关", description = "自动推导 true、false 选项")
@@ -27,12 +27,10 @@ public class CompositeTestSettings extends BaseSetting
     public static int count = 8;
 
     @Rule(categories = {ROF},
-          strict = false,
-          options = {"{}"}, 
           validators = CompositeRuleValidator.class,
           conditions = DevelopmentOnly.class)
     @QuickTranslations(name = "复合规则文本测试", description = "验证严格选项和字符串，不改变游戏行为")
-    public static String compositeTestText = "{}";
+    public static boolean compositeTestText = false;
 
     @Rule(categories = {"SubRule:compositeTestText"}, options = {"normal", "fast"})
     @QuickTranslations(name = "测试策略", description = "strict=true，只能选择 normal 或 fast")
