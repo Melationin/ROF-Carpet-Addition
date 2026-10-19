@@ -16,10 +16,10 @@ public class FakePlayerTickSettings extends BaseSetting {
     )
     @QuickTranslations(
             name = "假人tick精简",
-            description = "精简Carpet假人的客户端同步/进度/统计/Waypoint等每tick逻辑，保留主手物品tick与行为模拟",
+            description = "精简Carpet假人的进度/统计/计分板/容器同步/实体追踪/Waypoint等开销，保留行为模拟与掉落",
             extra = {
                     "仅对Carpet假人(EntityPlayerMPFake)生效",
-                    "可能影响假人的统计、进度、计分板自动同步与定位条显示"
+                    "假人不再产生成就进度、统计与计分板数据，也不再被登记为实体的观察者"
             }
     )
     public static boolean optimizedFakePlayerTick = false;

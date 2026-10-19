@@ -35,7 +35,10 @@ public class MobAiSettings extends BaseSetting
     )
     public static String mobAIDelayWhitelist = "{!minecraft:drowned}";
 
-    @Rule(categories = {ROF, OPTIMIZATION}, options = {"3","50", "200"}, strict = false, validators = RestoreTicksValidator.class)
+    @Rule(categories = {ROF, OPTIMIZATION},
+          options = {"3","50", "200"},
+          strict = false,
+          validators = RestoreTicksValidator.class)
     @QuickTranslations(
             name = "生物AI延迟时间",
             description = "生物 AI 延迟持续的 tick 数，结束后恢复 AI，必须是正数。")
@@ -45,6 +48,7 @@ public class MobAiSettings extends BaseSetting
 
     public static boolean enabled()
     {
+
         return mobAIDelayChance > 0.0D && !mobAiFilter.isEmpty();
     }
 

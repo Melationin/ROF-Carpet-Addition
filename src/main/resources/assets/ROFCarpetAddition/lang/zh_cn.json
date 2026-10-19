@@ -2,7 +2,15 @@
   "carpet.category.ROF": "ROF",
   "carpet.category.PACKET": "PACKET",
   "carpet.rule.optimizedFakePlayerTick.name": "假人tick精简",
-  "carpet.rule.optimizedFakePlayerTick.desc": "精简Carpet假人的客户端同步/进度/统计/Waypoint等每tick逻辑，保留主手物品tick与行为模拟",
+  "carpet.rule.optimizedFakePlayerTick.desc": "精简Carpet假人的进度/统计/计分板/容器同步/实体追踪/Waypoint等开销，保留行为模拟与掉落",
   "carpet.rule.optimizedFakePlayerTick.extra.0": "仅对Carpet假人(EntityPlayerMPFake)生效",
-  "carpet.rule.optimizedFakePlayerTick.extra.1": "可能影响假人的统计、进度、计分板自动同步与定位条显示"
+  "carpet.rule.optimizedFakePlayerTick.extra.1": "假人不再产生成就进度、统计与计分板数据，也不再被登记为实体的观察者",
+  "carpet.rule.optimizedFakePlayerTick.extra.2": "不影响 /player 控制、方块破坏、生物掉落与经验",
+  "carpet.rule.mergeFakePlayerTabList.name": "假人列表合并",
+  "carpet.rule.mergeFakePlayerTabList.desc": "把名字为「相同前缀+数字」的假人合并成一行显示在Tab玩家列表",
+  "carpet.rule.mergeFakePlayerTabList.extra.0": "0 表示不合并；设为 N（N≥2）时，同前缀满 N 只才合并",
+  "carpet.rule.mergeFakePlayerTabList.extra.1": "例：设为 3 时，bot_a1~bot_a2 不合并，从 bot_a1~bot_a3 起合并为 (players) bot_a1-3",
+  "carpet.rule.mergeFakePlayerTabList.extra.2": "合并行由编号最小的假人承担，其余组员隐藏；旁观者可以直接传送到它",
+  "carpet.rule.mergeFakePlayerTabList.extra.3": "只改变玩家列表的显示，假人实体、追踪、命令选择器与 /player 控制均不受影响",
+  "carpet.rule.mergeFakePlayerTabList.extra.4": "纯服务端实现，原版客户端无需安装任何东西"
 }
