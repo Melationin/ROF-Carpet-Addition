@@ -2,6 +2,7 @@ package com.carpet.rof.carpet.fakePlayerList;
 
 import carpet.patches.EntityPlayerMPFake;
 import com.carpet.rof.mixinAccessor.FakePlayerInfoPacketAccess;
+import com.carpet.rof.utils.ROFWarp;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -25,7 +26,7 @@ import java.util.UUID;
 public final class FakePlayerGroups
 {
     private static final int MAX_PROFILE_NAME_LENGTH = 16;
-    private static final String LABEL_PREFIX = "(players)";
+    private static final String LABEL_PREFIX = "(players) ";
 
     private static final EnumSet<Action> SYNC_ACTIONS = EnumSet.of(Action.UPDATE_LISTED, Action.UPDATE_DISPLAY_NAME);
 
@@ -59,7 +60,7 @@ public final class FakePlayerGroups
             {
                 continue;
             }
-            String name = player.getGameProfile().name();
+            String name = ROFWarp.getProfileName(player);
             int split = name.length();
             while (split > 0 && Character.isDigit(name.charAt(split - 1)))
             {
@@ -82,7 +83,7 @@ public final class FakePlayerGroups
                 continue;
             }
             String base = entry.getKey();
-            members.sort(Comparator.comparingLong(member -> suffixOf(member.getGameProfile().name(), base.length())));
+            members.sort(Comparator.comparingLong(member -> suffixOf(ROFWarp.getProfileName(member), base.length())));
             groups.add(new Group(buildLabel(base, members), members.get(0), List.copyOf(members)));
         }
         return groups;
@@ -107,7 +108,7 @@ public final class FakePlayerGroups
         List<Long> suffixes = new ArrayList<>(members.size());
         for (ServerPlayer member : members)
         {
-            long suffix = suffixOf(member.getGameProfile().name(), base.length());
+            long suffix = suffixOf(ROFWarp.getProfileName(member), base.length());
             if (suffix == Long.MAX_VALUE)
             {
                 return base + "x" + members.size();
@@ -149,7 +150,7 @@ public final class FakePlayerGroups
 
     public static Entry entryOf(final ServerPlayer player, final BotState state)
     {
-        String name = player.getGameProfile().name();
+        String name = ROFWarp.getProfileName(player);
         String profileName = name.length() > MAX_PROFILE_NAME_LENGTH ? name.substring(0, MAX_PROFILE_NAME_LENGTH) : name;
         return new Entry(player.getUUID(), new GameProfile(player.getUUID(), profileName), state.listed(), 0,
                 player.gameMode(), state.displayName(), false, 0, null);

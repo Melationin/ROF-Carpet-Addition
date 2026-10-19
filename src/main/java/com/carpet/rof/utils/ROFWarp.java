@@ -84,13 +84,20 @@ public class ROFWarp
                 (int) Math.ceil(box.maxY),
                 (int) Math.ceil(box.maxZ));
     }
-    // Every supported node is Mojang-mapped (1.21.7+), so level()/position() are the only names needed.
-    // The old >=1.21.9 condition guarded an else branch that held the Yarn names getWorld()/getPos(),
-    // which exist in no Mojang-mapped node and only broke 1.21.7/1.21.8 compilation.
-    public static Level getWorld_(Entity entity) {
+   public static Level getWorld_(Entity entity) {
         return entity.level();
     }
     public static Vec3 getPos_(Entity entity) {
         return entity.position();
+    }
+    // 1.21.9 起 GameProfile 改用记录风格访问器 name()，之前是 getName()。
+    public static String getProfileName(ServerPlayer player)
+    {
+        //? >=1.21.9 {
+        return player.getGameProfile().name();
+
+        //?} else {
+            /*return player.getGameProfile().getName();
+        *///?}
     }
 }

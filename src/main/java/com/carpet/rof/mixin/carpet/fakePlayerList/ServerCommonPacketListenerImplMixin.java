@@ -27,11 +27,12 @@ import java.util.UUID;
 public abstract class ServerCommonPacketListenerImplMixin
 {
     // 玩家列表由客户端根据 listed 标志维护，合并只改这一个包的 listed 与 displayName，
-    @ModifyVariable(method = "send(Lnet/minecraft/network/protocol/Packet;Lio/netty/channel/ChannelFutureListener;)V",
+    // 单参重载在所有支持版本里都存在；双参重载的监听器类型在 26.1 前后换过（PacketSendListener -> ChannelFutureListener）。
+    @ModifyVariable(method = "send(Lnet/minecraft/network/protocol/Packet;)V",
                     at = @At("HEAD"),
                     argsOnly = true,
-                    require = 1,
-                    name = "packet")
+                    index = 1,
+                    require = 1)
     private Packet<?> rof$mergeFakePlayerTabList(Packet<?> packet)
     {
         if (!FakePlayerGroups.enabled() || !(packet instanceof ClientboundPlayerInfoUpdatePacket update))

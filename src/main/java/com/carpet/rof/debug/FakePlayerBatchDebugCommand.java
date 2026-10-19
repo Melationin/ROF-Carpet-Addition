@@ -4,6 +4,7 @@ import carpet.patches.EntityPlayerMPFake;
 import com.carpet.rof.annotation.ROFCommand;
 import com.carpet.rof.utils.CommandHelper;
 import com.carpet.rof.utils.ROFTool;
+import com.carpet.rof.utils.ROFWarp;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -64,7 +65,7 @@ public final class FakePlayerBatchDebugCommand
             {
                 continue;
             }
-            String name = player.getGameProfile().name();
+            String name = ROFWarp.getProfileName(player);
             if (!name.startsWith(prefix))
             {
                 continue;
