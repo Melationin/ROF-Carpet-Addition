@@ -86,10 +86,13 @@ public abstract class ThrownEnderpearlDebugMixin extends ThrowableItemProjectile
             rofDebugWorldTickStart = serverLevel.getGameTime();
 
             // 按名称修改初速度
-            Vec3 velocity = EnderPearlDebug.parseVelocity(name, (ThrownEnderpearl)(Object)this);
-            if (velocity != null) {
-                rofDebugAppliedVelocity = velocity;
-                this.setDeltaMovement(velocity);
+            EnderPearlDebug.Parsed parsed = EnderPearlDebug.parseVelocity(name, (ThrownEnderpearl)(Object)this);
+            if (parsed.velocity() != null) {
+                rofDebugAppliedVelocity = parsed.velocity();
+                this.setDeltaMovement(parsed.velocity());
+            }
+            else if (parsed.error() != null) {
+                EnderPearlDebug.reportParseFailure((ThrownEnderpearl)(Object)this, name, parsed.error());
             }
             // 生成tick不计入飞行tick，保证珍珠内tick与世界tick可直接比较
             return;

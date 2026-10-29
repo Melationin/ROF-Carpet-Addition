@@ -73,7 +73,8 @@
     "world.portal.NetherPortalBlockMixin",
     "world.chunkTick.spawnStatistic.ServerChunkCacheMixin",
     "world.chunkTick.spawnStatistic.ServerLevelMixin",
-    "world.chunkTick.spawnStatistic.SpawnStateMixin"
+    "world.chunkTick.spawnStatistic.SpawnStateMixin",
+    "compat.GcaBotSpawnUtilMixin"
   ],
   "injectors": {
     "defaultRequire": 1
