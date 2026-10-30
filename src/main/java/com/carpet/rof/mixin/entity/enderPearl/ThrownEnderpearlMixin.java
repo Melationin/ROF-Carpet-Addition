@@ -3,10 +3,7 @@ package com.carpet.rof.mixin.entity.enderPearl;
 // Minecraft 相关导入
 
 import com.carpet.rof.world.extraWorldData.ExtraWorldDatas;
-import com.carpet.rof.world.extraWorldData.extraChunkDatas.ExceedChunkMarker;
 import com.carpet.rof.utils.ROFWarp;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.*;
@@ -45,8 +42,6 @@ public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
     @Unique
     private boolean syncMode = true;
 
-    @Unique
-    private long chunkPos2 = 0;
     // 必须定义的构造函数，调用父类
     protected ThrownEnderpearlMixin(EntityType<?extends ThrowableItemProjectile> entityType, Level world) {
         super(entityType, world);
@@ -58,7 +53,6 @@ public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
     private void EndPearlHead(CallbackInfo ci) {
         Level world = ROFWarp.getWorld_(this);
         if (world instanceof ServerLevel serverWorld) {
-            chunkPos2 = ChunkPosHelper.pack(this.chunkPosition());
             var forcedEntitylist = ExtraWorldDatas.fromWorld(serverWorld ).forcedEntitylist;
             if (syncMode) {
                 if ((MinSpeed > 0) && (Math.abs(this.getDeltaMovement().x) > MinSpeed || Math.abs(this.getDeltaMovement().z) > MinSpeed)) {//大于最高速度，切换加载逻辑
@@ -73,7 +67,9 @@ public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
                         this.getDeltaMovement().z) <= MinSpeed)) {
                     forcedEntitylist.put(this.getUUID(), null);
                     this.setPos(ROFWarp.getPos_(this));
-                    ServerPlayer.placeEnderPearlTicket(serverWorld, chunkPosition());
+                    if (ExtraWorldDatas.fromWorld(serverWorld).enderPearlTickets.tryPlace(serverWorld, this) == 0) {
+                        ServerPlayer.placeEnderPearlTicket(serverWorld, chunkPosition());
+                    }
                     syncMode = true;
                 }
                 //?}
@@ -124,50 +120,5 @@ public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
                 forcedEntitylist.put(this.getUUID(),null);
             }
         }
-    }
-    @Unique
-    //? if >= 1.21.9 {
-
-    private static final TicketType TYPE = new TicketType(40L, TicketType.FLAG_SIMULATION | TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
-    //? }else{
-    /*private static final TicketType TYPE = new TicketType(40L, false, TicketType.TicketUse.SIMULATION);
-     *///?}
-
-    @Unique
-    private static final int LEVEL = ChunkLevel.byStatus(FullChunkStatus.ENTITY_TICKING);
-
-    @WrapOperation(method = "tick",
-                   at = @At(value = "INVOKE",
-                            target = "Lnet/minecraft/server/level/ServerPlayer;registerAndUpdateEnderPearlTicket(Lnet/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl;)J"))
-    private long rof$betterEnderPearlTicket(ServerPlayer player, ThrownEnderpearl pearl, Operation<Long> original)
-    {
-        if(!betterEnderPearlTicket) return original.call(player, pearl);
-        if(!(this.level() instanceof ServerLevel serverLevel)) return original.call(player, pearl);
-        boolean canUseBetterTicker = ChunkPosHelper.pack(this.chunkPosition())!= chunkPos2;
-        ServerChunkCache chunkSource = serverLevel.getChunkSource();
-        canUseBetterTicker = canUseBetterTicker && chunkSource.getChunkNow(ChunkPosHelper.x(chunkPosition()),ChunkPosHelper.z(chunkPosition())) == null;
-        canUseBetterTicker = canUseBetterTicker && isSafe();
-        if(canUseBetterTicker) {
-            player.registerEnderPearl(pearl);
-            serverLevel.resetEmptyTime();
-            serverLevel.getChunkSource().addTicket(new Ticket(TYPE, LEVEL), pearl.chunkPosition());
-            serverLevel.entityManager.updateChunkStatus(pearl.chunkPosition(), Visibility.TICKING);
-            return TYPE.timeout()-1;
-        }else {
-            return original.call(player, pearl);
-        }
-    }
-
-    @Unique
-    private  boolean isSafe()
-    {
-        for(BlockPos blockPos : ROFWarp.getBlockPosIt(this.getBoundingBox()))
-        {
-            if(!ExceedChunkMarker.mustBeAir((ServerLevel) this.level(), blockPos))
-            {
-                return false;
-            }
-        }
-        return true;
     }
 }

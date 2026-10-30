@@ -7,6 +7,7 @@ import com.carpet.rof.world.extraWorldData.extraChunkDatas.ExceedChunkMarker;
 import com.carpet.rof.world.chunkTick.async.DelayedChunkSnapshot;
 import com.carpet.rof.mixinAccessor.ServerLevelAccessor;
 import com.carpet.rof.advancement.KilledTriggerLimiter;
+import com.carpet.rof.entity.enderPearl.EnderPearlTickets;
 import com.carpet.rof.world.explosion.ExplosionMergeData;
 import com.carpet.rof.world.extraWorldData.extraChunkDatas.ExceedChunkMarkerSetting;
 import com.carpet.rof.entity.merge.MergeSetting;
@@ -42,6 +43,7 @@ public class ExtraWorldDatas implements NBTData
 
 
     public final LongOpenHashSet enderPearlForcedSyncChunks = new LongOpenHashSet();
+    public final EnderPearlTickets enderPearlTickets = new EnderPearlTickets();
 
 
     public final DelayedChunkSnapshot randomTickingChunks = new DelayedChunkSnapshot();

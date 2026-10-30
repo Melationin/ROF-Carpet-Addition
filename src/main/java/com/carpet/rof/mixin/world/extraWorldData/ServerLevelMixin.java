@@ -104,6 +104,8 @@ public abstract class ServerLevelMixin implements  ServerLevelAccessor
 
         ServerLevel level = (ServerLevel)(Object)this;
 
+        ExtraWorldDatas.fromWorld(level).enderPearlTickets.tick(level);
+
         var tickChunkList = ExtraWorldDatas.fromWorld(level).enderPearlForcedSyncChunks;
 
         MinecraftServer server = level.getServer();
