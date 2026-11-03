@@ -15,12 +15,13 @@ import java.util.Set;
 @Mixin(targets = "dev.dubhe.gugle.carpet.util.BotSpawnUtil", remap = false)
 public abstract class GcaBotSpawnUtilMixin
 {
-    private static final String SPAWN_BOT = "spawnBot(Lnet/minecraft/server/MinecraftServer;Lnet/minecraft/server/level/ServerLevel;Ldev/dubhe/gugle/carpet/entry/BotInfo;Lcom/mojang/authlib/GameProfile;ZLcarpet/helpers/EntityPlayerActionPack;)Z";
     private static final String TELEPORT_TO = "Lcarpet/patches/EntityPlayerMPFake;teleportTo(Lnet/minecraft/server/level/ServerLevel;DDDLjava/util/Set;FFZ)Z";
 
+    // GCA method names stay unchanged, but its Minecraft calls must be remapped.
     @WrapWithCondition(
-            method = SPAWN_BOT,
-            at = @At(value = "INVOKE", target = TELEPORT_TO),
+            method = "spawnBot",
+            remap = false,
+            at = @At(value = "INVOKE", target = TELEPORT_TO, remap = true),
             require = 0
     )
     private static boolean rof$skipGcaSpawnTeleport(
