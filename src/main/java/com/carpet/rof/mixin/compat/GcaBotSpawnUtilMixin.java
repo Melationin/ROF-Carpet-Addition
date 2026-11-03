@@ -20,7 +20,8 @@ public abstract class GcaBotSpawnUtilMixin
 
     @WrapWithCondition(
             method = SPAWN_BOT,
-            at = @At(value = "INVOKE", target = TELEPORT_TO)
+            at = @At(value = "INVOKE", target = TELEPORT_TO),
+            require = 0
     )
     private static boolean rof$skipGcaSpawnTeleport(
             EntityPlayerMPFake instance,
