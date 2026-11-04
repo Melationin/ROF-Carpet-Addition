@@ -15,6 +15,7 @@ plugins {
 }
 
 def minecraftVer = stonecutter.current.version
+def versionRange = project.findProperty("version_range") ?: minecraftVer
 version = project.mod_version
 
 if (stonecutter.eval(minecraftVer, ">=26.1")) {
@@ -25,7 +26,7 @@ if (stonecutter.eval(minecraftVer, ">=26.1")) {
 
 
 base {
-	archivesName = "${project.archives_base_name}-${minecraftVer}"
+	archivesName = "${project.archives_base_name}-${versionRange}"
 
 }
 
@@ -199,6 +200,7 @@ dependencies {
 
 processResources {
 	inputs.property "minecraft", stonecutter.current.version
+	inputs.property "modVer", mod_version
 
 	filesMatching("fabric.mod.json") {
 		expand( [

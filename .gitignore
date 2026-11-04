@@ -46,3 +46,8 @@ replay_*.log
 /tool/
 /compile_263.log
 /.analysis/
+/upload_modrinth.py
+__pycache__/
+/.codex-audit/
+/releases/
+/scripts/

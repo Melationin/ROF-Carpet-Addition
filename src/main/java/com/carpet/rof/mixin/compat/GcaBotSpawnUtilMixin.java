@@ -17,9 +17,8 @@ public abstract class GcaBotSpawnUtilMixin
 {
     private static final String TELEPORT_TO = "Lcarpet/patches/EntityPlayerMPFake;teleportTo(Lnet/minecraft/server/level/ServerLevel;DDDLjava/util/Set;FFZ)Z";
 
-    // GCA method names stay unchanged, but its Minecraft calls must be remapped.
     @WrapWithCondition(
-            method = "spawnBot",
+            method = "spawnBot*",
             remap = false,
             at = @At(value = "INVOKE", target = TELEPORT_TO, remap = true),
             require = 0
