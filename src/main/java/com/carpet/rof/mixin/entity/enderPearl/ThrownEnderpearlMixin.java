@@ -2,6 +2,7 @@ package com.carpet.rof.mixin.entity.enderPearl;
 
 // Minecraft 相关导入
 
+import com.carpet.rof.entity.enderPearl.EnderPearlTickets;
 import com.carpet.rof.world.extraWorldData.ExtraWorldDatas;
 import com.carpet.rof.utils.ROFWarp;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -18,7 +19,6 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -35,60 +35,53 @@ import com.carpet.rof.utils.ChunkPosHelper;
 public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
 {
 
-    @Unique
-    final double MinSpeed = enderPearlForcedTickMinSpeed;
-
-    // 是否启用同步状态（冻结 or 物理更新）
-    @Unique
-    private boolean syncMode = true;
-
     // 必须定义的构造函数，调用父类
     protected ThrownEnderpearlMixin(EntityType<?extends ThrowableItemProjectile> entityType, Level world) {
         super(entityType, world);
     }
-    // 判断某区块是否是实体可运行的状态（ENTITY_TICKING）
-
-    // 注入 tick() 方法的开头，覆盖默认逻辑
-    @Inject(method = "tick", at = @At(value = "HEAD"), cancellable = true)
-    private void EndPearlHead(CallbackInfo ci) {
-        Level world = ROFWarp.getWorld_(this);
-        if (world instanceof ServerLevel serverWorld) {
-            var forcedEntitylist = ExtraWorldDatas.fromWorld(serverWorld ).forcedEntitylist;
-            if (syncMode) {
-                if ((MinSpeed > 0) && (Math.abs(this.getDeltaMovement().x) > MinSpeed || Math.abs(this.getDeltaMovement().z) > MinSpeed)) {//大于最高速度，切换加载逻辑
-                    syncMode = false;
-                    forcedEntitylist.put(this.getUUID(), this);
-                }
-            }
-            else {
-                //? >=1.21.2 {
-
-                if ((Math.abs(this.getDeltaMovement().x) <= MinSpeed && Math.abs(
-                        this.getDeltaMovement().z) <= MinSpeed)) {
-                    forcedEntitylist.put(this.getUUID(), null);
-                    this.setPos(ROFWarp.getPos_(this));
-                    if (ExtraWorldDatas.fromWorld(serverWorld).enderPearlTickets.tryPlace(serverWorld, this) == 0) {
-                        ServerPlayer.placeEnderPearlTicket(serverWorld, chunkPosition());
-                    }
-                    syncMode = true;
-                }
-                //?}
-            }
-        }
-    }
-
+    // 自加载与加载票共用一个判定（EnderPearlTickets.decide）：
+    // 移动完成后按当前区块判定一次，满足条件就转入自加载并取消本 tick 剩余逻辑（不注册任何加载票）；
+    // 条件不再满足时退出自加载，并补一张原版加载票。
     //? >= 1.21.4 {
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/projectile/throwableitemprojectile/ThrowableItemProjectile;tick()V", shift = At.Shift.AFTER), cancellable = true)
-    private void EndPearlBetterForce(CallbackInfo ci) {
-        if(!syncMode) {
+    private void rof$updatePearlLoading(CallbackInfo ci) {
+        if (!(this.level() instanceof ServerLevel level)) {
+            return;
+        }
+        var forcedEntitylist = ExtraWorldDatas.fromWorld(level).forcedEntitylist;
+        var loading = EnderPearlTickets.decide(level, this);
+        if (loading == EnderPearlTickets.PearlLoading.SELF_LOADING) {
+            forcedEntitylist.put(this.getUUID(), this);
+            level.resetEmptyTime();
             ci.cancel();
+        }
+        else if (forcedEntitylist.get(this.getUUID()) == this) {
+            forcedEntitylist.put(this.getUUID(), null);
+            this.setPos(ROFWarp.getPos_(this));
+            if (loading == EnderPearlTickets.PearlLoading.VANILLA) {
+                ServerPlayer.placeEnderPearlTicket(level, chunkPosition());
+            }
         }
     }
     //?} else {
     /*@Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/thrown/ThrownItemEntity;tick()V", shift = At.Shift.AFTER),cancellable = true)
-    private void EndPearlBetterForce(CallbackInfo ci) {
-        if(!syncMode) {
+    private void rof$updatePearlLoading(CallbackInfo ci) {
+        if (!(this.level() instanceof ServerLevel level)) {
+            return;
+        }
+        var forcedEntitylist = ExtraWorldDatas.fromWorld(level).forcedEntitylist;
+        var loading = EnderPearlTickets.decide(level, this);
+        if (loading == EnderPearlTickets.PearlLoading.SELF_LOADING) {
+            forcedEntitylist.put(this.getUUID(), this);
+            level.resetEmptyTime();
             ci.cancel();
+        }
+        else if (forcedEntitylist.get(this.getUUID()) == this) {
+            forcedEntitylist.put(this.getUUID(), null);
+            this.setPos(ROFWarp.getPos_(this));
+            if (loading == EnderPearlTickets.PearlLoading.VANILLA) {
+                ServerPlayer.placeEnderPearlTicket(level, chunkPosition());
+            }
         }
     }
     *///?}
@@ -110,15 +103,4 @@ public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
     }
 
 
-
-    @Inject(method = "tick", at = @At(value = "RETURN"))
-    private void ChunkUnloadingEnd(CallbackInfo ci){
-        if (this.isRemoved()) {
-            Level world = ROFWarp.getWorld_(this);
-            if (world instanceof ServerLevel world1) {
-                var forcedEntitylist = ExtraWorldDatas.fromWorld(world1).forcedEntitylist;
-                forcedEntitylist.put(this.getUUID(),null);
-            }
-        }
-    }
 }

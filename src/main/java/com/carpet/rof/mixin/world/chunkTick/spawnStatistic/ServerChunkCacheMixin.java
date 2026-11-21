@@ -30,13 +30,12 @@ public abstract class ServerChunkCacheMixin
                    ))
     private  NaturalSpawner.SpawnState rof$simplifySpawnStatistic(int spawnableChunkCount, ServerLevel level, NaturalSpawner.ChunkGetter chunkGetter, LocalMobCapCalculator localMobCapCalculator, Operation<NaturalSpawner.SpawnState> original)
     {
-        Iterable<Entity> entities = level.getAllEntities();
         if (!ServerLevelAccessor.of(level).rof$getSpawnStatisticSimplified()) {
             return original.call(spawnableChunkCount, level, chunkGetter, localMobCapCalculator);
         }
-        // 用一个空列表让原版只负责造出 SpawnState，计数与局部上限统计由化简路径自己填。
-        NaturalSpawner.SpawnState state = original.call(spawnableChunkCount,level, chunkGetter, localMobCapCalculator);
-        ((SpawnStateSimplifyAccess)state).rof$simplifySpawnStatistic(SpawnStatisticSimplifyUtil.countMobs(entities, localMobCapCalculator));
+
+        NaturalSpawner.SpawnState state = original.call(spawnableChunkCount, level, chunkGetter, localMobCapCalculator);
+        ((SpawnStateSimplifyAccess)state).rof$simplifySpawnStatistic(SpawnStatisticSimplifyUtil.countMobs(level.getAllEntities(), localMobCapCalculator));
         return state;
     }
 

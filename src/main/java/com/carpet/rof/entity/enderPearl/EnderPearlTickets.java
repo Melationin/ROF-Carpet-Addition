@@ -2,6 +2,7 @@ package com.carpet.rof.entity.enderPearl;
 
 import com.carpet.rof.utils.ChunkPosHelper;
 import com.carpet.rof.utils.ROFWarp;
+import com.carpet.rof.world.extraWorldData.ExtraWorldDatas;
 import com.carpet.rof.world.extraWorldData.extraChunkDatas.ExceedChunkMarker;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.core.BlockPos;
@@ -22,22 +23,59 @@ public class EnderPearlTickets
 
     private final Long2ObjectOpenHashMap<FullChunkStatus> loadingStatuses = new Long2ObjectOpenHashMap<>();
 
+    public enum PearlLoading
+    {
+        VANILLA,
+        BETTER_TICKET,
+        SELF_LOADING
+    }
+
+    private static boolean canReplace(ServerLevel level, Entity pearl)
+    {
+        for (BlockPos pos : ROFWarp.getBlockPosIt(pearl.getBoundingBox())) {
+            if (!ExceedChunkMarker.mustBeAir(level, pos)) return false;
+        }
+        return true;
+    }
+
+
+    private static boolean isChunkLoaded(ServerLevel level, Entity pearl)
+    {
+        ChunkPos pos = pearl.chunkPosition();
+        return level.getChunkSource().getChunkNow(ChunkPosHelper.x(pos), ChunkPosHelper.z(pos)) != null;
+    }
+
+    public static PearlLoading decide(ServerLevel level, Entity pearl)
+    {
+        if (!canReplace(level, pearl)) return PearlLoading.VANILLA;
+        if (isChunkLoaded(level, pearl)) return PearlLoading.VANILLA;
+        if (EnderPearlSettings.isSelfLoadingEnabled()) return PearlLoading.SELF_LOADING;
+        if (EnderPearlSettings.betterEnderPearlTicket) return PearlLoading.BETTER_TICKET;
+        return PearlLoading.VANILLA;
+    }
+
     public long tryPlace(ServerLevel level, Entity pearl)
     {
-        if (!EnderPearlSettings.betterEnderPearlTicket) return 0;
-        for (BlockPos pos : ROFWarp.getBlockPosIt(pearl.getBoundingBox())) {
-            if (!ExceedChunkMarker.mustBeAir(level, pos)) return 0;
-        }
-        ChunkPos pos = pearl.chunkPosition();
-        level.resetEmptyTime();
-        long key = ChunkPosHelper.pack(pos);
-        if (!loadingStatuses.containsKey(key)) {
-            ChunkHolder holder = level.getChunkSource().chunkMap.getVisibleChunkIfPresent(key);
-            loadingStatuses.put(key, holder == null ? FullChunkStatus.INACCESSIBLE : holder.getFullStatus());
-        }
-        level.getChunkSource().addTicket(new Ticket(TYPE, LEVEL), pos);
-        level.entityManager.updateChunkStatus(pos, Visibility.TICKING);
-        return TYPE.timeout();
+        return switch (decide(level, pearl)) {
+            case SELF_LOADING -> {
+                level.resetEmptyTime();
+                ExtraWorldDatas.fromWorld(level).forcedEntitylist.put(pearl.getUUID(), pearl);
+                yield TYPE.timeout();
+            }
+            case BETTER_TICKET -> {
+                ChunkPos pos = pearl.chunkPosition();
+                level.resetEmptyTime();
+                long key = ChunkPosHelper.pack(pos);
+                if (!loadingStatuses.containsKey(key)) {
+                    ChunkHolder holder = level.getChunkSource().chunkMap.getVisibleChunkIfPresent(key);
+                    loadingStatuses.put(key, holder == null ? FullChunkStatus.INACCESSIBLE : holder.getFullStatus());
+                }
+                level.getChunkSource().addTicket(new Ticket(TYPE, LEVEL), pos);
+                level.entityManager.updateChunkStatus(pos, Visibility.TICKING);
+                yield TYPE.timeout();
+            }
+            case VANILLA -> 0L;
+        };
     }
 
     private boolean hasTicket(ServerLevel level, long key)

@@ -73,6 +73,7 @@
     "entity.mobAi.piglinRules.PiglinAiMixin2",
     "entity.mobAi.piglinRules.PiglinMixin",
     "world.portal.NetherPortalBlockMixin",
+    "world.chunkTick.spawnStatistic.NaturalSpawnerSpawnStatisticMixin",
     "world.chunkTick.spawnStatistic.ServerChunkCacheMixin",
     "world.chunkTick.spawnStatistic.ServerLevelMixin",
     "world.chunkTick.spawnStatistic.SpawnStateMixin",
