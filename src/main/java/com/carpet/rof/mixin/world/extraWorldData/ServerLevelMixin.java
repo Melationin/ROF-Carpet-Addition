@@ -133,15 +133,20 @@ public abstract class ServerLevelMixin implements  ServerLevelAccessor
                     return true;
                 }
                 ChunkHolder holder = chunkMap.getUpdatingChunkIfPresent(key);
-                if (holder != null && holder.getFullStatus().isOrAfter(FullChunkStatus.ENTITY_TICKING)) {
+                boolean visibilityReady;
+                if (holder != null) {
+                    if (!holder.getFullStatus().isOrAfter(FullChunkStatus.ENTITY_TICKING)) {
+                        return false;
+                    }
                     ChunkResult<LevelChunk> result = holder.getEntityTickingChunkFuture().getNow(null);
-
                     if (result == null) {
                         return false;
                     }
-
+                    visibilityReady = true;
                 }
-                boolean visibilityReady = entityManager.isTicking(ChunkPosHelper.unpack(key));
+                else {
+                    visibilityReady = entityManager.isTicking(ChunkPosHelper.unpack(key));
+                }
 
                 boolean entitiesLoaded = entityManager.areEntitiesLoaded(key);
 

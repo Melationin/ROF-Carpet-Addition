@@ -102,8 +102,11 @@ public class EnderPearlTickets
         while (iterator.hasNext()) {
             var entry = iterator.next();
             if (!hasTicket(level, entry.getLongKey())) {
-                // Simulation tickets expire without a loading-status callback. Release our override.
-                level.entityManager.updateChunkStatus(ChunkPosHelper.unpack(entry.getLongKey()), entry.getValue());
+                // 票已过期：按当前真实状态恢复，不再用加票前的旧快照。
+                // 旧快照可能是 INACCESSIBLE，会把仍然活跃的区块降成 HIDDEN，导致珍珠被 UNLOADED_TO_CHUNK 卸载。
+                ChunkHolder holder = level.getChunkSource().chunkMap.getUpdatingChunkIfPresent(entry.getLongKey());
+                FullChunkStatus actual = holder == null ? FullChunkStatus.INACCESSIBLE : holder.getFullStatus();
+                level.entityManager.updateChunkStatus(ChunkPosHelper.unpack(entry.getLongKey()), actual);
                 iterator.remove();
             }
         }

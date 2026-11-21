@@ -1,6 +1,5 @@
 package com.carpet.rof.mixin.entity.enderPearl;
 
-// Minecraft 相关导入
 
 import com.carpet.rof.entity.enderPearl.EnderPearlTickets;
 import com.carpet.rof.world.extraWorldData.ExtraWorldDatas;
@@ -28,7 +27,6 @@ import com.carpet.rof.utils.ChunkPosHelper;
 //import static com.carpet.rof.world.extraWorldData.extraChunkDatas.ExceedChunkMarkerSetting.optimizedForcedEnderPearlTick;
 
 
-// Java 标准库
 
 
 @Mixin(ThrownEnderpearl.class)
@@ -98,7 +96,6 @@ public abstract class ThrownEnderpearlMixin extends ThrowableItemProjectile
             ExtraWorldDatas.fromWorld(serverLevel)
                     .enderPearlForcedSyncChunks
                     .add(ChunkPosHelper.pack(chunkPos));
-            serverLevel.entityManager.updateChunkStatus( chunkPos, Visibility.TICKING);
         }
     }
 

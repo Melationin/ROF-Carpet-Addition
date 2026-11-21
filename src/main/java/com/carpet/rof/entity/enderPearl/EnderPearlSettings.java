@@ -68,7 +68,7 @@ public class EnderPearlSettings extends BaseSetting {
     )
     public static int blockingEnderPearlLoading = 0;
 
-    public final class EnderPearlSelfLoadingValidator extends Validator<String>
+    public static final class EnderPearlSelfLoadingValidator extends Validator<String>
     {
         @Override
         public String validate(CommandSourceStack source, CarpetRule<String> rule, String newValue, String userInput)
