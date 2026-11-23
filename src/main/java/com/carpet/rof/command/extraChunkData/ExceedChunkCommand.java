@@ -38,7 +38,7 @@ public class ExceedChunkCommand
                 +"&r&7("+world.dimensionTypeRegistration().getRegisteredName()+")"
         );
         MutableComponent text2 = text("&7-{&ftopY}: &r&n&e{" + data.topY + "}", style -> style.withHoverEvent(
-                        ROFWarp.showText(text("设为极大值表示禁用，否则应为自然生成的最高运动阻挡方块+1"))),
+                        ROFWarp.showText(text("设为极大值表示禁用，否则应为自然生成的最高非空气方块+1"))),
                 style -> style.withHoverEvent(ROFWarp.showText(text("点击设置")))
                         .withClickEvent(ROFWarp.suggestCommand("/exceedChunkMarker "+ world.dimensionTypeRegistration().getRegisteredName() +" setTopY "))
 
@@ -110,7 +110,7 @@ public class ExceedChunkCommand
         final ServerLevel world = getWorldFromContext(ctx);
         if(world == null) return 1;
         var data = ExtraWorldDatas.fromWorld(world).exceedChunkMarker;
-        data.topY = IntegerArgumentType.getInteger(ctx, "topY");
+        data.setTopY(IntegerArgumentType.getInteger(ctx, "topY"));
         ctx.getSource().sendSuccess(()->text("[ECM]维度" + world.dimensionTypeRegistration().getRegisteredName() +" topY已设置为: " + data.topY),false);
         return 0;
     }

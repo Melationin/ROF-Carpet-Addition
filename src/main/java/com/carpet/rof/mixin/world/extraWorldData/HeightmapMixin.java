@@ -33,17 +33,17 @@ public class HeightmapMixin
     @Shadow @Final private BitStorage data;
 
     @Inject(method = "setHeight", at = @At(value = "HEAD"))
-    public void SetMixin(int x, int z, int height, CallbackInfo ci){
-
-        if(
-                exceedChunkMarker && chunk instanceof LevelChunk worldChunk && worldChunk.getLevel() instanceof ServerLevel serverWorld){
-            ExceedChunkMarker heightExceedingChunk = ExtraWorldDatas.fromWorld(serverWorld).exceedChunkMarker;
-            if(
-                    height>=heightExceedingChunk.topY+1
-                    && this.isOpaque == Heightmap.Types.MOTION_BLOCKING.isOpaque()
-                    && heightExceedingChunk.isNotHighChunk(ChunkPosHelper.x(chunk.getPos()),ChunkPosHelper.z(chunk.getPos()))
-            ) {
-                heightExceedingChunk.addChunk(ChunkPosHelper.pack(chunk.getPos()));;
+    public void SetMixin(int x, int z, int height, CallbackInfo ci)
+    {
+        if (exceedChunkMarker
+                && this.isOpaque == Heightmap.Types.WORLD_SURFACE.isOpaque()
+                && this.chunk instanceof LevelChunk worldChunk
+                && worldChunk.getLevel() instanceof ServerLevel serverWorld)
+        {
+            ExceedChunkMarker marker = ExtraWorldDatas.fromWorld(serverWorld).exceedChunkMarker;
+            if (height > marker.topY)
+            {
+                marker.onHeightChanged(ChunkPosHelper.pack(this.chunk.getPos()), x, z, height);
             }
         }
     }

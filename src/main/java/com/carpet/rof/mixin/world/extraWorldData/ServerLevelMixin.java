@@ -186,22 +186,18 @@ public abstract class ServerLevelMixin implements  ServerLevelAccessor
             at = @At(value = "RETURN"))
     void loadWorld(CallbackInfo ci)
     {
+        ServerLevel level = (ServerLevel) (Object) this;
         ROFextraWorldDatas = new ExtraWorldDatas();
+        ROFextraWorldDatas.exceedChunkMarker.initWorld(level);
         try {
-            Path savaPath = ROFTool.getSavePath((ServerLevel) (Object) this).resolve("data").resolve("extraWorldData.dat");
+            Path savaPath = ROFTool.getSavePath(level).resolve("data").resolve("extraWorldData.dat");
             CompoundTag nbtCompound;
             if(ROFIO.isGzip(savaPath)){
                 nbtCompound= NbtIo.readCompressed(savaPath, NbtAccounter.create(104857600L));
             }else {
                 nbtCompound= NbtIo.read(savaPath);
             }
-            if(nbtCompound == null){
-                if(ROFTool.isNetherWorld((ServerLevel) (Object) this)){
-                    ROFextraWorldDatas.exceedChunkMarker.topY = 128;
-                }else {
-                    ROFextraWorldDatas.exceedChunkMarker.topY = Integer.MAX_VALUE/2;
-                }
-            }else {
+            if(nbtCompound != null){
                 ROFextraWorldDatas.read(nbtCompound);
             }
         }catch (IOException e) {
