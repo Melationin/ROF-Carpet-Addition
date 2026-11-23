@@ -1,6 +1,5 @@
 buildscript {
 	repositories {
-		maven { url 'https://maven.aliyun.com/repository/public' }
 		maven { name = 'Fabric'; url = 'https://maven.fabricmc.net/' }
 		mavenCentral()
 		gradlePluginPortal()
