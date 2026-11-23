@@ -152,11 +152,6 @@ loom {
 		}
 	}
 
-	runConfigs.all {
-		ideConfigGenerated true // Run configurations are not created for subprojects by default
-		runDir "../../run" // Use a shared run folder and create separate worlds
-	}
-
 	def auditVmArgs = ['-Dcarpetrofaddition.mixin_audit=true']
 
 	runs {
@@ -164,11 +159,20 @@ loom {
 			server()
 			vmArgs auditVmArgs
 			ideConfigGenerated false
+			runDir "build/mixinAudit"
 		}
 		clientMixinAudit {
 			client()
 			vmArgs auditVmArgs
 			ideConfigGenerated false
+			runDir "build/mixinAudit"
+		}
+	}
+
+	runConfigs.configureEach {
+		if (!name.endsWith("MixinAudit")) {
+			ideConfigGenerated true // Run configurations are not created for subprojects by default
+			runDir "../../run" // Use a shared run folder and create separate worlds
 		}
 	}
 

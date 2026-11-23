@@ -2,21 +2,6 @@
 
 **提示：可以使用`Ctrl+F`快速查找自己想要的规则**
 
-## 地狱门出口搜索缓存距离 (netherPortalCacheDistance)
-
-&emsp;按入口门方块缓存出口门位置；实体距上次实际搜索位置不超过此距离，且出口区块未变化时复用结果。
-
-&emsp; `距离按来源世界的三维欧氏距离计算.0 表示禁用；只接受有限的非负数。`
-
-&emsp;- 类型: `double`
-
-&emsp;- 默认值: `0.0`
-
-&emsp;- 参考选项: `0`, `0.1`, `0.5`
-
-&emsp;- 分类: `ROF`, `optimization`, `experimental`
-
-
 ## 生物生成异步 (asyncNaturalSpawning)
 
 &emsp;异步预计算自然生成候选；实体创建和数量统计仍在主线程执行。
@@ -56,15 +41,9 @@
 
 ## 更好的NoAI NBT (betterNoAiNbt)
 
-&emsp;实体带有 NoBrainAI NBT 时跳过其 AI 逻辑（Mob.serverAiStep），但保留重力、流体流动、实体推挤、挤压伤害、爆炸击退、活塞推动与骑乘等被动运动。与原版 NoAI 不同，实体不会悬空静止。
+&emsp;实体带有 NoBrainAI NBT 时跳过其 AI 逻辑（Mob.serverAiStep
 
-&emsp; `用法：/data merge entity <目标> {NoBrainAI:1b} 设置，{NoBrainAI:0b} 或 /data remove entity <目标> NoBrainAI 移除；标签随实体存档保存，也支持 /summon 时直接写入`
-
-&emsp; `被跳过的：目标选择器、goal 选择器、寻路导航、传感器(sensing)、大脑(brain)、移动/视角/跳跃控制器`
-
-&emsp; `保留的：重力与落地摩擦、水流/气泡柱、实体互推与挤压伤害、爆炸击退、活塞推动、骑乘（玩家仍可操控坐骑）、燃烧、捡装备、距离消失检查`
-
-&emsp; `注意：与 AI 无关的 noActionTime 不再累加，因此在玩家附近也不会因 600 tick 无动作而消失（与原版 NoAI 行为一致）；末影龙/凋灵等 Boss 若打上该标签将停止相位推进`
+&emsp; `NoBrainAI:1b`
 
 &emsp;- 类型: `boolean`
 
@@ -187,19 +166,17 @@
 &emsp;- 分类: `ROF`, `command`
 
 
-## 更好的高速珍珠自加载 (enderPearlForcedTickMinSpeed)
+## 更好的珍珠自加载 (enderPearlForcedTickMinSpeed)
 
-&emsp;(已不建议，更好的珍珠加载票可以平替，而且效果更好)对速度高于一定值的珍珠使用新的加载逻辑，更加稳定，需要加载的区块更少。
+&emsp;对某些情况的珍珠启用自加载，自加载期间不放任何加载票。
 
-&emsp; `设置的值表示自加载速度阈值。设置为负值时，表示禁用。`
+&emsp; `读到大于 0 的数值时按 true 处理。`
 
-&emsp; `对于新加载逻辑的珍珠，其加载逻辑与原版有较大差异。`
+&emsp;- 类型: `String`
 
-&emsp;- 类型: `double`
+&emsp;- 默认值: `false`
 
-&emsp;- 默认值: `-1.0`
-
-&emsp;- 参考选项: `16.0`, `-1.0`
+&emsp;- 参考选项: `true`, `false`
 
 &emsp;- 分类: `ROF`, `optimization`, `feature`
 
@@ -288,11 +265,22 @@
 &emsp;- 分类: `ROF`, `experimental`
 
 
+## GCA 假人生成保留载具 (gcaBotSpawnKeepVehicle)
+
+&emsp;GCA 的 /bot load 与假人驻留通过 BotSpawnUtil.spawnBot 重新生成假人时，如果已从 RootVehicle 恢复载具，则跳过 teleportTo，避免假人下矿车
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `bugfix`
+
+
 ## 每游戏刻击杀进度触发次数上限 (killedTriggerLimitPerTick)
 
-&emsp;限制每 tick 内 KilledTrigger.trigger 的执行次数，所有实体共用一个额度。
+&emsp;限制每 tick 内 KilledTrigger.trigger 的执行次数
 
-&emsp; `0 表示不限制.`
+&emsp; `0表示无限制`
 
 &emsp;- 类型: `int`
 
@@ -318,6 +306,29 @@
 &emsp;- 分类: `ROF`, `optimization`, `tnt`, `feature`
 
 
+## 假人列表合并 (mergeFakePlayerTabList)
+
+&emsp;把名字为「相同前缀+数字」的假人合并成一行显示在Tab玩家列表
+
+&emsp; `0 表示不合并；设为 N（N≥2）时，同前缀满 N 只才合并`
+
+&emsp; `例：设为 3 时，bot_a1~bot_a2 不合并，从 bot_a1~bot_a3 起合并为 (players) bot_a1-3`
+
+&emsp; `合并行由编号最小的假人承担，其余组员隐藏；旁观者可以直接传送到它`
+
+&emsp; `只改变玩家列表的显示，假人实体、追踪、命令选择器与 /player 控制均不受影响`
+
+&emsp; `纯服务端实现，原版客户端无需安装任何东西`
+
+&emsp;- 类型: `int`
+
+&emsp;- 默认值: `0`
+
+&emsp;- 参考选项: `0`, `2`, `5`, `10`
+
+&emsp;- 分类: `ROF`, `feature`, `packet`
+
+
 ## 合并TNTnext (mergeTNTNext)
 
 &emsp;更为激进的tnt合并方案, 可能会导致预期之外的结果。不能与其他tnt合并一起开。
@@ -328,9 +339,9 @@
 
 &emsp; `SAFE: 更安全的爆炸处理方案，让移动中的合并tnt行为与原版一致`
 
-&emsp; `AlmostVanilla: 更接近原版的tnt合并方案，只在tnt爆炸时合并，并且保tnt tick顺序`
+&emsp; `AlmostVanilla: 更接近原版的tnt合并方案，只在tnt爆炸时通过每tick一次的提前遍历合并相邻的同点位tnt，且保持tnt tick顺序`
 
-&emsp; `SafePlus: 与 AlmostVanilla 一样只在tnt爆炸时合并，但合并判定放在每tick一次的提前遍历里，只合并遍历中相邻的同点位tnt，且不改写实体tick顺序`
+&emsp; `SafePlus: 每tick提前遍历并尝试合并相邻tick顺序且满足合并条件的tnt，不跨其他实体合并`
 
 &emsp; `理论上，AlmostVanilla 模式不会改变 TNT 行为，因此在纯原版中不应发现相关差异。若出现与原版不一致的情况，请提交 issue。`
 
@@ -345,10 +356,6 @@
 
 &emsp;白名单内的生物发生 AI 延迟、暂时停止 AI 行为的概率。
 
-&emsp; `概率为 0，或实体列表为空时，功能完全不生效`
-
-&emsp; `掷骰结果随实体存档保存（实体 NBT 的 MobAi 字段）`
-
 &emsp;- 类型: `double`
 
 &emsp;- 默认值: `0.0`
@@ -362,10 +369,6 @@
 
 &emsp;生物 AI 延迟持续的 tick 数，结束后恢复 AI，必须是正数。
 
-&emsp; `剩余时间随实体存档保存；小于 0 表示「已判定且不关闭 AI」`
-
-&emsp; `必须是正数`
-
 &emsp;- 类型: `int`
 
 &emsp;- 默认值: `3`
@@ -377,13 +380,7 @@
 
 ## 生物AI延迟白名单 (mobAIDelayWhitelist)
 
-&emsp;可能发生 AI 延迟的生物白名单，花括号包裹、逗号分隔；条目可以是实体 ID（minecraft:pig）或实体类型标签（#zombies），前缀 ! 表示排除该项。列表全为排除项时表示「除这些之外的全部」；{} 表示空列表，功能不生效。
-
-&emsp; `建议取值：{!minecraft:drowned}（默认，除溺尸以外的全部生物）、{!minecraft:drowned,!minecraft:piglin}（再排除猪灵）`
-
-&emsp; `示例：{minecraft:pig,#zombies,!#undead} —— 猪与僵尸类生物，但不包括带 undead 标签的`
-
-&emsp; `先取所有正选条目的并集，再减去所有负选条目；命中任意一个正选条目即可`
+&emsp;可能发生 AI 延迟的生物白名单，花括号包裹、逗号分隔；条目可以是实体 ID或实体类型标签（如#zombies），前缀 ! 排除
 
 &emsp;- 类型: `String`
 
@@ -392,6 +389,49 @@
 &emsp;- 参考选项: `{}`, `{!minecraft:drowned}`, `{!minecraft:drowned,!minecraft:piglin}`
 
 &emsp;- 分类: `ROF`, `optimization`
+
+
+## 地狱门出口搜索缓存距离 (netherPortalCacheDistance)
+
+&emsp;按入口门方块缓存出口门位置；实体距上次实际搜索位置不超过此距离，且出口区块未变化时复用结果。
+
+&emsp; `0 表示禁用；距离按来源世界的三维欧氏距离计算.`
+
+&emsp;- 类型: `double`
+
+&emsp;- 默认值: `0.0`
+
+&emsp;- 参考选项: `0`, `0.1`, `0.5`
+
+&emsp;- 分类: `ROF`, `optimization`, `experimental`
+
+
+## 方块实体移除优化 (optimizedBlockEntityRemoval)
+
+&emsp;用读写双下标从 tick 列表中批量移除失效的方块实体 ticker，保留其余 ticker 的 tick 顺序。
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `optimization`
+
+
+## 珍珠实体拦截优化 (optimizedEnderPearlEntityInterception)
+
+&emsp;对速度大于16的末影珍珠使用3D DDA算法按EntitySection步进查找实体，并缓存含特定拦截实体（盔甲架）的EntitySection以按需弱加载未加载区块的实体
+
+&emsp; `仅对速度 > 16 的末影珍珠生效`
+
+&emsp; `首次开启或缓存过期时会自动从全维度实体存档中构建缓存`
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 参考选项: `false`, `true`
+
+&emsp;- 分类: `ROF`, `optimization`, `experimental`
 
 
 ## 优化珍珠tick (optimizedEnderPearlTick)
@@ -424,8 +464,6 @@
 
 &emsp;跳过生物死亡时空装备槽的掉落附魔计算，以及没有装备掉落效果的附魔上下文创建。
 
-&emsp; `空装备槽不再执行装备掉落附魔效果，可能改变自定义随机附魔效果的随机数消耗顺序`
-
 &emsp;- 类型: `boolean`
 
 &emsp;- 默认值: `false`
@@ -436,8 +474,6 @@
 ## 经验球生成合并查询优化 (optimizedExperienceOrbMerge)
 
 &emsp;生成经验球时找到第一个符合原版合并条件的经验球就停止查询。
-
-&emsp; `保留原版查询顺序、随机分组、经验值匹配和合并逻辑`
 
 &emsp;- 类型: `boolean`
 
@@ -465,11 +501,13 @@
 
 ## 假人tick精简 (optimizedFakePlayerTick)
 
-&emsp;精简Carpet假人的客户端同步/进度/统计/Waypoint等每tick逻辑，保留主手物品tick与行为模拟
+&emsp;精简Carpet假人的进度/统计/计分板/容器同步/实体追踪/Waypoint等开销，保留行为模拟与掉落
 
 &emsp; `仅对Carpet假人(EntityPlayerMPFake)生效`
 
-&emsp; `可能影响假人的统计、进度、计分板自动同步与定位条显示`
+&emsp; `假人不再产生成就进度、统计与计分板数据，也不再被登记为实体的观察者`
+
+&emsp; `不影响 /player 控制、方块破坏、生物掉落与经验`
 
 &emsp;- 类型: `boolean`
 

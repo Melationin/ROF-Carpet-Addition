@@ -1,4 +1,6 @@
 {
+  "carpet.rule.gcaBotSpawnKeepVehicle.name": "Keep GCA fake player vehicle on spawn",
+  "carpet.rule.gcaBotSpawnKeepVehicle.desc": "Skips teleportTo when GCA /bot load or resident fake players respawn via BotSpawnUtil.spawnBot if the vehicle was already restored from RootVehicle, preventing the fake player from dismounting minecarts.",
   "carpet.rule.optimizedBlockEntityRemoval.name": "Block entity removal optimization",
   "carpet.rule.optimizedBlockEntityRemoval.desc": "Compacts the block entity ticker list in one pass while preserving ticker order.",
   "carpet.rule.killedTriggerLimitPerTick.name": "Killed advancement trigger limit per tick",

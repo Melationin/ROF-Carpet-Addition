@@ -2,21 +2,6 @@
 
 **Tip: use `Ctrl+F` to quickly find the rule you need**
 
-## netherPortalCacheDistance
-
-&emsp;Caches exit portal positions per entrance portal block while entities remain within this distance of the last actual search position and the exit chunk has not changed.
-
-&emsp; `Distance is measured in three dimensions in the source world. 0 disables caching. Only finite nonnegative values are accepted.`
-
-&emsp;- Type: `double`
-
-&emsp;- Default: `0.0`
-
-&emsp;- Options: `0`, `0.1`, `0.5`
-
-&emsp;- Categories: `ROF`, `optimization`, `experimental`
-
-
 ## asyncNaturalSpawning
 
 &emsp;Precomputes natural-spawning candidates off-thread; entity creation and counting stay on the main thread
@@ -189,17 +174,17 @@
 
 ## enderPearlForcedTickMinSpeed
 
-&emsp;(Deprecated - the better pearl loading ticket can replace it with better results) Applies new loading logic to ender pearls whose speed is above a certain threshold; this is more stable and requires fewer loaded chunks.
+&emsp;Enables self-loading (direct ticking) for pearls that meet the better pearl loading ticket's replacement condition. No loading ticket is placed while self-loading; it falls back to the vanilla loading ticket as soon as the condition no longer holds.
 
-&emsp; `The set value indicates the self-loading speed threshold. Set to a negative value to disable.`
+&emsp; `Only true / false; a numeric value greater than 0 in existing configs is treated as true.`
 
-&emsp; `For pearls with the new loading logic, the loading behavior differs significantly from vanilla.`
+&emsp; `Takes priority over the better pearl loading ticket: self-loading takes over while it applies.`
 
-&emsp;- Type: `double`
+&emsp;- Type: `String`
 
-&emsp;- Default: `-1.0`
+&emsp;- Default: `false`
 
-&emsp;- Options: `16.0`, `-1.0`
+&emsp;- Options: `true`, `false`
 
 &emsp;- Categories: `ROF`, `optimization`, `feature`
 
@@ -288,11 +273,24 @@
 &emsp;- Categories: `ROF`, `experimental`
 
 
-## killedTriggerLimitPerTick
+## Keep GCA fake player vehicle on spawn (gcaBotSpawnKeepVehicle)
+
+&emsp;Skips teleportTo when GCA /bot load or resident fake players respawn via BotSpawnUtil.spawnBot if the vehicle was already restored from RootVehicle, preventing the fake player from dismounting minecarts.
+
+&emsp;- Type: `boolean`
+
+&emsp;- Default: `false`
+
+&emsp;- Categories: `ROF`, `bugfix`
+
+
+## Killed advancement trigger limit per tick (killedTriggerLimitPerTick)
 
 &emsp;Limits KilledTrigger.trigger executions per tick with one shared budget for all entities.
 
-&emsp; `0 means unlimited`
+&emsp; `0 means unlimited; all dimensions, players and KilledTrigger types share the budget`
+
+&emsp; `Calls exceeding the limit are skipped rather than deferred; their advancement checks and completion rewards do not run`
 
 &emsp;- Type: `int`
 
@@ -318,6 +316,29 @@
 &emsp;- Categories: `ROF`, `optimization`, `tnt`, `feature`
 
 
+## Merge fake players in the tab list (mergeFakePlayerTabList)
+
+&emsp;Merges fake players whose names share a prefix followed by a number into a single tab list row
+
+&emsp; `0 disables merging; with N >= 2 a prefix group is merged only once it has at least N members`
+
+&emsp; `Example: with 3, bot_a1~bot_a2 stay separate and bot_a1~bot_a3 merge into (players) bot_a1-3`
+
+&emsp; `The merged row is hosted by the lowest-numbered fake player; the other members are hidden. Spectators can teleport to it directly`
+
+&emsp; `Display only: fake player entities, entity tracking, command selectors and /player control are unaffected`
+
+&emsp; `Server side only; vanilla clients need nothing installed`
+
+&emsp;- Type: `int`
+
+&emsp;- Default: `0`
+
+&emsp;- Options: `0`, `2`, `5`, `10`
+
+&emsp;- Categories: `ROF`, `feature`, `packet`
+
+
 ## mergeTNTNext
 
 &emsp;A more aggressive TNT merging scheme, may cause unexpected results. Cannot be used together with other TNT merging rules.
@@ -328,11 +349,11 @@
 
 &emsp; `SAFE: safer explosion handling; moving merged TNT behaves like vanilla`
 
-&emsp; `AlmostVanilla: merges only when TNT explodes, keeping TNT tick order`
+&emsp; `AlmostVanilla: merges only at explosion time in a once-per-tick pre-pass over adjacent same-position TNTs, keeping entity tick order`
 
 &emsp; `AlmostVanilla should not change TNT behaviour; report any vanilla mismatch as an issue`
 
-&emsp; `SafePlus: merges only at explosion time like AlmostVanilla, but the decision is made in a once-per-tick pre-pass over adjacent same-position TNTs, without rewriting entity tick order`
+&emsp; `SafePlus: tries every tick in a pre-pass to merge adjacent TNTs in tick order that share the same position, velocity and fuse`
 
 &emsp;- Type: `MergeTNTNextMode`
 
@@ -394,6 +415,49 @@
 &emsp;- Categories: `ROF`, `optimization`
 
 
+## Nether portal exit search cache distance (netherPortalCacheDistance)
+
+&emsp;Caches exit portal positions per entrance portal block while entities remain within this distance of the last actual search position and the exit chunk has not changed.
+
+&emsp; `0 disables caching; distance is measured as the three-dimensional Euclidean distance in the source world.`
+
+&emsp;- Type: `double`
+
+&emsp;- Default: `0.0`
+
+&emsp;- Options: `0`, `0.1`, `0.5`
+
+&emsp;- Categories: `ROF`, `optimization`, `experimental`
+
+
+## Block entity removal optimization (optimizedBlockEntityRemoval)
+
+&emsp;Compacts the block entity ticker list in one pass while preserving ticker order.
+
+&emsp;- Type: `boolean`
+
+&emsp;- Default: `false`
+
+&emsp;- Categories: `ROF`, `optimization`
+
+
+## Ender pearl entity interception optimization (optimizedEnderPearlEntityInterception)
+
+&emsp;Uses 3D DDA traversal by EntitySection for ender pearls faster than 16 blocks/tick, and caches EntitySections containing target interception entities (armor stands) to weak-load unloaded entity chunks on demand.
+
+&emsp; `Only applies to ender pearls with speed > 16`
+
+&emsp; `Automatically builds the cache from entity saves across all dimensions when first enabled or when the cache becomes stale`
+
+&emsp;- Type: `boolean`
+
+&emsp;- Default: `false`
+
+&emsp;- Options: `false`, `true`
+
+&emsp;- Categories: `ROF`, `optimization`, `experimental`
+
+
 ## optimizedEnderPearlTick
 
 &emsp;In most cases, stops flying high-speed pearls from generating new chunks, which can greatly reduce save size. When ECM is not enabled, only pearls outside world height will not generate chunks.
@@ -420,7 +484,7 @@
 &emsp;- Categories: `ROF`, `optimization`, `experimental`
 
 
-## optimizedEquipmentDrops
+## Equipment drop optimization (optimizedEquipmentDrops)
 
 &emsp;Skips equipment drop enchantment calculations for empty mob equipment slots and context creation for enchantments without equipment drop effects.
 
@@ -433,7 +497,7 @@
 &emsp;- Categories: `ROF`, `optimization`, `experimental`
 
 
-## optimizedExperienceOrbMerge
+## Experience orb spawn merge query optimization (optimizedExperienceOrbMerge)
 
 &emsp;Stops the experience orb spawn merge query after the first orb matching vanilla merge conditions.
 
@@ -465,11 +529,13 @@
 
 ## optimizedFakePlayerTick
 
-&emsp;Trims client sync/advancement/stats/Waypoint per-tick logic for Carpet fake players, keeping main-hand item tick and behavior simulation
+&emsp;Trims advancement/stats/scoreboard/container sync/entity tracking/Waypoint overhead for Carpet fake players, keeping behavior simulation and drops
 
 &emsp; `Only affects Carpet fake players (EntityPlayerMPFake)`
 
-&emsp; `May affect fake player stats, advancements, scoreboard auto-sync and locator bar display`
+&emsp; `Fake players no longer produce advancements, statistics or scoreboard entries, and are no longer registered as entity observers`
+
+&emsp; `/player control, block breaking, mob drops and experience are unaffected`
 
 &emsp;- Type: `boolean`
 

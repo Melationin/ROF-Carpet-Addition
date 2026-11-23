@@ -5,8 +5,10 @@ import com.carpet.rof.mixinAccessor.OecSectionStorageAccess;
 import com.carpet.rof.mixinAccessor.OecStorageHolder;
 import com.carpet.rof.utils.ChunkPosHelper;
 import com.carpet.rof.utils.ROFIO;
+import com.carpet.rof.utils.ROFTextTool;
 import com.carpet.rof.world.extraWorldData.ExtraChunkData;
 import com.carpet.rof.world.extraWorldData.ExtraWorldDatas;
+import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.longs.Long2LongMap;
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongIterator;
@@ -16,24 +18,29 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.FullChunkStatus;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.entity.EntitySection;
 import net.minecraft.world.level.entity.EntitySectionStorage;
 import net.minecraft.world.level.entity.Visibility;
+import org.slf4j.Logger;
 
 import java.util.concurrent.TimeUnit;
 
 public class PearlEntitySectionCache extends ExtraChunkData
 {
+    private static final Logger LOGGER = LogUtils.getLogger();
     private final String name = "pearlEntitySectionCache";
     private final LongOpenHashSet targetSections = new LongOpenHashSet();
     private long lastUpdatedGameTime = -1L;
+    private int lastRebuiltArmorStandCount = 0;
     private final Long2LongOpenHashMap tempTrackedChunks = new Long2LongOpenHashMap();
 
     public PearlEntitySectionCache()
@@ -94,18 +101,79 @@ public class PearlEntitySectionCache extends ExtraChunkData
         return false;
     }
 
+    public static int countTargetEntities(EntitySection<?> section)
+    {
+        return countTargetEntities((OecSectionAccess) section);
+    }
+
+    public static int countTargetEntities(OecSectionAccess section)
+    {
+        int count = 0;
+        for (Entity entity : section.rof$entities()) {
+            if (isTargetEntity(entity)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     public boolean isCacheValid(ServerLevel level)
     {
         return this.lastUpdatedGameTime >= 0L
                 && Math.abs(level.getGameTime() - this.lastUpdatedGameTime) <= 1L;
     }
 
+    public void invalidate(ServerLevel level)
+    {
+        this.lastUpdatedGameTime = -1L;
+        if (!this.tempTrackedChunks.isEmpty()) {
+            for (Long2LongMap.Entry entry : this.tempTrackedChunks.long2LongEntrySet()) {
+                restoreChunkEntityStatus(level, entry.getLongKey());
+            }
+            this.tempTrackedChunks.clear();
+        }
+    }
+
+    public static void invalidateAll(MinecraftServer server)
+    {
+        if (server == null) {
+            return;
+        }
+        for (ServerLevel level : server.getAllLevels()) {
+            ExtraWorldDatas extra = ExtraWorldDatas.fromWorld(level);
+            if (extra != null) {
+                extra.pearlEntitySectionCache.invalidate(level);
+            }
+        }
+    }
+
     public static void ensureCachesValid(MinecraftServer server)
     {
+        boolean anyRebuilt = false;
+        StringBuilder msgBuilder = new StringBuilder("&9[OEP]&r 珍珠实体拦截缓存已重建:");
         for (ServerLevel level : server.getAllLevels()) {
             PearlEntitySectionCache cache = ExtraWorldDatas.fromWorld(level).pearlEntitySectionCache;
             if (!cache.isCacheValid(level)) {
-                cache.rebuildFromWorld(level);
+                int armorStandCount = cache.rebuildFromWorld(level);
+                int sectionCount = cache.targetSections.size();
+                anyRebuilt = true;
+                String dimName = level.dimensionTypeRegistration().getRegisteredName();
+                msgBuilder.append("\n  ")
+                        .append(ROFTextTool.getWorldName(dimName))
+                        .append("&r&7(").append(dimName).append("): &e")
+                        .append(armorStandCount)
+                        .append(" &7个盔甲架 (&e")
+                        .append(sectionCount)
+                        .append(" &7个区段)");
+            }
+        }
+        if (anyRebuilt) {
+            MutableComponent message = ROFTextTool.text(msgBuilder.toString());
+            LOGGER.info(message.getString());
+            for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+                if (carpet.utils.CommandHelper.canUseCommand(player.createCommandSourceStack(), "ops")) {
+                    player.sendSystemMessage(message);
+                }
             }
         }
     }
@@ -120,13 +188,7 @@ public class PearlEntitySectionCache extends ExtraChunkData
     public void onTick(ServerLevel level)
     {
         if (!EnderPearlSettings.optimizedEnderPearlEntityInterception) {
-            this.lastUpdatedGameTime = -1L;
-            if (!this.tempTrackedChunks.isEmpty()) {
-                for (Long2LongMap.Entry entry : this.tempTrackedChunks.long2LongEntrySet()) {
-                    restoreChunkEntityStatus(level, entry.getLongKey());
-                }
-                this.tempTrackedChunks.clear();
-            }
+            this.invalidate(level);
             return;
         }
 
@@ -156,9 +218,10 @@ public class PearlEntitySectionCache extends ExtraChunkData
         level.entityManager.updateChunkStatus(ChunkPosHelper.unpack(chunkKey), actual);
     }
 
-    public void rebuildFromWorld(ServerLevel level)
+    public int rebuildFromWorld(ServerLevel level)
     {
         this.targetSections.clear();
+        this.lastRebuiltArmorStandCount = 0;
 
         ROFIO.forEachExistingEntityChunk(
                 level,
@@ -171,13 +234,18 @@ public class PearlEntitySectionCache extends ExtraChunkData
             for (LongIterator it = ((OecSectionStorageAccess) storage).rof$sectionIds().iterator(); it.hasNext(); ) {
                 long sectionKey = it.nextLong();
                 EntitySection<?> section = storage.getSection(sectionKey);
-                if (section != null && hasTargetEntity(section)) {
-                    this.targetSections.add(sectionKey);
+                if (section != null) {
+                    int count = countTargetEntities(section);
+                    if (count > 0) {
+                        this.targetSections.add(sectionKey);
+                        this.lastRebuiltArmorStandCount += count;
+                    }
                 }
             }
         }
 
         this.lastUpdatedGameTime = level.getGameTime();
+        return this.lastRebuiltArmorStandCount;
     }
 
     private void scanEntityList(ListTag entities)
@@ -194,6 +262,7 @@ public class PearlEntitySectionCache extends ExtraChunkData
                             if (Double.isFinite(x) && Double.isFinite(y) && Double.isFinite(z)) {
                                 BlockPos bp = BlockPos.containing(x, y, z);
                                 this.targetSections.add(SectionPos.asLong(bp));
+                                this.lastRebuiltArmorStandCount++;
                             }
                         }
                     });

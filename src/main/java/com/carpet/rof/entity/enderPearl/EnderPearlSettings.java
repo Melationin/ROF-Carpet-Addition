@@ -70,7 +70,8 @@ public class EnderPearlSettings extends BaseSetting {
 
     @Rule(
             categories = {ROF, OPTIMIZATION, EXPERIMENTAL},
-            options = {"false", "true"}
+            options = {"false", "true"},
+            validators = PearlEntityInterceptionValidator.class
     )
     @QuickTranslations(
             name = "珍珠实体拦截优化",
@@ -81,6 +82,18 @@ public class EnderPearlSettings extends BaseSetting {
             }
     )
     public static boolean optimizedEnderPearlEntityInterception = false;
+
+    public static final class PearlEntityInterceptionValidator extends Validator<Boolean>
+    {
+        @Override
+        public Boolean validate(CommandSourceStack source, CarpetRule<Boolean> rule, Boolean newValue, String userInput)
+        {
+            if (newValue != null && !newValue && source != null) {
+                PearlEntitySectionCache.invalidateAll(source.getServer());
+            }
+            return newValue;
+        }
+    }
 
     public static final class EnderPearlSelfLoadingValidator extends Validator<String>
     {
