@@ -1,11 +1,9 @@
 package com.carpet.rof.mixin.world.explosion;
 
 import com.carpet.rof.annotation.PublicField;
-
 import com.carpet.rof.mixinAccessor.EntityAccessor;
 import com.carpet.rof.world.explosion.ExplosionMergeData;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,7 +20,7 @@ public abstract class EntityMixin implements EntityAccessor
 
     @PublicField
     @Unique
-    private int exposureIndex = -1;
+    private float cachedExposure;
 
     @Override
     public int rof$getExposureStamp()
@@ -37,17 +35,16 @@ public abstract class EntityMixin implements EntityAccessor
     }
 
     @Override
-    public int rof$getExposureIndex()
+    public float rof$getCachedExposure()
     {
-        return this.exposureIndex;
+        return this.cachedExposure;
     }
 
     @Override
-    public void rof$setExposureIndex(int value)
+    public void rof$setCachedExposure(float value)
     {
-        this.exposureIndex = value;
+        this.cachedExposure = value;
     }
-
 
     @Inject(method = "setPosRaw", at = @At(value = "INVOKE",
                                            target = "Lnet/minecraft/world/phys/Vec3;<init>(DDD)V",
@@ -58,5 +55,4 @@ public abstract class EntityMixin implements EntityAccessor
         if (data != null) data.tryAddEntity((Entity) (Object) this, x, y, z);
         if (this.exposureStamp > 0) this.exposureStamp = -1;
     }
-
 }

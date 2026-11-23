@@ -56,7 +56,6 @@
     "carpet.fakePlayerList.PlayerListMixin",
     "carpet.fakePlayerSpawn.OldUsersConverterMixin",
     "carpet.fakePlayerSpawn.EntityPlayerMPFakeProfileMixin",
-    "entity.merge.EntityMixin",
     "entity.merge.PrimedTntMixin",
     "entity.merge.ServerLevelMixin",
     "entity.mobAi.ActivityDataMixin",

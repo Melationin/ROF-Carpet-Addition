@@ -7,15 +7,11 @@ public interface EntityAccessor
         return (EntityAccessor) object;
     }
 
-    long rof$getTickOrder();
-
-    void rof$setTickOrder(long value);
-
     int rof$getExposureStamp();
 
     void rof$setExposureStamp(int value);
 
-    int rof$getExposureIndex();
+    float rof$getCachedExposure();
 
-    void rof$setExposureIndex(int value);
+    void rof$setCachedExposure(float value);
 }

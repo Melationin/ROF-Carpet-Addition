@@ -1,10 +1,8 @@
 package com.carpet.rof.mixin.world.explosion;
 
 import com.carpet.rof.debug.OptimizedExplosionStats;
-import com.carpet.rof.world.extraWorldData.ExtraWorldDatas;
 import com.carpet.rof.world.explosion.ExplosionMergeData;
 import com.carpet.rof.world.explosion.OptimizedExplosionUtil;
-import com.carpet.rof.entity.merge.MergeSetting;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -23,29 +21,20 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.List;
 
-@Mixin(value = ServerExplosion.class,priority = 500)
+@Mixin(value = ServerExplosion.class, priority = 500)
 public abstract class ServerExplosionMixin
 {
     @Shadow
     @Final
     private ExplosionDamageCalculator damageCalculator;
 
-
     @WrapOperation(
             method = "explode",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/ServerExplosion;calculateExplodedPositions()Ljava/util/List;"))
     private List<BlockPos> rof$optimizeExplosionBlocks(ServerExplosion instance, Operation<List<BlockPos>> original)
     {
-        OptimizedExplosionStats.onExplosion();
-        ExplosionMergeData data = ExtraWorldDatas.fromWorld(instance.level()).explosionMergeData;
-        // TNT 合并侧写在本次爆炸前的预期合并次数；begin() 会把它复位，所以先取出并消费掉
-        int mergeCount = MergeSetting.mergeExplosion ? data.needExplosionCount : 1;
-        data.needExplosionCount = 1;
-        data.explosionCount = 1;
         if (OptimizedExplosionUtil.shouldSkipBlockCalculation(instance, this.damageCalculator))
         {
-            OptimizedExplosionStats.onSkipped();
-            if (mergeCount > 1) data.explosionCount = mergeCount;
             return new ObjectArrayList<>();
         }
         return original.call(instance);
@@ -56,16 +45,8 @@ public abstract class ServerExplosionMixin
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;getEntities(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;)Ljava/util/List;"))
     private List<Entity> rof$useTrackedEntities(ServerLevel level, Entity source, AABB box, Operation<List<Entity>> original)
     {
-        ExplosionMergeData data = ExplosionMergeData.ACTIVE;
-        List<Entity> entities;
-        if (data != null && data.enabled && isSameGroup(data))
-        {
-            entities = data.entitySnapshot();
-        }
-        else
-        {
-            entities = original.call(level, source, box);
-        }
+        ExplosionMergeData data = this.rof$activeGroup();
+        List<Entity> entities = data != null ? data.entitySnapshot() : original.call(level, source, box);
         OptimizedExplosionStats.onEntityQuery(entities.size());
         return entities;
     }
@@ -77,44 +58,36 @@ public abstract class ServerExplosionMixin
     private float rof$mergeKnockback(ExplosionDamageCalculator calculator, Entity entity, Operation<Float> original)
     {
         float multiplier = original.call(calculator, entity);
-        ExplosionMergeData data = ExplosionMergeData.ACTIVE;
-        if (data != null && data.enabled && data.explosionCount > 1 && isSameGroup(data))
-        {
-            return multiplier * data.explosionCount;
-        }
-        return multiplier;
+        ExplosionMergeData data = this.rof$activeGroup();
+        return data != null ? multiplier * data.mergedCount() : multiplier;
     }
 
     /**
      * 同一合并组内、实体没有移动时，暴露度（getSeenPercent）可以复用：
      * 它只由实体碰撞箱、坐标、所在世界、沿途方块与本组数据决定。
-     * 这是 hurtEntities 里对 getSeenPercent 的唯一调用点（ServerExplosion.java:189）。
-     * 伤害与击退仍然逐次结算，不做任何合并。
      */
     @WrapOperation(
             method = "hurtEntities",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/ServerExplosion;getSeenPercent(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/entity/Entity;)F"))
     private float rof$reuseExposure(Vec3 center, Entity entity, Operation<Float> original)
     {
-        ExplosionMergeData data = ExplosionMergeData.ACTIVE;
-        if (data != null && data.enabled && isSameGroup(data))
+        ExplosionMergeData data = this.rof$activeGroup();
+        if (data == null)
         {
-            float cached = data.cachedExposure(entity);
-            if (!Float.isNaN(cached)) return cached;
-            float computed = original.call(center, entity);
-            OptimizedExplosionStats.onExposureComputed();
-            data.cacheExposure(entity, computed);
-            return computed;
+            OptimizedExplosionStats.onExposureUnmanaged();
+            return original.call(center, entity);
         }
-        OptimizedExplosionStats.onExposureUnmanaged();
-        return original.call(center, entity);
+        float cached = data.cachedExposure(entity);
+        if (!Float.isNaN(cached)) return cached;
+        float computed = original.call(center, entity);
+        OptimizedExplosionStats.onExposureComputed();
+        data.cacheExposure(entity, computed);
+        return computed;
     }
 
     @Unique
-    private boolean isSameGroup(ExplosionMergeData data)
+    private ExplosionMergeData rof$activeGroup()
     {
-        ServerExplosion self = (ServerExplosion) (Object) this;
-        Vec3 center = self.center();
-        return data.matches(self.level(), center.x, center.y, center.z, self.radius());
+        return ExplosionMergeData.activeFor((ServerExplosion) (Object) this);
     }
 }

@@ -1,6 +1,5 @@
 package com.carpet.rof.world.explosion;
 
-import com.carpet.rof.debug.OptimizedExplosionStats;
 import com.carpet.rof.world.extraWorldData.ExtraWorldDatas;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -27,65 +26,18 @@ public final class OptimizedExplosionUtil
 
     public static boolean shouldSkipBlockCalculation(ServerExplosion explosion, ExplosionDamageCalculator calculator)
     {
-        if (!isApplicable(explosion, calculator))
-        {
-            OptimizedExplosionStats.onUnavailable();
-            return false;
-        }
-
-        ServerLevel level = explosion.level();
-        Vec3 center = explosion.center();
-        float radius = explosion.radius();
-        ExplosionMergeData data = ExtraWorldDatas.fromWorld(level).explosionMergeData;
-        if (!data.matches(level, center.x, center.y, center.z, radius))
-        {
-            data.begin(level, center.x, center.y, center.z, radius, explosion.getDirectSourceEntity(), makeEntityBox(center, radius));
-        }
-        data.count++;
-
-        if ((data.blockDamageEmpty || data.forceStopped) && !data.isBlockVerdictValid())
-        {
-            data.blockDamageEmpty = false;
-            data.forceStopped = false;
-        }
-
-        if (data.blockDamageEmpty)
-        {
-            OptimizedExplosionStats.onCachedVerdict();
-            return true;
-        }
-        if (data.forceStopped)
-        {
-            OptimizedExplosionStats.onForceStopped();
-            return false;
-        }
-        if (data.count < OptimizedExplosionSettings.optimizedExplosion)
-        {
-            OptimizedExplosionStats.onBelowThreshold();
-            return false;
-        }
-
-        OptimizedExplosionStats.onDryRun();
-        if (worstCaseDestroysBlock(explosion, level, calculator, center, radius))
-        {
-            data.forceStopped = true;
-            data.captureBlockStamp();
-            OptimizedExplosionStats.onUnsafeVerdict();
-            return false;
-        }
-        data.markBlockDamageEmpty();
-        return true;
+        return ExtraWorldDatas.fromWorld(explosion.level()).explosionMergeData.shouldSkipBlockCalculation(explosion, calculator);
     }
 
-    private static boolean isApplicable(ServerExplosion explosion, ExplosionDamageCalculator calculator)
+    public static boolean isApplicable(ServerExplosion explosion, ExplosionDamageCalculator calculator)
     {
-        if (!OptimizedExplosionSettings.enabled()) return false;
-        if (explosion.radius() <= 1.0E-5F) return false;
-        return isSupportedCalculator(calculator);
+        return OptimizedExplosionSettings.enabled()
+                && explosion.radius() > 1.0E-5F
+                && isSupportedCalculator(calculator);
     }
 
-     //最坏情况判定只有在"功率越大破坏得越多"成立时才是可靠的上界，
-     //自定义的伤害计算器可能让 shouldBlockExplode 随功率非单调，因此只对原版计算器生效。
+    // 最坏情况判定只有在“功率越大破坏得越多”成立时才是可靠的上界，
+    // 自定义的伤害计算器可能让 shouldBlockExplode 随功率非单调，因此只对原版计算器生效。
     private static boolean isSupportedCalculator(ExplosionDamageCalculator calculator)
     {
         Class<?> type = calculator.getClass();
@@ -111,7 +63,7 @@ public final class OptimizedExplosionUtil
      * 把所有射线的初始功率都取上界跑一遍。射线路径只由方向决定、与功率无关（每步固定前进 0.3 格），
      * 所以上界功率访问过的方块是所有实际随机数结果的超集：这里判定为不会破坏方块，则任意一次爆炸都不会破坏方块。
      *
-     * 只有非空气方块才算"会破坏方块"：原版会把沿途的空气坐标一并加进 toBlow，但空气在
+     * 只有非空气方块才算“会破坏方块”：原版会把沿途的空气坐标一并加进 toBlow，但空气在
      * interactWithBlocks 里是空操作（BlockBehaviour.onExplosionHit 第一行就因 state.isAir() 返回），
      * 因此只影响空气的爆炸跳过后不会改变任何方块，代价只是爆炸粒子数量与原版不同。
      */
@@ -150,9 +102,10 @@ public final class OptimizedExplosionUtil
             FluidState fluid = level.getFluidState(pos);
             Optional<Float> resistance = calculator.getBlockExplosionResistance(explosion, level, pos, state, fluid);
             if (resistance.isPresent()) power -= (resistance.get() + 0.3F) * 0.3F;
-            if (power > 0.0F && !state.isAir() &&
-                    calculator.shouldBlockExplode(explosion, level, pos, state, power)
-            ) return true;
+            if (power > 0.0F && !state.isAir() && calculator.shouldBlockExplode(explosion, level, pos, state, power))
+            {
+                return true;
+            }
             // 原版每步的固定衰减（对应 for 的更新表达式），漏掉它在空气里会死循环
             power -= 0.22500001F;
             x += xd * 0.3;

@@ -1,50 +1,123 @@
 package com.carpet.rof.world.explosion;
 
 import com.carpet.rof.debug.OptimizedExplosionStats;
+import com.carpet.rof.entity.merge.MergeSetting;
 import com.carpet.rof.mixinAccessor.EntityAccessor;
 import com.carpet.rof.mixinAccessor.LevelAccessor;
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ExplosionDamageCalculator;
+import net.minecraft.world.level.ServerExplosion;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class ExplosionMergeData
 {
-    // 实体移动与实体生成的热路径快速查找入口，仅在启用优化期间非空
+    // 实体移动、生成与爆炸伤害热路径的快速入口，仅在当前合并组确认不破坏方块期间非空
     public static ExplosionMergeData ACTIVE;
 
-    // 批次号发号器：全局递增，保证不同世界、不同合并组的批次号不会撞车
+    // 全局递增批次号，确保跨世界、跨合并组的实体暴露度缓存不会串用
     private static int nextStamp;
 
-    public ServerLevel level;
-    public double x;
-    public double y;
-    public double z;
-    public float radius;
-    public int count;
-    public AABB entityBox;
-    public Entity source;
-    public boolean forceStopped;
-    public boolean blockDamageEmpty;
-    public boolean enabled;
-    public int needExplosionCount = 1;
-    public int explosionCount = 1;
-    // 本组的批次号，实体身上记的就是它；0 表示本组还没开始缓存
-    public int exposureStamp;
-    public final List<Entity> entities = new ArrayList<>();
-    // 与 entities 下标一一对应的暴露度缓存，NaN 表示这个实体在本组里还没算过
-    public final DoubleArrayList exposures = new DoubleArrayList();
+    private ServerLevel level;
+    private double x;
+    private double y;
+    private double z;
+    private float radius;
+    private Entity source;
+    private AABB entityBox;
 
-    // 做出方块判定时世界的方块变更戳记；戳记一变，forceStopped 和 blockDamageEmpty 都必须重算
-    public int levelStamp;
+    private int count;
+    private boolean blockDamageEmpty;
+    private boolean forceStopped;
+    private int levelStamp;
 
-    public boolean isUsed()
+    private int pendingMergeCount = 1;
+    private int mergedCount = 1;
+
+    private int exposureStamp;
+    private final List<Entity> entities = new ArrayList<>();
+
+    public static ExplosionMergeData activeFor(ServerExplosion explosion)
     {
-        return this.level != null;
+        ExplosionMergeData data = ACTIVE;
+        return data != null && data.matches(explosion) ? data : null;
+    }
+
+    public boolean shouldSkipBlockCalculation(ServerExplosion explosion, ExplosionDamageCalculator calculator)
+    {
+        OptimizedExplosionStats.onExplosion();
+        int requestedMerge = this.pendingMergeCount;
+        this.resetMerge();
+
+        if (!OptimizedExplosionUtil.isApplicable(explosion, calculator))
+        {
+            OptimizedExplosionStats.onUnavailable();
+            return false;
+        }
+
+        ServerLevel explosionLevel = explosion.level();
+        Vec3 center = explosion.center();
+        float explosionRadius = explosion.radius();
+        if (!this.matches(explosionLevel, center.x, center.y, center.z, explosionRadius))
+        {
+            this.begin(explosionLevel, center, explosionRadius, explosion.getDirectSourceEntity());
+        }
+        this.count++;
+
+        if ((this.blockDamageEmpty || this.forceStopped) && this.levelStamp != this.currentBlockStamp())
+        {
+            this.deactivate();
+            this.forceStopped = false;
+        }
+
+        if (this.blockDamageEmpty)
+        {
+            OptimizedExplosionStats.onCachedVerdict();
+            return this.skipBlocks(requestedMerge);
+        }
+        if (this.forceStopped)
+        {
+            OptimizedExplosionStats.onForceStopped();
+            return false;
+        }
+        if (this.count < OptimizedExplosionSettings.optimizedExplosion)
+        {
+            OptimizedExplosionStats.onBelowThreshold();
+            return false;
+        }
+
+        OptimizedExplosionStats.onDryRun();
+        if (OptimizedExplosionUtil.worstCaseDestroysBlock(explosion, explosionLevel, calculator, center, explosionRadius))
+        {
+            this.deactivate();
+            this.forceStopped = true;
+            this.levelStamp = this.currentBlockStamp();
+            OptimizedExplosionStats.onUnsafeVerdict();
+            return false;
+        }
+
+        this.activate();
+        return this.skipBlocks(requestedMerge);
+    }
+
+    private boolean skipBlocks(int requestedMerge)
+    {
+        OptimizedExplosionStats.onSkipped();
+        if (MergeSetting.mergeExplosion && requestedMerge > 1)
+        {
+            this.mergedCount = requestedMerge;
+        }
+        return true;
+    }
+
+    public boolean matches(ServerExplosion explosion)
+    {
+        Vec3 center = explosion.center();
+        return this.matches(explosion.level(), center.x, center.y, center.z, explosion.radius());
     }
 
     public boolean matches(ServerLevel level, double x, double y, double z, float radius)
@@ -52,84 +125,93 @@ public class ExplosionMergeData
         return this.level == level && this.x == x && this.y == y && this.z == z && this.radius == radius;
     }
 
-    public void begin(ServerLevel level, double x, double y, double z, float radius, Entity source, AABB entityBox)
+    private void begin(ServerLevel level, Vec3 center, float radius, Entity source)
     {
-        this.release();
+        this.releaseGroup();
         this.level = level;
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        this.x = center.x;
+        this.y = center.y;
+        this.z = center.z;
         this.radius = radius;
         this.source = source;
-        this.entityBox = entityBox;
+        this.entityBox = OptimizedExplosionUtil.makeEntityBox(center, radius);
     }
 
-    public void markBlockDamageEmpty()
+    private void activate()
     {
         this.blockDamageEmpty = true;
-        this.enabled = true;
+        this.forceStopped = false;
         int stamp = ++nextStamp;
-        this.exposureStamp = stamp == 0 ? ++nextStamp : stamp;
+        this.exposureStamp = stamp <= 0 ? (nextStamp = 1) : stamp;
         this.entities.clear();
         this.entities.addAll(this.level.getEntities(this.source, this.entityBox));
-        this.resetExposureCache();
-        this.captureBlockStamp();
+        this.levelStamp = this.currentBlockStamp();
         ACTIVE = this;
     }
 
-    public void captureBlockStamp()
+    private void deactivate()
     {
-        this.levelStamp = LevelAccessor.of(this.level).rof$getBlockChangeStamp();
+        if (ACTIVE == this) ACTIVE = null;
+        this.blockDamageEmpty = false;
     }
 
-    public boolean isBlockVerdictValid()
+    public void requestMerge(int count)
     {
-        return this.levelStamp == LevelAccessor.of(this.level).rof$getBlockChangeStamp();
+        this.pendingMergeCount = Math.max(1, count);
+        this.mergedCount = 1;
+    }
+
+    public void resetMerge()
+    {
+        this.pendingMergeCount = 1;
+        this.mergedCount = 1;
+    }
+
+    public int mergedCount()
+    {
+        return this.mergedCount;
     }
 
     public void clear()
     {
-        if (this.isUsed()) this.release();
+        if (this.level != null) this.releaseGroup();
+        this.resetMerge();
     }
 
-    private void release()
+    private void releaseGroup()
     {
-        if (ACTIVE == this) ACTIVE = null;
+        this.deactivate();
         this.level = null;
         this.source = null;
         this.entityBox = null;
         this.count = 0;
         this.forceStopped = false;
-        this.blockDamageEmpty = false;
-        this.enabled = false;
-        this.needExplosionCount = 1;
-        this.explosionCount = 1;
         this.exposureStamp = 0;
         this.levelStamp = 0;
         this.entities.clear();
-        this.exposures.clear();
+    }
+
+    private int currentBlockStamp()
+    {
+        return LevelAccessor.of(this.level).rof$getBlockChangeStamp();
     }
 
     public void tryAddEntity(Entity entity)
     {
-        if (!this.enabled || entity == this.source || entity.isRemoved() || entity.level() != this.level) return;
         this.tryAddEntity(entity, entity.getX(), entity.getY(), entity.getZ());
     }
 
     public void tryAddEntity(Entity entity, double x, double y, double z)
     {
-        if (!this.enabled || entity == this.source || entity.isRemoved() || entity.level() != this.level) return;
-        if (this.entities.contains(entity)) return;
+        if (!this.blockDamageEmpty || entity == this.source || entity.isRemoved() || entity.level() != this.level) return;
         double halfWidth = entity.getBbWidth() / 2.0;
         double height = entity.getBbHeight();
         AABB box = new AABB(x - halfWidth, y, z - halfWidth, x + halfWidth, y + height, z + halfWidth);
-        if (box.intersects(this.entityBox))
+        if (box.intersects(this.entityBox) && !this.entities.contains(entity))
         {
             this.entities.add(entity);
-            this.exposures.add(Double.NaN);
         }
     }
-
 
     public List<Entity> entitySnapshot()
     {
@@ -142,10 +224,8 @@ public class ExplosionMergeData
         return snapshot;
     }
 
-    /*
-     * 复用暴露度的条件只有一个：这个实体在本组里算过、而且算完之后没有动过。
-     * 实体自己记着算缓存时的批次号（ExposureCacheAccess），而 setPosRaw / setBoundingBox
-     * 会把有效批次号改成 -1，所以这里只要比一个 int；位置或碰撞箱一变就自动重算，不用比较 AABB。
+    /**
+     * 实体在当前合并组内算过暴露度且未发生过位移（setPosRaw 会将 stamp 置为 -1）时直接复用。
      */
     public float cachedExposure(Entity entity)
     {
@@ -156,32 +236,14 @@ public class ExplosionMergeData
             OptimizedExplosionStats.onExposureMiss(stamp);
             return Float.NaN;
         }
-        int index = access.rof$getExposureIndex();
-        if (index < 0 || index >= this.exposures.size())
-        {
-            OptimizedExplosionStats.onExposureMissIndex();
-            return Float.NaN;
-        }
         OptimizedExplosionStats.onExposureReused();
-        return (float) this.exposures.getDouble(index);
+        return access.rof$getCachedExposure();
     }
 
     public void cacheExposure(Entity entity, float value)
     {
-        int index = this.entities.indexOf(entity);
-        if (index < 0) return;
-        this.exposures.set(index, value);
         EntityAccessor access = EntityAccessor.of(entity);
-        access.rof$setExposureIndex(index);
+        access.rof$setCachedExposure(value);
         access.rof$setExposureStamp(this.exposureStamp);
-    }
-
-    private void resetExposureCache()
-    {
-        this.exposures.clear();
-        for (int i = 0; i < this.entities.size(); i++)
-        {
-            this.exposures.add(Double.NaN);
-        }
     }
 }

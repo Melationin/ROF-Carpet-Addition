@@ -1,14 +1,12 @@
 package com.carpet.rof.mixin.entity.merge;
 
-import com.carpet.rof.mixinAccessor.EntityAccessor;
-import com.carpet.rof.mixinAccessor.PrimedTntAccessor;
 import com.carpet.rof.entity.merge.MergeSetting;
+import com.carpet.rof.mixinAccessor.PrimedTntAccessor;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.level.entity.EntityTickList;
-import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,7 +15,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BooleanSupplier;
 
 import static com.carpet.rof.entity.merge.MergeSetting.MergeTNTNextMode.ALMOST_VANILLA;
@@ -36,43 +33,38 @@ public class ServerLevelMixin
                      target = "Lnet/minecraft/world/level/entity/EntityTickList;forEach(Ljava/util/function/Consumer;)V"))
     private void onTick(final BooleanSupplier haveTime, final CallbackInfo ci)
     {
-        if (mergeTNTNext == SAFE_PLUS)
+        if (mergeTNTNext == ALMOST_VANILLA)
         {
-            PrimedTnt[] leader = new PrimedTnt[1];
-            MergeSetting.EntityPosAndVec[] leaderKey = new MergeSetting.EntityPosAndVec[1];
-            this.entityTickList.forEach(entity -> {
-                if (!rof$willTick(entity)) return;
-                if (!(entity instanceof PrimedTnt tnt) || tnt.getFuse() != 1)
-                {
-                    leader[0] = null;
-                    return;
-                }
-                MergeSetting.EntityPosAndVec key = new MergeSetting.EntityPosAndVec(
-                        new Vec3(tnt.getX(), tnt.getY(), tnt.getZ()), tnt.getDeltaMovement(), tnt.getFuse());
-                if (leader[0] != null && key.equals(leaderKey[0]))
-                {
-                    PrimedTntAccessor.of(leader[0]).rof$addMergeCount(1);
-                    tnt.remove(Entity.RemovalReason.DISCARDED);
-                }
-                else
-                {
-                    leader[0] = tnt;
-                    leaderKey[0] = key;
-                }
-            });
-            return;
+            this.rof$preMergeAdjacentTnt(true);
         }
-        if (mergeTNTNext != ALMOST_VANILLA) return;
-        AtomicLong tickOrder = new AtomicLong();
+        else if (mergeTNTNext == SAFE_PLUS)
+        {
+            this.rof$preMergeAdjacentTnt(false);
+        }
+    }
+
+    @Unique
+    private void rof$preMergeAdjacentTnt(boolean onlyAtExplode)
+    {
+        PrimedTnt[] leader = new PrimedTnt[1];
+        MergeSetting.EntityPosAndVec[] leaderKey = new MergeSetting.EntityPosAndVec[1];
         this.entityTickList.forEach(entity -> {
-            if (rof$willTick(entity))
+            if (!this.rof$willTick(entity)) return;
+            if (!(entity instanceof PrimedTnt tnt) || (onlyAtExplode && tnt.getFuse() != 1))
             {
-                EntityAccessor.of(entity).rof$setTickOrder(tickOrder.get());
-                tickOrder.getAndIncrement();
+                leader[0] = null;
+                return;
+            }
+            MergeSetting.EntityPosAndVec key = MergeSetting.EntityPosAndVec.of(tnt);
+            if (leader[0] != null && key.equals(leaderKey[0]))
+            {
+                PrimedTntAccessor.of(leader[0]).rof$addMergeCount(PrimedTntAccessor.of(tnt).rof$getMergedTNTNCount());
+                tnt.discard();
             }
             else
             {
-                EntityAccessor.of(entity).rof$setTickOrder(-1);
+                leader[0] = tnt;
+                leaderKey[0] = key;
             }
         });
     }

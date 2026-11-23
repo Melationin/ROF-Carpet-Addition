@@ -60,11 +60,11 @@ public class ROFCarpetServer implements CarpetExtension, ModInitializer
         }
 
         ROFEvents.WorldTickBegin.register(world -> {
-            ExtraWorldDatas.fromWorld(world).entitySpawnCountsPerTick.clear();
-            ExtraWorldDatas.fromWorld(world).mergeTntMap.clear();
-            ExtraWorldDatas.fromWorld(world).mergeTntMapAv.clear();
-            ExtraWorldDatas.fromWorld(world).chunkEntitySpawnLogger.run(world);
-            ExtraWorldDatas.fromWorld(world).killedTriggerLimiter.clear();
+            ExtraWorldDatas data = ExtraWorldDatas.fromWorld(world);
+            data.entitySpawnCountsPerTick.clear();
+            data.mergeTntMap.clear();
+            data.chunkEntitySpawnLogger.run(world);
+            data.killedTriggerLimiter.clear();
         });
 
         ROFEvents.ServerSave.register(server2 -> {

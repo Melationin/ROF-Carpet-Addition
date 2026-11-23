@@ -33,8 +33,7 @@ public class ExtraWorldDatas implements NBTData
 
     public final Map<UUID, Entity> forcedEntitylist = new HashMap<>();
 
-    public final HashMap<MergeSetting.EntityPosAndVec, PrimedTnt> mergeTntMap =  new HashMap<>();
-    public final HashMap<MergeSetting.EntityPosAndVec, ArrayList<PrimedTnt>> mergeTntMapAv =  new HashMap<>();
+    public final HashMap<MergeSetting.EntityPosAndVec, PrimedTnt> mergeTntMap = new HashMap<>();
     public final Map<EntityType<?>,Integer> entitySpawnCountsPerTick = new HashMap<>();
 
 
