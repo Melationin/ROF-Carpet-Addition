@@ -1,4 +1,6 @@
 {
+  "carpet.rule.optimizedBlockEntityRemoval.name": "Block entity removal optimization",
+  "carpet.rule.optimizedBlockEntityRemoval.desc": "Compacts the block entity ticker list in one pass while preserving ticker order.",
   "carpet.rule.killedTriggerLimitPerTick.name": "Killed advancement trigger limit per tick",
   "carpet.rule.killedTriggerLimitPerTick.desc": "Limits KilledTrigger.trigger executions per tick with one shared budget for all entities.",
   "carpet.rule.killedTriggerLimitPerTick.extra.0": "0 means unlimited; all dimensions, players and KilledTrigger types share the budget",
