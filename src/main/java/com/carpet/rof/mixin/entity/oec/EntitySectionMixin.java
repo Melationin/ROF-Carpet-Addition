@@ -1,11 +1,16 @@
 package com.carpet.rof.mixin.entity.oec;
 
+import com.carpet.rof.entity.enderPearl.EnderPearlSettings;
+import com.carpet.rof.entity.enderPearl.PearlEntitySectionCache;
 import com.carpet.rof.entity.oec.SectionEntityGrid;
 import com.carpet.rof.entity.oec.OecUtil;
 import com.carpet.rof.mixinAccessor.OecEntityAccess;
 import com.carpet.rof.mixinAccessor.OecSectionAccess;
+import com.carpet.rof.world.extraWorldData.ExtraWorldDatas;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ClassInstanceMultiMap;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.level.entity.EntityAccess;
 import net.minecraft.world.level.entity.EntitySection;
 import org.jetbrains.annotations.Nullable;
@@ -66,6 +71,13 @@ public abstract class EntitySectionMixin<T extends EntityAccess> implements OecS
             access.rof$setEntitySection(this);
             access.rof$setRegisteredCells(OecUtil.EMPTY_RANGE);
             OecUtil.registerNewCells(entity);
+
+            if (EnderPearlSettings.optimizedEnderPearlEntityInterception
+                    && PearlEntitySectionCache.isTargetEntity(entity)
+                    && entity.level() instanceof ServerLevel serverLevel
+                    && this.rof$sectionKey != Long.MIN_VALUE) {
+                ExtraWorldDatas.fromWorld(serverLevel).pearlEntitySectionCache.addSection(this.rof$sectionKey);
+            }
         }
     }
 
@@ -74,6 +86,17 @@ public abstract class EntitySectionMixin<T extends EntityAccess> implements OecS
         if (Boolean.TRUE.equals(cir.getReturnValue()) && entityLike instanceof Entity entity) {
             OecEntityAccess access = (OecEntityAccess) entity;
             if (access.rof$getEntitySection() == this) access.rof$setEntitySection(null);
+
+            if (EnderPearlSettings.optimizedEnderPearlEntityInterception
+                    && entity instanceof ArmorStand
+                    && entity.level() instanceof ServerLevel serverLevel
+                    && this.rof$sectionKey != Long.MIN_VALUE
+                    && entity.getRemovalReason() != Entity.RemovalReason.UNLOADED_TO_CHUNK) {
+                PearlEntitySectionCache cache = ExtraWorldDatas.fromWorld(serverLevel).pearlEntitySectionCache;
+                if (!PearlEntitySectionCache.hasTargetEntity(this)) {
+                    cache.removeSection(this.rof$sectionKey);
+                }
+            }
         }
     }
 }

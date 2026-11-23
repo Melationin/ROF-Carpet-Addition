@@ -61,8 +61,11 @@ public abstract class ServerLevelMixin implements  ServerLevelAccessor
             at = @At(value = "TAIL"))
     void saveWorld(CallbackInfo ci)
     {
-        if(exceedChunkMarker )
-       ROFTool.saveNBT2Data((ServerLevel) (Object)this,"extraWorldData.dat", ROFextraWorldDatas.toNbt());
+        ServerLevel level = (ServerLevel) (Object) this;
+        ROFextraWorldDatas.pearlEntitySectionCache.syncGameTime(level);
+        if (exceedChunkMarker || ROFextraWorldDatas.pearlEntitySectionCache.isInitialized()) {
+            ROFTool.saveNBT2Data(level, "extraWorldData.dat", ROFextraWorldDatas.toNbt());
+        }
     }
 
 
@@ -209,8 +212,10 @@ public abstract class ServerLevelMixin implements  ServerLevelAccessor
             at = @At(value = "HEAD"))
     void tick(BooleanSupplier shouldKeepTicking, CallbackInfo ci)
     {
-        if (((ServerLevel)(Object)this).tickRateManager().runsNormally()&&exceedChunkMarker) {
-            this.ROFextraWorldDatas.exceedChunkMarker.update((ServerLevel) (Object) this);
+        ServerLevel level = (ServerLevel) (Object) this;
+        this.ROFextraWorldDatas.pearlEntitySectionCache.onTick(level);
+        if (level.tickRateManager().runsNormally() && exceedChunkMarker) {
+            this.ROFextraWorldDatas.exceedChunkMarker.update(level);
         }
     }
 }

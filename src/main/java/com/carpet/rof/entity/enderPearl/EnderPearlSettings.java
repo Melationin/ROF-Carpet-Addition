@@ -68,6 +68,20 @@ public class EnderPearlSettings extends BaseSetting {
     )
     public static int blockingEnderPearlLoading = 0;
 
+    @Rule(
+            categories = {ROF, OPTIMIZATION, EXPERIMENTAL},
+            options = {"false", "true"}
+    )
+    @QuickTranslations(
+            name = "珍珠实体拦截优化",
+            description = "对速度大于16的末影珍珠使用3D DDA算法按EntitySection步进查找实体，并缓存含特定拦截实体（盔甲架）的EntitySection以按需弱加载未加载区块的实体",
+            extra = {
+                    "仅对速度 > 16 的末影珍珠生效",
+                    "首次开启或缓存过期时会自动从全维度实体存档中构建缓存"
+            }
+    )
+    public static boolean optimizedEnderPearlEntityInterception = false;
+
     public static final class EnderPearlSelfLoadingValidator extends Validator<String>
     {
         @Override

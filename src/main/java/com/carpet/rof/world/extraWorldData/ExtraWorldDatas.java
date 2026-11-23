@@ -8,6 +8,7 @@ import com.carpet.rof.world.chunkTick.async.DelayedChunkSnapshot;
 import com.carpet.rof.mixinAccessor.ServerLevelAccessor;
 import com.carpet.rof.advancement.KilledTriggerLimiter;
 import com.carpet.rof.entity.enderPearl.EnderPearlTickets;
+import com.carpet.rof.entity.enderPearl.PearlEntitySectionCache;
 import com.carpet.rof.world.explosion.ExplosionMergeData;
 import com.carpet.rof.world.extraWorldData.extraChunkDatas.ExceedChunkMarkerSetting;
 import com.carpet.rof.entity.merge.MergeSetting;
@@ -43,6 +44,7 @@ public class ExtraWorldDatas implements NBTData
 
     public final LongOpenHashSet enderPearlForcedSyncChunks = new LongOpenHashSet();
     public final EnderPearlTickets enderPearlTickets = new EnderPearlTickets();
+    public final PearlEntitySectionCache pearlEntitySectionCache = new PearlEntitySectionCache();
 
 
     public final DelayedChunkSnapshot randomTickingChunks = new DelayedChunkSnapshot();
@@ -66,6 +68,9 @@ public class ExtraWorldDatas implements NBTData
         if(ExceedChunkMarkerSetting.exceedChunkMarker){
             nbt.put(exceedChunkMarker.getName(), exceedChunkMarker.toNbt());
         }
+        if (this.pearlEntitySectionCache.isInitialized()) {
+            nbt.put(this.pearlEntitySectionCache.getName(), this.pearlEntitySectionCache.toNbt());
+        }
     }
 
     @Override
@@ -74,12 +79,16 @@ public class ExtraWorldDatas implements NBTData
         //? if >1.21.4 {
         if(ExceedChunkMarkerSetting.exceedChunkMarker) nbt.getCompound(exceedChunkMarker.getName()).ifPresent(
                 nbtCompound->  exceedChunkMarker.read(nbtCompound));
+        nbt.getCompound(this.pearlEntitySectionCache.getName()).ifPresent(this.pearlEntitySectionCache::read);
 
         //?} else {
         /*if(ExceedChunkMarkerSetting.exceedChunkMarker){
             if(nbt.contains(exceedChunkMarker.getName())){
                 exceedChunkMarker.read(nbt.getCompound(exceedChunkMarker.getName()));
             }
+        }
+        if (nbt.contains(this.pearlEntitySectionCache.getName())) {
+            this.pearlEntitySectionCache.read(nbt.getCompound(this.pearlEntitySectionCache.getName()));
         }
         *///?}
     }

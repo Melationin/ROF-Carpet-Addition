@@ -38,6 +38,7 @@
     "entity.drops.MobMixin",
     "entity.enderPearl.EntityMixin",
     "entity.enderPearl.ChunkMapMixin",
+    "entity.enderPearl.ProjectileUtilMixin",
     "entity.enderPearl.ServerPlayerMixin",
     "entity.enderPearl.ThrownEnderpearlMixin",
     "world.explosion.EntityMixin",

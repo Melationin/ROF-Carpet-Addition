@@ -19,8 +19,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class ROFIO
 {
@@ -158,5 +160,60 @@ public class ROFIO
                     return resultMap;
                 }
         );
+    }
+
+    public static void forEachExistingEntityChunk(ServerLevel world, BiConsumer<ChunkPos, CompoundTag> action)
+    {
+        forEachExistingEntityChunk(world, chunkPos -> true, action);
+    }
+
+    public static void forEachExistingEntityChunk(
+            ServerLevel world,
+            Predicate<ChunkPos> shouldRead,
+            BiConsumer<ChunkPos, CompoundTag> action)
+    {
+        Path entitiesFolder = ROFTool.getSavePath(world).resolve("entities");
+        File folder = entitiesFolder.toFile();
+        if (!folder.isDirectory()) return;
+
+        String[] files = folder.list((dir, name) -> name.startsWith("r.") && name.endsWith(".mca"));
+        if (files == null) return;
+
+        for (String fileName : files) {
+            if (Thread.currentThread().isInterrupted()) return;
+
+            String[] split = fileName.split("\\.");
+            if (split.length != 4 || !split[0].equals("r") || !split[3].equals("mca")) continue;
+
+            int rx;
+            int rz;
+            try {
+                rx = Integer.parseInt(split[1]);
+                rz = Integer.parseInt(split[2]);
+            } catch (NumberFormatException ignored) {
+                continue;
+            }
+
+            Path regionFilePath = entitiesFolder.resolve(fileName);
+            try (RegionFile regionFile = new RegionFile(
+                    new RegionStorageInfo("entities", world.dimension(), "entities"),
+                    regionFilePath, entitiesFolder, false))
+            {
+                for (int i = 0; i < 32; i++) {
+                    for (int j = 0; j < 32; j++) {
+                        ChunkPos chunkPos = new ChunkPos((rx << 5) + i, (rz << 5) + j);
+                        if (!shouldRead.test(chunkPos)) continue;
+                        try (DataInputStream dataInputStream = regionFile.getChunkDataInputStream(chunkPos)) {
+                            if (dataInputStream != null) {
+                                CompoundTag chunkData = NbtIo.read(dataInputStream);
+                                action.accept(chunkPos, chunkData);
+                            }
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                System.err.println(e.getMessage());
+            }
+        }
     }
 }
