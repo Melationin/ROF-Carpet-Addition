@@ -73,6 +73,21 @@
 &emsp;- 分类: `ROF`, `feature`
 
 
+## 方块实体遍历优化 (blockEntityIterationOptimization)
+
+&emsp;遍历方块实体时用一次原地压缩代替逐个 remove，避免大量方块实体被移除时的二次复杂度开销。
+
+&emsp; `只改变遍历与移除方式，方块实体的 tick 顺序与判定条件与原版一致`
+
+&emsp; `被移除的方块实体在本次遍历结束后统一清理`
+
+&emsp;- 类型: `boolean`
+
+&emsp;- 默认值: `false`
+
+&emsp;- 分类: `ROF`, `optimization`
+
+
 ## 珍珠加载堵塞主线程 (blockingEnderPearlLoading)
 
 &emsp;让珍珠的区块加载堵塞主线程，减少珍珠tick和世界tick不同步的问题。

@@ -126,5 +126,8 @@
   "carpet.rule.mergeExplosion.desc": "Merges the multiple explosions produced by one merged TNT into a single explosion, so entities are affected only once. Only applies when TNT merging and explosion optimization are both enabled.",
   "carpet.rule.mergeExplosion.extra.0": "Requires mergeTNTNext to be a mode other than False",
   "carpet.rule.mergeExplosion.extra.1": "Damage is applied once; knockback is scaled by the merge count, so the total push matches vanilla",
-  "carpet.rule.particlesPacketsRange.extra.1": "Forced particle packets use a fixed distance of 512, unaffected by this rule"
+  "carpet.rule.particlesPacketsRange.extra.1": "Forced particle packets use a fixed distance of 512, unaffected by this rule",
+  "carpet.rule.blockEntityIterationOptimization.desc": "Compacts the block entity ticker list in a single in-place pass instead of removing entries one by one, avoiding quadratic cost when many block entities are removed.",
+  "carpet.rule.blockEntityIterationOptimization.extra.0": "Only the iteration and removal strategy changes; tick order and tick conditions stay identical to vanilla",
+  "carpet.rule.blockEntityIterationOptimization.extra.1": "Removed block entities are cleared once at the end of the pass"
 }

@@ -15,6 +15,7 @@
     "world.chunkTick.async.SpawnPlacementsMixin",
     "world.blockChange.LevelChunkMixin",
     "world.blockChange.LevelMixin",
+    "world.blockEntityIterationOptimization.LevelMixin",
     "carpet.SettingsManagerSetting",
     "debug.ChunkStatusTasksMixin",
     "debug.ServerTickRateManagerMixin",

@@ -73,6 +73,21 @@
 &emsp;- Categories: `ROF`, `feature`
 
 
+## blockEntityIterationOptimization
+
+&emsp;Compacts the block entity ticker list in a single in-place pass instead of removing entries one by one, avoiding quadratic cost when many block entities are removed.
+
+&emsp; `Only the iteration and removal strategy changes; tick order and tick conditions stay identical to vanilla`
+
+&emsp; `Removed block entities are cleared once at the end of the pass`
+
+&emsp;- Type: `boolean`
+
+&emsp;- Default: `false`
+
+&emsp;- Categories: `ROF`, `optimization`
+
+
 ## blockingEnderPearlLoading
 
 &emsp;Makes a pearl's chunk loading block the main thread, reducing desync between pearl ticks and world ticks.
