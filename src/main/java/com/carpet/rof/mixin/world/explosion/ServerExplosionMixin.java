@@ -54,12 +54,22 @@ public abstract class ServerExplosionMixin
     // 被合并掉的爆炸不会再 push，这里按合并次数补齐推力，等价于原版多次 push 的叠加
     @WrapOperation(
             method = "hurtEntities",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/ExplosionDamageCalculator;getKnockbackMultiplier(Lnet/minecraft/world/entity/Entity;)F"))
-    private float rof$mergeKnockback(ExplosionDamageCalculator calculator, Entity entity, Operation<Float> original)
+            //? <26.3
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;push(Lnet/minecraft/world/phys/Vec3;)V"
+            //?>= 26.3
+            //at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;pushFromExplosion(Lnet/minecraft/world/phys/Vec3;)V"
+            ))
+    private void rof$mergeKnockback(Entity instance, Vec3 impulse, Operation<Void> original)
     {
-        float multiplier = original.call(calculator, entity);
+
         ExplosionMergeData data = this.rof$activeGroup();
-        return data != null ? multiplier * data.mergedCount() : multiplier;
+        if(data == null){
+            original.call(instance, impulse);
+        }else {
+            for(int i = 0;i < data.mergedCount();i++){
+                original.call(instance, impulse);
+            }
+        }
     }
 
     /**

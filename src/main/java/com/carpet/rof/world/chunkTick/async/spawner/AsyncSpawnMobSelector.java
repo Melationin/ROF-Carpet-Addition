@@ -14,7 +14,7 @@ import net.minecraft.util.random.WeightedList;
 /*import net.minecraft.util.random.WeightedRandomList;
  *///?}
 //? >=26.3
-import net.minecraft.world.attribute.EnvironmentAttributes;
+//import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
