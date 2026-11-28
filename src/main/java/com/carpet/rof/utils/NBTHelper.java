@@ -11,7 +11,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.Optional;
 
-/** Accepts CompoundTag or the ValueInput/ValueOutput passed to a @Coerce Object injection. */
+/* 接受 CompoundTag，或传给 @Coerce Object 注入的 ValueInput/ValueOutput。 */
 public final class NBTHelper
 {
     private NBTHelper() {}
@@ -305,7 +305,9 @@ public final class NBTHelper
         return readChild(input, name).orElseGet(CompoundTag::new);
     }
 
-    /** Creates a new child, replacing any existing value at this name. */
+    /*
+     * 创建新的子标签，覆盖该名称下已有的值。
+     */
     public static Object writeChild(Object output, String name)
     {
         //? if >=1.21.6 {

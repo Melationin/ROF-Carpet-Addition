@@ -3,9 +3,9 @@ package com.carpet.rof.utils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 
-/**
- * 26.x exposes ChunkPos as a record-like type (x() / z() / pack()), while 1.21.11 still uses the
- * public x / z fields plus toLong(), so the accessors are wrapped here.
+/*
+ * 26.x 把 ChunkPos 暴露成类似 record 的类型（x() / z() / pack()），
+ * 而 1.21.11 仍使用公开的 x / z 字段加 toLong()，因此这里对访问器做了包装。
  */
 public final class ChunkPosHelper
 {

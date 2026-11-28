@@ -22,7 +22,7 @@ import java.util.List;
 
 public final class AsyncRandomTick
 {
-    private static final List<Work> BATCH = new ArrayList<>(); // server thread only
+    private static final List<Work> BATCH = new ArrayList<>(); // 仅服务端线程访问
     private static final ThreadLocal<RandomSource> WORKER_RANDOM = ThreadLocal.withInitial(
             //~ if <26.1 'createThreadLocalInstance' -> 'createNewThreadLocalInstance'
             RandomSource::createThreadLocalInstance);
@@ -39,9 +39,9 @@ public final class AsyncRandomTick
             BATCH.add(new Work(chunk, speed));
     }
 
-    // Both branches answer the same question: would vanilla act on this lava random tick at all?
-    // 1.21.10 gates it on RULE_DOFIRETICK inside LavaFluid.randomTick; 1.21.11 moved the check to
-    // ServerLevel#canSpreadFireAround (FIRE_SPREAD_RADIUS_AROUND_PLAYER).
+    // 两个分支回答的是同一个问题：原版会不会对这次岩浆随机刻做出反应？
+    // 1.21.10 在 LavaFluid.randomTick 里用 RULE_DOFIRETICK 控制；1.21.11 把检查移到了
+    // ServerLevel#canSpreadFireAround（FIRE_SPREAD_RADIUS_AROUND_PLAYER）。
     private static boolean rof$canSpreadFireAround(ServerLevel level, BlockPos pos)
     {
         //? if >=1.21.11 {

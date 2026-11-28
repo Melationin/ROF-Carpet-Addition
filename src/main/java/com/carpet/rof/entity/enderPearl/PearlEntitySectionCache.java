@@ -1,8 +1,5 @@
 package com.carpet.rof.entity.enderPearl;
 
-import com.carpet.rof.mixinAccessor.OecSectionAccess;
-import com.carpet.rof.mixinAccessor.OecSectionStorageAccess;
-import com.carpet.rof.mixinAccessor.OecStorageHolder;
 import com.carpet.rof.utils.ChunkPosHelper;
 import com.carpet.rof.utils.ROFIO;
 import com.carpet.rof.utils.ROFTextTool;
@@ -33,6 +30,7 @@ import net.minecraft.world.level.entity.Visibility;
 import org.slf4j.Logger;
 
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 public class PearlEntitySectionCache extends ExtraChunkData
 {
@@ -88,33 +86,19 @@ public class PearlEntitySectionCache extends ExtraChunkData
 
     public static boolean hasTargetEntity(EntitySection<?> section)
     {
-        return hasTargetEntity((OecSectionAccess) section);
-    }
-
-    public static boolean hasTargetEntity(OecSectionAccess section)
-    {
-        for (Entity entity : section.rof$entities()) {
-            if (isTargetEntity(entity)) {
-                return true;
-            }
-        }
-        return false;
+        return entities(section).anyMatch(PearlEntitySectionCache::isTargetEntity);
     }
 
     public static int countTargetEntities(EntitySection<?> section)
     {
-        return countTargetEntities((OecSectionAccess) section);
+        return (int) entities(section).filter(PearlEntitySectionCache::isTargetEntity).count();
     }
 
-    public static int countTargetEntities(OecSectionAccess section)
+    // EntitySection#getEntities() 是 public Stream，元素运行时都是 Entity。
+    @SuppressWarnings("unchecked")
+    private static Stream<Entity> entities(EntitySection<?> section)
     {
-        int count = 0;
-        for (Entity entity : section.rof$entities()) {
-            if (isTargetEntity(entity)) {
-                count++;
-            }
-        }
-        return count;
+        return (Stream<Entity>) (Stream<?>) section.getEntities();
     }
 
     public boolean isCacheValid(ServerLevel level)
@@ -229,11 +213,10 @@ public class PearlEntitySectionCache extends ExtraChunkData
                 (chunkPos, chunkData) -> chunkData.getList("Entities").ifPresent(this::scanEntityList)
         );
 
-        EntitySectionStorage<?> storage = ((OecStorageHolder) level).rof$entitySectionStorage();
-        if (storage != null) {
-            for (LongIterator it = ((OecSectionStorageAccess) storage).rof$sectionIds().iterator(); it.hasNext(); ) {
-                long sectionKey = it.nextLong();
-                EntitySection<?> section = storage.getSection(sectionKey);
+        EntitySectionStorage<Entity> storage = level.entityManager.sectionStorage;
+        for (LongIterator chunkIt = storage.getAllChunksWithExistingSections().iterator(); chunkIt.hasNext(); ) {
+            storage.getExistingSectionPositionsInChunk(chunkIt.nextLong()).forEach(sectionKey -> {
+                EntitySection<Entity> section = storage.getSection(sectionKey);
                 if (section != null) {
                     int count = countTargetEntities(section);
                     if (count > 0) {
@@ -241,7 +224,7 @@ public class PearlEntitySectionCache extends ExtraChunkData
                         this.lastRebuiltArmorStandCount += count;
                     }
                 }
-            }
+            });
         }
 
         this.lastUpdatedGameTime = level.getGameTime();
@@ -282,8 +265,8 @@ public class PearlEntitySectionCache extends ExtraChunkData
         ChunkPos chunkPos = new ChunkPos(cx, cz);
         long chunkKey = ChunkPosHelper.pack(chunkPos);
 
-        EntitySectionStorage<?> storage = ((OecStorageHolder) level).rof$entitySectionStorage();
-        EntitySection<?> existingSection = storage != null ? storage.getSection(sectionKey) : null;
+        EntitySectionStorage<Entity> storage = level.entityManager.sectionStorage;
+        EntitySection<Entity> existingSection = storage.getSection(sectionKey);
         boolean loaded = level.areEntitiesLoaded(chunkKey);
         boolean accessible = existingSection != null && existingSection.getStatus().isAccessible();
 
@@ -306,8 +289,8 @@ public class PearlEntitySectionCache extends ExtraChunkData
             this.tempTrackedChunks.put(chunkKey, level.getGameTime() + 2L);
         }
 
-        if (storage != null && level.areEntitiesLoaded(chunkKey)) {
-            EntitySection<?> section = storage.getSection(sectionKey);
+        if (level.areEntitiesLoaded(chunkKey)) {
+            EntitySection<Entity> section = storage.getSection(sectionKey);
             if (section == null || !hasTargetEntity(section)) {
                 this.targetSections.remove(sectionKey);
             }

@@ -2,7 +2,7 @@ package com.carpet.rof.carpet;
 
 import com.carpet.rof.annotation.ROFRule;
 
-// Here is your example Settings class you can plug to use carpetmod /carpet settings registerCommand
+// 这是一个示例设置类，可以直接接入 carpetmod 的 /carpet settings registerCommand 使用
 @SuppressWarnings("CanBeFinal")
 @ROFRule
 public class BaseSetting

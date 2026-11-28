@@ -59,7 +59,7 @@ public final class OptimizedExplosionUtil
                 Mth.floor(center.z + doubleRadius + 1.0));
     }
 
-    /**
+    /*
      * 把所有射线的初始功率都取上界跑一遍。射线路径只由方向决定、与功率无关（每步固定前进 0.3 格），
      * 所以上界功率访问过的方块是所有实际随机数结果的超集：这里判定为不会破坏方块，则任意一次爆炸都不会破坏方块。
      *

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-/**
+/*
  * 爆炸优化规则的效果统计：记录一段时间内被跳过的爆炸占全部爆炸的比例。
  * 未开启统计时，所有计数只多一次静态布尔读取。
  */

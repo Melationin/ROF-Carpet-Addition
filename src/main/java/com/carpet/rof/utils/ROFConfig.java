@@ -19,22 +19,19 @@ import java.util.Map;
 
 import static com.carpet.rof.command.RequirementModifyCommand.requirementModifyMap;
 
-/**
+/*
  * 轻量级 JSON 配置管理器。
- * <pre>
+ *
  * // 初始化（传入配置文件路径）
  * ROFConfig cfg = new ROFConfig(serverDir.resolve("config/rof.json"));
  * cfg.load();
- *
  * // 读取（带默认值）
  * boolean flag = cfg.get("myFlag", true);
  * int     val  = cfg.get("myInt",  42);
  * String  str  = cfg.get("myStr",  "hello");
- *
  * // 写入并保存
  * cfg.set("myFlag", false);
  * cfg.save();
- * </pre>
  */
 public class ROFConfig {
 
@@ -49,7 +46,7 @@ public class ROFConfig {
     }
 
     public static ROFConfig INSTANCE;
-    // ------------------------------------------------------------------ load / save
+    // ------------------------------------------------------------------ 加载 / 保存
 
     // 从文件加载配置；文件不存在时使用空配置。
     public void load() {
@@ -78,15 +75,15 @@ public class ROFConfig {
         }
     }
 
-    // ------------------------------------------------------------------ generic get / set
+    // ------------------------------------------------------------------ 通用读取 / 写入
 
-    /**
+    /*
      * 获取配置值，若 key 不存在则写入默认值并返回。
      *
-     * @param key          配置键
-     * @param defaultValue 默认值（支持 Boolean / Integer / Long / Double / Float / String）
-     * @param <T>          值类型
-     * @return 存储的值或默认值
+     * 参数 key：配置键
+     * 参数 defaultValue：默认值（支持 Boolean / Integer / Long / Double / Float / String）
+     * 类型参数 T：值类型
+     * 返回值：存储的值或默认值
      */
     @SuppressWarnings("unchecked")
     public <T> T get(String key, T defaultValue) {
@@ -125,7 +122,7 @@ public class ROFConfig {
         data.add(key, GSON.toJsonTree(value));
     }
 
-    // ------------------------------------------------------------------ misc
+    // ------------------------------------------------------------------ 杂项
 
     // 检查 key 是否存在。
     public boolean has(String key) {

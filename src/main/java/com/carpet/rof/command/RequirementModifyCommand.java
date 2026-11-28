@@ -32,7 +32,7 @@ import static com.mojang.text2speech.Narrator.LOGGER;
 public class RequirementModifyCommand
 {
 
-    // type: 0 set, 1 add, -1 or
+    // type：0 表示设置，1 表示追加，-1 表示按位或
     public record RequirementModify(String permission, int type) { }
 
 

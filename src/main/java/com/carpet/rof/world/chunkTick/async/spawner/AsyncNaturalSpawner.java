@@ -83,8 +83,8 @@ public final class AsyncNaturalSpawner
         StructureManager structureManager = level.structureManager();
         ChunkGenerator generator = level.getChunkSource().getGenerator();
         RandomSource random = level.getRandom();
-        // Candidates already follow vanilla category -> group -> attempt order.
-        // Consume once rather than rescanning the complete list for each group.
+        // 候选列表已经按原版的类别 -> 组 -> 尝试顺序排列。
+        // 一次消费完，避免为每个组重新扫描整个列表。
         MobCategory currentCategory = null;
         boolean canSpawnCategory = false;
         boolean stopCategory = false;

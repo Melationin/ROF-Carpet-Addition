@@ -5,7 +5,7 @@ buildscript {
 		gradlePluginPortal()
 	}
 	dependencies {
-		classpath "net.fabricmc:fabric-loom:1.15.5"
+		classpath "net.fabricmc:fabric-loom:1.17.21"
 	}
 }
 
@@ -31,6 +31,7 @@ base {
 
 
 repositories {
+
 	maven {
 		url 'https://masa.dy.fi/maven'
 
@@ -78,10 +79,10 @@ repositories {
 
 
 stonecutter {
-	// Subproject configuration
+	// 子项目配置
 
-	// The active node (26.1) copies src/ verbatim, so the access widener has to stay in the
-	// 26.x form there; every older node is remapped and needs the "named" namespace instead.
+	// 当前激活节点（26.1）会原样复制 src/，所以 access widener 在那里必须保持
+	// 26.x 的形式；每个更旧的节点都会被重映射，需要改用 "named" 命名空间。
 	replacements.string(current.parsed < "26.1") {
 		replace(
 				"classTweaker v1 official",
@@ -89,22 +90,22 @@ stonecutter {
 		)
 	}
 
-	// Version-difference convention (keep it this way):
-	//   * an API that differs in 5+ places -> a Helper in com.carpet.rof.utils (see ChunkPosHelper)
-	//   * import paths -> a global replacement (an import path is unique, so the reverse pass on
-	//                     the other nodes finds nothing)
-	//   * everything else -> region-scoped Local Replacement in the source
+	// 版本差异处理约定（请保持这种方式）：
+	//   * 在 5 处以上出现差异的 API -> 在 com.carpet.rof.utils 里做 Helper（见 ChunkPosHelper）
+	//   * import 路径 -> 用全局替换（import 路径是唯一的，所以其他节点上的反向替换
+	//                     匹配不到任何东西）
+	//   * 其余情况 -> 在源码里用区域限定的 Local Replacement
 	//                        (//~ if <cond> 'from' -> 'to' { ... //~})
-	// Never register a global replacement for a plain member/call rename: Stonecutter applies it
-	// in reverse on the other nodes too, and the reverse string usually exists there.
+	// 永远不要为普通的成员/调用改名注册全局替换：Stonecutter 也会在其他节点上反向应用它，
+	// 而反向字符串通常在那里也存在。
 	replacements.string(current.parsed >= "26.2") {
 		replace("net.minecraft.advancements.criterion.", "net.minecraft.advancements.triggers.")
 	}
 
-	// 1.21.11 renamed / split these APIs; the 1.21.10 node still uses the old locations.
-	// Exact names (never a package prefix) on purpose: a prefix rule such as
-	// "net.minecraft.world.level.gamerules." -> "net.minecraft.world.level." would reverse-match
-	// every other "net.minecraft.world.level.*" import once the newer nodes are generated.
+	// 1.21.11 重命名/拆分了这些 API；1.21.10 节点仍使用旧位置。
+	// 有意使用精确名称（绝不使用包前缀）：像
+	// "net.minecraft.world.level.gamerules." -> "net.minecraft.world.level." 这样的前缀规则
+	// 会在生成更新的节点后，反向匹配所有其他 "net.minecraft.world.level.*" 的 import。
 	replacements.string(current.parsed < "1.21.11") {
 		replace(
 				"net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl",
@@ -114,7 +115,7 @@ stonecutter {
 				"net.minecraft.world.entity.projectile.throwableitemprojectile.ThrowableItemProjectile",
 				"net.minecraft.world.entity.projectile.ThrowableItemProjectile"
 		)
-		// the same classes appear as mixin @At descriptors (slash form)
+		// 相同的类会以 mixin @At 描述符（斜杠形式）出现
 		replace(
 				"Lnet/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl;",
 				"Lnet/minecraft/world/entity/projectile/ThrownEnderpearl;"
@@ -127,7 +128,7 @@ stonecutter {
 		replace("Lnet/minecraft/advancements/criterion/", "Lnet/minecraft/advancements/critereon/")
 		replace("net.minecraft.world.level.gamerules.GameRules", "net.minecraft.world.level.GameRules")
 		replace("net.minecraft.resources.Identifier", "net.minecraft.resources.ResourceLocation")
-		// the simple name changed too; the source uses it in exactly 3 places (all standalone)
+		// 简单名也变了；源码中恰好有 3 处使用（都是独立出现）
 		replace("Identifier", "ResourceLocation")
 	}
 
@@ -178,7 +179,7 @@ loom {
 }
 
 dependencies {
-	// To change the versions see the gradle.properties file
+	// 版本切换见 gradle.properties 文件
 
 	minecraft "com.mojang:minecraft:${stonecutter.current.project}"
 	if (!stonecutter.eval(minecraftVer, ">=26.1")) {
@@ -229,7 +230,7 @@ jar {
 	}
 }
 
-// configure the maven publication
+// 配置 maven 发布
 publishing {
 	publications {
 		create("mavenJava", MavenPublication) {
@@ -238,7 +239,7 @@ publishing {
 		}
 	}
 
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+	// 发布配置说明见 https://docs.gradle.org/current/userguide/publishing_maven.html
 	repositories {
 
 	}

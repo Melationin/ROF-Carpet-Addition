@@ -29,12 +29,12 @@ public class ROFTextTool
         return String.format("%d %d %d", pos.getX(), pos.getY(), pos.getZ());
     }
 
-    /**
+    /*
      * text: 快速的生成一个Text
      *
-     * @param string        被解析的字符串。&x为表示更改格式，{}表示应用styleUpdaters 参数。应用顺序以}为准。
-     * @param styleUpdaters 格式
-     * @return 生成的文本
+     * 参数 string：被解析的字符串。&x为表示更改格式，{}表示应用styleUpdaters 参数。应用顺序以}为准。
+     * 参数 styleUpdaters：格式
+     * 返回值：生成的文本
      */
     @SafeVarargs
     public static MutableComponent text(String string, UnaryOperator<Style>... styleUpdaters) {
@@ -75,7 +75,7 @@ public class ROFTextTool
                 i++;
                 continue;
             }
-            // Accumulate a run of plain characters sharing the same style
+            // 累积一段样式相同的普通字符
             final Style segStyle = styleStack.peek();
             int start = i;
             while (i < len && string.charAt(i) != '&' && string.charAt(i) != '{' && string.charAt(i) != '}') {

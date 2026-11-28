@@ -72,7 +72,7 @@ public abstract class ServerExplosionMixin
         }
     }
 
-    /**
+    /*
      * 同一合并组内、实体没有移动时，暴露度（getSeenPercent）可以复用：
      * 它只由实体碰撞箱、坐标、所在世界、沿途方块与本组数据决定。
      */

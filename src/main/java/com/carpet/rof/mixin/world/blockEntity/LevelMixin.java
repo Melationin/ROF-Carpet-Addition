@@ -55,7 +55,7 @@ public abstract class LevelMixin
             }
         } finally {
             if (write < read) {
-                // If ticking threw, retain the unvisited suffix.
+                // 如果 tick 抛出异常，保留尚未访问的后半段。
                 while (read < size) tickers.set(write++, tickers.get(read++));
                 tickers.subList(write, size).clear();
             }

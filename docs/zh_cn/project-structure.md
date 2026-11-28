@@ -49,7 +49,7 @@ com/carpet/rof/
 └── mixin/                       # 注入代码，沿用对应功能域的目录
 ```
 
-例如，`entity/oec/` 的实现由 `mixin/entity/oec/` 注入；`world/chunkTick/async/` 的实现由 `mixin/world/chunkTick/async/` 注入。`EntityAccessor`、`ServerLevelAccessor`、`LevelChunkAccessor` 等接口，以及 `OecEntityAccess`、`OecStorageHolder` 等由 Mixin 实现的访问接口，都集中放在 `mixinAccessor/`。新增同类接口也放在此目录。
+例如，`entity/enderPearl/` 的实现由 `mixin/entity/enderPearl/` 注入；`world/chunkTick/async/` 的实现由 `mixin/world/chunkTick/async/` 注入。`EntityAccessor`、`ServerLevelAccessor`、`LevelChunkAccessor` 等接口，以及 `PearlEntitySectionAccess` 等由 Mixin 实现的访问接口，都集中放在 `mixinAccessor/`。新增同类接口也放在此目录。
 
 原目录迁移关系：
 
@@ -74,7 +74,7 @@ com/carpet/rof/
 | `commands/ISECommand.java` | `entity/ISE/` |
 | `commands/loggerCommand/PacketLoggerCommand.java` | `logger/packetLogger/` |
 | `mixinAccessor/` | 保留原目录，集中存放 Mixin 访问接口 |
-| 各功能包内由 Mixin 实现的 `*Access`、`*Accessor`、`OecStorageHolder` 接口 | `mixinAccessor/` |
+| 各功能包内由 Mixin 实现的 `*Access`、`*Accessor`、`PearlEntitySectionAccess` 接口 | `mixinAccessor/` |
 
 规则和命令仍通过 `@ROFRule`、`@ROFCommand` 注册。`processor/` 根据类的实际全限定名生成 `com.carpet.rof.generated` 下的注册列表，移动类后通过编译重新生成，无需手写列表或修改构建产物。处理器也支持 `@ROFLogger`；目前 `ROFLoggers` 的注册实现尚未启用，数据包日志由其命令直接控制。
 

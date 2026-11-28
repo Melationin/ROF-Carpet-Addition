@@ -224,7 +224,7 @@ public class ExplosionMergeData
         return snapshot;
     }
 
-    /**
+    /*
      * 实体在当前合并组内算过暴露度且未发生过位移（setPosRaw 会将 stamp 置为 -1）时直接复用。
      */
     public float cachedExposure(Entity entity)

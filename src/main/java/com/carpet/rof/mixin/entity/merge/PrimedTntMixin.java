@@ -125,8 +125,8 @@ public abstract class PrimedTntMixin extends Entity implements PrimedTntAccessor
         this.discard();
     }
 
-    // 1.21.10 still exposes the legacy GameRules API (RULE_* constants + getBoolean); 1.21.11
-    // replaced them with typed GameRule values, so only this lookup is version-scoped.
+    // 1.21.10 仍暴露旧版 GameRules API（RULE_* 常量 + getBoolean）；1.21.11
+    // 换成了类型化的 GameRule 值，因此只有这里的一处查询需要按版本区分。
     @Unique
     private static boolean rof$tntExplodes(Level level)
     {

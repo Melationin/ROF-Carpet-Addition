@@ -16,41 +16,39 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * <p>本功能完全由LLM生成</p>
+/*
+ * 本功能完全由LLM生成
  *
  * 珍珠调试工具（调试专用，与正式功能完全分离，独立包 com.carpet.rof.debug）。
  *
- * <p>触发方式：给珍珠一个调试名（实体 CustomName 或物品自定义名），名称以 {@link #NAME_PREFIX} 开头。
- * 例如用命令召唤一个带名字的珍珠：</p>
- * <pre>
+ * 触发方式：给珍珠一个调试名（实体 CustomName 或物品自定义名），名称以 NAME_PREFIX 开头。
+ * 例如用命令召唤一个带名字的珍珠：
+ *
  *   /summon minecraft:ender_pearl ~ ~1 ~ {CustomName:'"rof:vx=0.5,vy=0.4,vz=0.0"'}
- * </pre>
  *
- * <p>也可以给末影珍珠物品改名后投掷，投掷出的珍珠会保留物品上的自定义名。</p>
+ * 也可以给末影珍珠物品改名后投掷，投掷出的珍珠会保留物品上的自定义名。
  *
- * <p>名称格式（{@code rof:} 前缀之后，分量之间用逗号或分号分隔，允许空格，键名不区分大小写）：</p>
- * <ul>
- *   <li>{@code rof:vx=1.0,vy=2.0,vz=3.0} - 按轴分别指定初速度，顺序任意，未写的轴为 0</li>
- *   <li>{@code rof:x=1.0,y=2.0,z=3.0}    - 同上，简写</li>
- *   <li>{@code rof:1.0,2.0,3.0}          - 位置形式，依次为 vx, vy, vz</li>
- *   <li>{@code rof:v=1.0,2.0,3.0}        - 同上，显式向量前缀（也接受 {@code v=(1.0,2.0,3.0)}）</li>
- *   <li>{@code rof:3.0}                  - 只给速度大小 3.0，方向取珍珠当前运动方向（没有则取抛掷者视线，再退化为 +X）</li>
- *   <li>{@code rof:speed=3.0}            - 同上</li>
- *   <li>{@code rof:}                     - 不指定速度，仅统计珍珠tick与世界tick</li>
- * </ul>
+ * 名称格式（rof: 前缀之后，分量之间用逗号或分号分隔，允许空格，键名不区分大小写）：
  *
- * <p>数值是 tick 开始时的 deltaMovement，与原版 Motion NBT 同义；本 tick 内原版仍会正常施加重力与阻力。
- * 解析失败时保留原速度，并在控制台和抛掷者聊天栏给出原因。</p>
+ *   - rof:vx=1.0,vy=2.0,vz=3.0 - 按轴分别指定初速度，顺序任意，未写的轴为 0
+ *   - rof:x=1.0,y=2.0,z=3.0    - 同上，简写
+ *   - rof:1.0,2.0,3.0          - 位置形式，依次为 vx, vy, vz
+ *   - rof:v=1.0,2.0,3.0        - 同上，显式向量前缀（也接受 v=(1.0,2.0,3.0)）
+ *   - rof:3.0                  - 只给速度大小 3.0，方向取珍珠当前运动方向（没有则取抛掷者视线，再退化为 +X）
+ *   - rof:speed=3.0            - 同上
+ *   - rof:                     - 不指定速度，仅统计珍珠tick与世界tick
  *
- * <p>行为：调试珍珠会在它自己的 tick() 内计数珍珠tick，并记录世界 gameTime（真实世界tick）；
- * 珍珠落地（被移除）时输出"珍珠内计算的tick"与"真实的世界tick"的对比。</p>
+ * 数值是 tick 开始时的 deltaMovement，与原版 Motion NBT 同义；本 tick 内原版仍会正常施加重力与阻力。
+ * 解析失败时保留原速度，并在控制台和抛掷者聊天栏给出原因。
+ *
+ * 行为：调试珍珠会在它自己的 tick() 内计数珍珠tick，并记录世界 gameTime（真实世界tick）；
+ * 珍珠落地（被移除）时输出"珍珠内计算的tick"与"真实的世界tick"的对比。
  */
 public final class EnderPearlDebug
 {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    /**
+    /*
      * 总开关：默认跟随 ROFTool.DEBUG（仅开发环境或 -Drof.debug=true 时开启），
      * 生产环境自动关闭。也可在运行时手动置为 true/false 覆盖。
      */
@@ -61,7 +59,7 @@ public final class EnderPearlDebug
 
     private static final double MIN_DIRECTION_LENGTH_SQR = 1.0E-8;
 
-    /**
+    /*
      * 解析结果：velocity 与 error 至多一个非 null；都为 null 表示不修改速度、仅统计tick。
      */
     public record Parsed(Vec3 velocity, String error)
@@ -228,15 +226,15 @@ public final class EnderPearlDebug
         }
     }
 
-    /**
+    /*
      * 珍珠落地（被移除）时输出对比结果：珍珠内计算的tick 与 真实的世界tick。
      *
-     * @param pearlTicks               珍珠内计算的tick数（不含生成tick，即实际飞行tick数）
-     * @param worldTickStart           开始记录时的世界 gameTime（第一个珍珠tick）
-     * @param worldTickEnd             珍珠被移除时的世界 gameTime
-     * @param worldTickAtLastPearlTick 最后一次珍珠tick时观察到的世界 gameTime
-     * @param removalReason            移除原因（DISCARDED 等）
-     * @param appliedVelocity          应用过的初速度（未应用则为 null）
+     * 参数 pearlTicks：珍珠内计算的tick数（不含生成tick，即实际飞行tick数）
+     * 参数 worldTickStart：开始记录时的世界 gameTime（第一个珍珠tick）
+     * 参数 worldTickEnd：珍珠被移除时的世界 gameTime
+     * 参数 worldTickAtLastPearlTick：最后一次珍珠tick时观察到的世界 gameTime
+     * 参数 removalReason：移除原因（DISCARDED 等）
+     * 参数 appliedVelocity：应用过的初速度（未应用则为 null）
      */
     public static void reportLanding(ThrownEnderpearl pearl, String name,
                                      int pearlTicks,

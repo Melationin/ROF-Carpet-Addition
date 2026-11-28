@@ -49,9 +49,9 @@ public class Docs
 
     public static void parseSettingsClass(Class<?> settingsClass)
     {
-        // In the current translation system languages are not loaded this early. Ensure they are loaded
+        // 当前翻译系统不会这么早加载语言文件，需要确保它们已经加载
        //Translations.updateLanguage();
-        boolean warned = settingsClass == CarpetSettings.class; // don't warn for ourselves
+        boolean warned = settingsClass == CarpetSettings.class; // 不要对我们自己发出警告
 
         nextRule: for (Field field : settingsClass.getDeclaredFields())
         {
@@ -63,7 +63,7 @@ public class Docs
             }else {
                 continue;
             }
-            for (Class<? extends Rule.Condition> condition : conditions) { //Should this be moved to ParsedRule.of?
+            for (Class<? extends Rule.Condition> condition : conditions) { // 是否应该移到 ParsedRule.of 里？
                 try
                 {
                     Constructor<? extends Rule.Condition> constr = condition.getDeclaredConstructor();

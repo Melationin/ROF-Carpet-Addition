@@ -33,8 +33,8 @@ public abstract class BCWrapper<E extends LivingEntity> implements BehaviorContr
         return originalBC.getStatus();
     }
 
-    // 1.21.11's BehaviorControl has no getRequiredMemories(); the memory requirement moved
-    // into Behavior#hasRequiredMemories there, so the wrapper must not override it.
+    // 1.21.11 的 BehaviorControl 没有 getRequiredMemories()；记忆需求移到了那里的
+    // Behavior#hasRequiredMemories 中，因此包装器不能覆盖它。
     //? if >=26.1 {
     @Override
     public @NonNull Set<MemoryModuleType<?>> getRequiredMemories()

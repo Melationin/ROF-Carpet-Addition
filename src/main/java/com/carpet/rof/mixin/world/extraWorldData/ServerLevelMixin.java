@@ -177,7 +177,7 @@ public abstract class ServerLevelMixin implements  ServerLevelAccessor
 
     @Unique
     private boolean isReadyToEntityTick(ServerLevel level, long key) {
-        ChunkPos cp = ChunkPosHelper.unpack(key);          // ChunkPosHelper.java:32 → ChunkPos.unpack(long)
+        ChunkPos cp = ChunkPosHelper.unpack(key);          // 见 ChunkPosHelper.java:32 → ChunkPos.unpack(long)
         return level.entityManager.canPositionTick(cp)                                        // A：可见性 TICKING
                 && level.getChunkSource().chunkMap.getDistanceManager().inEntityTickingRange(key) // B：模拟票 ≤31
                 && level.areEntitiesLoaded(key);                                                  // C：数据已入库

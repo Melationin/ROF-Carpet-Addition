@@ -41,10 +41,10 @@ public abstract class PiglinAiMixin2
         }
     }
 
-    // 26.x builds the activities as ActivityData records and hands the list to the Brain;
-    // 1.21.11 registers them directly through Brain#addActivity. Both wrap the same behaviour
-    // lists in the same order (core, idle, admireItem, fight, celebrate, retreat, rideHoglin),
-    // so the activity/behaviour indices used by PiglinBCWrapper stay identical.
+    // 26.x 会把活动构建成 ActivityData 记录并把列表交给 Brain；
+    // 1.21.11 则通过 Brain#addActivity 直接注册。两种方式都以相同顺序包装同一批行为列表
+    //（core、idle、admireItem、fight、celebrate、retreat、rideHoglin），
+    // 因此 PiglinBCWrapper 使用的活动/行为索引保持一致。
     //? if >=26.1 {
     @WrapOperation(method = {"initCoreActivity","initIdleActivity"},at = @At(value = "INVOKE",
                                                         target = "Lnet/minecraft/world/entity/ai/ActivityData;create(Lnet/minecraft/world/entity/schedule/Activity;ILcom/google/common/collect/ImmutableList;)Lnet/minecraft/world/entity/ai/ActivityData;"))

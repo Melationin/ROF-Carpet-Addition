@@ -1,7 +1,5 @@
 package com.carpet.rof.entity.enderPearl;
 
-import com.carpet.rof.mixinAccessor.OecSectionAccess;
-import com.carpet.rof.mixinAccessor.OecStorageHolder;
 import com.carpet.rof.world.extraWorldData.ExtraWorldDatas;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.core.SectionPos;
@@ -35,35 +33,33 @@ public final class PearlEntityRaycaster
             PearlEntitySectionCache.ensureCachesValid(serverLevel.getServer());
         }
 
-        EntitySectionStorage<?> storage = ((OecStorageHolder) serverLevel).rof$entitySectionStorage();
+        EntitySectionStorage<Entity> storage = serverLevel.entityManager.sectionStorage;
         HitState state = new HitState();
 
-        if (storage != null) {
-            double dx = to.x - from.x;
-            double dy = to.y - from.y;
-            double dz = to.z - from.z;
-            double lenSqr = dx * dx + dy * dy + dz * dz;
+        double dx = to.x - from.x;
+        double dy = to.y - from.y;
+        double dz = to.z - from.z;
+        double lenSqr = dx * dx + dy * dy + dz * dz;
 
-            if (lenSqr < 1.0E-12) {
-                int minSx = SectionPos.posToSectionCoord(from.x - 2.0);
-                int maxSx = SectionPos.posToSectionCoord(from.x + 2.0);
-                int minSy = SectionPos.posToSectionCoord(from.y - 2.5);
-                int maxSy = SectionPos.posToSectionCoord(from.y + 1.0);
-                int minSz = SectionPos.posToSectionCoord(from.z - 2.0);
-                int maxSz = SectionPos.posToSectionCoord(from.z + 2.0);
+        if (lenSqr < 1.0E-12) {
+            int minSx = SectionPos.posToSectionCoord(from.x - 2.0);
+            int maxSx = SectionPos.posToSectionCoord(from.x + 2.0);
+            int minSy = SectionPos.posToSectionCoord(from.y - 2.5);
+            int maxSy = SectionPos.posToSectionCoord(from.y + 1.0);
+            int minSz = SectionPos.posToSectionCoord(from.z - 2.0);
+            int maxSz = SectionPos.posToSectionCoord(from.z + 2.0);
 
-                for (int ny = minSy; ny <= maxSy; ny++) {
-                    for (int nz = minSz; nz <= maxSz; nz++) {
-                        for (int nx = minSx; nx <= maxSx; nx++) {
-                            testSection(serverLevel, cache, storage, SectionPos.asLong(nx, ny, nz),
-                                    source, from, to, searchBox, filter, margin, state);
-                        }
+            for (int ny = minSy; ny <= maxSy; ny++) {
+                for (int nz = minSz; nz <= maxSz; nz++) {
+                    for (int nx = minSx; nx <= maxSx; nx++) {
+                        testSection(serverLevel, cache, storage, SectionPos.asLong(nx, ny, nz),
+                                source, from, to, searchBox, filter, margin, state);
                     }
                 }
-            } else {
-                traceSections3dDda(serverLevel, cache, storage, source, from, to, dx, dy, dz,
-                        Math.sqrt(lenSqr), searchBox, filter, margin, state);
             }
+        } else {
+            traceSections3dDda(serverLevel, cache, storage, source, from, to, dx, dy, dz,
+                    Math.sqrt(lenSqr), searchBox, filter, margin, state);
         }
 
         if (!serverLevel.dragonParts().isEmpty()) {
@@ -78,7 +74,7 @@ public final class PearlEntityRaycaster
     private static void traceSections3dDda(
             ServerLevel serverLevel,
             PearlEntitySectionCache cache,
-            EntitySectionStorage<?> storage,
+            EntitySectionStorage<Entity> storage,
             Entity source,
             Vec3 from,
             Vec3 to,
@@ -218,7 +214,7 @@ public final class PearlEntityRaycaster
     private static void testSection(
             ServerLevel serverLevel,
             PearlEntitySectionCache cache,
-            EntitySectionStorage<?> storage,
+            EntitySectionStorage<Entity> storage,
             long sectionKey,
             Entity source,
             Vec3 from,
@@ -231,13 +227,12 @@ public final class PearlEntityRaycaster
         if (cache.contains(sectionKey)) {
             cache.ensureTargetSectionLoaded(serverLevel, sectionKey);
         }
-        EntitySection<?> section = storage.getSection(sectionKey);
+        EntitySection<Entity> section = storage.getSection(sectionKey);
         if (section == null || section.isEmpty() || !section.getStatus().isAccessible()) {
             return;
         }
-        for (Entity candidate : ((OecSectionAccess) section).rof$entities()) {
-            state.testCandidate(candidate, source, from, to, searchBox, filter, margin);
-        }
+        section.getEntities().forEach(candidate ->
+                state.testCandidate(candidate, source, from, to, searchBox, filter, margin));
     }
 
     private static final class HitState

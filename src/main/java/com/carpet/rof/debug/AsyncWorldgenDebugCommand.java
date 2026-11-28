@@ -11,7 +11,7 @@ import net.minecraft.network.chat.Component;
 
 import java.util.Locale;
 
-// Development-environment diagnostics; intentionally absent from production command trees.
+// 开发环境诊断命令，生产环境的命令树中故意不注册。
 @ROFCommand
 public final class AsyncWorldgenDebugCommand {
     private AsyncWorldgenDebugCommand() { }

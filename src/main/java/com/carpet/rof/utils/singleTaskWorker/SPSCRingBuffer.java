@@ -16,10 +16,10 @@ public class SPSCRingBuffer<T extends ROFTask> {
         this.mask = capacity - 1;
     }
 
-    /**
+    /*
      * 生产者向队列尾部添加任务。
-     * @param item 待添加的任务，不能为 null
-     * @return true 如果添加成功，false 表示队列已满
+     * 参数 item：待添加的任务，不能为 null
+     * 返回值：true 如果添加成功，false 表示队列已满
      */
     public boolean offer(T item) {
         long pi = producerIndex.get();          // 当前生产位置
@@ -37,9 +37,9 @@ public class SPSCRingBuffer<T extends ROFTask> {
         return true;
     }
 
-    /**
+    /*
      * 消费者从队列头部取出任务。
-     * @return 任务对象，若队列为空则返回 null
+     * 返回值：任务对象，若队列为空则返回 null
      */
     @SuppressWarnings("unchecked")
     public T poll() {

@@ -10,8 +10,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-// 26.1 wraps every ActivityData creation; 1.21.11 has no ActivityData, so it hooks the
-// Brain activity registration methods that PiglinAi (and every other mob) uses instead.
+// 26.1 会包装每一次 ActivityData 创建；1.21.11 没有 ActivityData，因此改为钩住
+// PiglinAi（以及其他所有生物）使用的 Brain 活动注册方法。
 //? if >=26.1 {
 @Mixin(ActivityData.class)
 //?}else{
